@@ -27,7 +27,7 @@ from apps.projects.models import Project, ProjectApiKey
 from apps.projects.services import create_project_api_key
 from apps.telemetry import views as telemetry_views
 from apps.telemetry.protocol import OTLP_PROTOBUF_CONTENT_TYPE, OtlpSignal
-from apps.telemetry.sink import OtlpBatch
+from apps.telemetry.sink import OtlpBatch, TelemetrySinkUnavailable
 
 
 def _metric_request() -> ExportMetricsServiceRequest:
@@ -278,8 +278,13 @@ class TestOtlpHttpGateway:
 
         assert response.status_code == 415
 
-    def test_non_empty_payload_is_not_acknowledged_without_persistence(self) -> None:
+    def test_sink_unavailable_is_retryable_503(self, monkeypatch: pytest.MonkeyPatch) -> None:
         client, token, _project, _api_key = self._credential()
+
+        def unavailable(_batch: OtlpBatch) -> None:
+            raise TelemetrySinkUnavailable("ClickHouse unavailable")
+
+        monkeypatch.setattr(telemetry_views, "submit_otlp_batch", unavailable)
 
         response = self._post(
             client=client,

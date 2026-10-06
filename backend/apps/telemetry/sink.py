@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from typing import Any
 from uuid import UUID
 
+from .clickhouse_schema import get_clickhouse_client
+from .clickhouse_writer import normalize_otlp_batch
 from .protocol import OtlpSignal
 
 
@@ -19,5 +21,16 @@ class TelemetrySinkUnavailable(RuntimeError):
 
 
 def submit_otlp_batch(batch: OtlpBatch) -> None:
-    del batch
-    raise TelemetrySinkUnavailable("Telemetry persistence is not connected yet.")
+    table_name, column_names, rows = normalize_otlp_batch(batch)
+    if not rows:
+        return
+
+    client: Any | None = None
+    try:
+        client = get_clickhouse_client()
+        client.insert(table_name, rows, column_names=column_names)
+    except Exception as exc:
+        raise TelemetrySinkUnavailable("ClickHouse telemetry persistence failed.") from exc
+    finally:
+        if client is not None:
+            client.close()

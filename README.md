@@ -404,3 +404,42 @@ payloads for later normalization decisions.
 M2.4 does not change the M2.3 sink behavior: non-empty OTLP requests still return HTTP 503. M2.5 is
 responsible for translating decoded OTLP batches into these schemas and acknowledging only after a
 durable ClickHouse write succeeds.
+
+## V1 M2.5 end-to-end OTLP persistence
+
+M2.5 connects the authenticated OTLP gateway to the ClickHouse tables introduced in M2.4. Decoded
+OpenTelemetry requests are normalized into tenant-bound rows and inserted synchronously before an OTLP
+success response is returned.
+
+The persistence path is:
+
+```text
+OTLP/HTTP
+  -> project API-key authentication
+  -> official protobuf decode
+  -> signal-specific row normalization
+  -> ClickHouse insert
+  -> OTLP success response
+```
+
+Metric normalization emits one ClickHouse row per OpenTelemetry data point and preserves number,
+histogram, exponential-histogram, and summary shapes. Resource and instrumentation-scope attributes are
+copied into their schema maps, while `service.name` and deployment environment attributes populate the
+indexed service/environment columns. Logs preserve severity/body and trace correlation. Spans preserve
+trace lineage, status, timing, events, and links.
+
+ClickHouse failures remain retryable: the sink converts persistence failures into HTTP 503 instead of
+acknowledging telemetry that was not durably written. M2.5 tests also send a real span through the
+OpenTelemetry Python SDK plus OTLP/HTTP exporter and verify that it reaches the authenticated Sentrix
+endpoint and becomes a tenant-scoped ClickHouse row.
+
+M2.5 adds OpenTelemetry SDK/exporter packages to the backend development dependency group. Refresh the
+lockfile and rebuild the API image before running the release gate:
+
+```powershell
+cd backend
+uv lock
+cd ..
+docker compose build api
+docker compose up -d api
+```

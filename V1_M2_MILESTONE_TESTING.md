@@ -218,3 +218,62 @@ M2.4 introduces ClickHouse schema only. Django's migration check must still repo
 
 Commit and push the ClickHouse schema only after live schema application/validation and all repository
 quality gates pass. Only then may M2.5 wire OTLP normalization and durable writes.
+
+## 10. M2.5 — End-to-End OTLP to ClickHouse
+
+### Automated cases
+
+| ID | Scenario | Expected |
+| --- | --- | --- |
+| E2E-001 | metrics OTLP/HTTP request | HTTP 200 and tenant-scoped metric row |
+| E2E-002 | logs OTLP/HTTP request | HTTP 200 and tenant-scoped log row |
+| E2E-003 | traces OTLP/HTTP request | HTTP 200 and tenant-scoped span row |
+| E2E-004 | two independent project credentials | rows remain isolated by project ID |
+| E2E-005 | ClickHouse insert unavailable | HTTP 503 and no false acknowledgement |
+| E2E-006 | real OTel Python SDK + OTLP/HTTP exporter | exported span reaches ClickHouse |
+
+### Dependency refresh
+
+M2.5 adds SDK/exporter dependencies for the real interoperability test:
+
+```powershell
+cd backend
+uv lock
+cd ..
+docker compose build api
+docker compose up -d api
+```
+
+### Live schema prerequisite
+
+```powershell
+docker compose exec api /opt/venv/bin/python manage.py clickhouse_schema
+docker compose exec api /opt/venv/bin/python manage.py clickhouse_schema --check
+```
+
+### Release gate
+
+```powershell
+docker compose exec api /opt/venv/bin/python -m pytest
+docker compose exec api /opt/venv/bin/ruff check .
+docker compose exec api /opt/venv/bin/ruff format --check .
+docker compose exec api /opt/venv/bin/mypy .
+docker compose exec api /opt/venv/bin/python manage.py check
+docker compose exec api /opt/venv/bin/python manage.py makemigrations --check --dry-run
+docker compose exec api /opt/venv/bin/python manage.py clickhouse_schema --check
+docker compose exec web npm run lint
+docker compose exec web npm run typecheck
+docker compose exec web npm test -- --run
+docker compose exec web npm run build
+docker compose config --quiet
+git diff --check
+```
+
+The integration tests require the Compose ClickHouse service. They use unique project UUIDs rather
+than truncating shared tables, so repeated local runs remain safe.
+
+## 11. M2.5 stop condition
+
+Commit and push the durable OTLP-to-ClickHouse path only after all three signal integrations, tenant
+isolation, real OpenTelemetry exporter interoperability, schema validation, and repository quality
+gates pass. Only then may M2.6 API-key management UI work begin.

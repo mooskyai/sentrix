@@ -579,3 +579,49 @@ materialized views require measured ingestion/query behavior or an explicit prod
 Schema lifecycle is independent of Django migrations. `manage.py clickhouse_schema` applies idempotent
 `CREATE TABLE IF NOT EXISTS` statements; `manage.py clickhouse_schema --check` validates the live
 column/type layout plus partition and sorting keys.
+
+## 21. End-to-end telemetry persistence
+
+V1 M2.5 activates the durable write path while retaining the M2.3 protocol boundary and M2.4 physical
+schema unchanged:
+
+```text
+Collector / SDK
+      |
+      v
+/v1/metrics | /v1/logs | /v1/traces
+      |
+      v
+ProjectApiKeyPrincipal
+ organization_id / project_id
+      |
+      v
+Export*ServiceRequest protobuf
+      |
+      v
+signal normalizer
+      |
+      +--> sentrix_metrics
+      +--> sentrix_logs
+      `--> sentrix_spans
+      |
+      v
+successful ClickHouse insert
+      |
+      v
+OTLP Export*ServiceResponse
+```
+
+Tenant identity is never derived from OTLP resource attributes. Every persisted row receives
+`organization_id` and `project_id` from the authenticated project credential. Resource metadata only
+supplies telemetry dimensions such as service name, environment, and arbitrary attribute maps.
+
+Persistence is synchronous in M2.5 so the acknowledgement contract is unambiguous: a non-empty request
+returns success only after ClickHouse accepts all rows produced for that signal batch. Connection or
+insert failures are translated to retryable HTTP 503 responses. A later streaming architecture may
+replace this synchronous boundary only when it can preserve the same durable-acceptance semantics.
+
+Normalization remains separate from the HTTP view and from ClickHouse DDL. Metric rows retain their
+family-specific shapes; logs retain trace/span correlation; spans retain parentage, status, events,
+and links. OpenTelemetry integer nanosecond timestamps are converted to UTC `DateTime64` values for the
+current Python/ClickHouse client boundary; duration remains explicitly stored in nanoseconds.

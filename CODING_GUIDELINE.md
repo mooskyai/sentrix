@@ -441,3 +441,21 @@ M2.4 establishes the first durable telemetry schema. Required rules:
 - M2.4 may create/validate tables but must not acknowledge non-empty OTLP requests until M2.5 wires a
   durable write path;
 - schema validation must compare live columns/types and partition/sort keys before M2.4 is accepted.
+
+## 16. Telemetry persistence rules
+
+M2.5 activates ClickHouse writes. Required rules:
+
+- derive tenant identifiers only from `OtlpBatch` authentication context, never OTLP attributes;
+- normalize telemetry before opening the ClickHouse write transaction/client so malformed internal
+  transformations fail visibly rather than being disguised as infrastructure outages;
+- acknowledge a non-empty OTLP request only after the corresponding ClickHouse insert succeeds;
+- translate ClickHouse connection/insert failures into retryable sink-unavailable behavior;
+- write metrics one row per data point and preserve the family-specific fields defined by schema v1;
+- convert trace/span IDs to fixed-width lowercase hexadecimal strings before storage;
+- preserve resource, instrumentation-scope, and record attributes without promoting arbitrary
+  high-cardinality keys into dedicated columns;
+- keep the HTTP decoder, normalization layer, and ClickHouse DDL as separate modules;
+- tests for persistence must use unique tenant/project IDs and query using those tenant keys;
+- include at least one real OpenTelemetry SDK/exporter interoperability test rather than relying only
+  on hand-built protobuf fixtures.

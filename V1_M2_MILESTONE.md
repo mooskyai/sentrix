@@ -271,3 +271,58 @@ M2.4 is green only when:
 - rollups, projections, materialized views, and streaming infrastructure.
 
 M2.5 may begin only after M2.4 is green, committed, and pushed.
+
+## 17. M2.5 — End-to-End OTLP to ClickHouse
+
+M2.5 connects the M2.3 OTLP gateway to the M2.4 ClickHouse schema. The sink now normalizes each decoded
+signal batch and inserts tenant-scoped rows before returning the protocol success response.
+
+Persistence invariants:
+
+```text
+credential organization/project
+          |
+          v
+     OtlpBatch
+          |
+          v
+signal normalization
+          |
+          v
+ClickHouse insert
+          |
+          v
+OTLP success
+```
+
+The authenticated organization/project IDs are authoritative. OTLP resource attributes cannot switch
+tenants. Metrics produce one row per data point while retaining gauge/sum, histogram,
+exponential-histogram, and summary representations. Logs retain severity/body plus trace/span IDs.
+Spans retain timing, parentage, status, events, and links.
+
+## 18. M2.5 acceptance
+
+M2.5 is green only when:
+
+- valid metrics, logs, and traces sent to the public OTLP routes return HTTP 200 after real ClickHouse
+  inserts succeed;
+- persisted rows contain the organization/project IDs derived from the project API key;
+- two different tenants can ingest telemetry without row crossover when queried by project ID;
+- resource service/environment and attribute context is preserved;
+- metric family normalization respects the M2.4 schema instead of flattening all values;
+- ClickHouse connection or insert failure returns retryable HTTP 503 and does not produce false success;
+- at least one end-to-end test uses the OpenTelemetry Python SDK and OTLP/HTTP exporter against a live
+  Django test endpoint and verifies the ClickHouse row;
+- no telemetry Django model or PostgreSQL migration is introduced;
+- the dependency lock is refreshed after adding the test SDK/exporter packages;
+- backend/frontend/infrastructure quality gates remain green.
+
+## 19. Explicitly out of scope for M2.5
+
+- query APIs and telemetry explorers;
+- asynchronous streaming/queue ingestion;
+- retention TTL policy and rollups;
+- OTLP/JSON support;
+- API-key management UI.
+
+M2.6 may begin only after M2.5 is green, committed, and pushed.
