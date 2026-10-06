@@ -144,7 +144,7 @@ A recommended error body is:
 
 ### 3.7 Authentication and authorization
 
-V1 uses secure Django session authentication for the browser application.
+V1 M1 uses secure Django session authentication for the browser application.
 
 Rules:
 
@@ -153,6 +153,17 @@ Rules:
 - Login endpoints are rate-limited before public deployment.
 - Permission checks occur in API code even when the UI also hides actions.
 - Role checks must use named role/permission helpers rather than string comparisons scattered through views.
+
+V1 M2 machine credentials follow additional rules:
+
+- API keys are project-scoped control-plane records and resolve to exactly one project/organization.
+- Store only a public prefix and a one-way hash of the secret; never persist the full token.
+- Return the full token only from the create response; list responses never expose `secret_hash`.
+- Initial machine scope is `telemetry:write`; add scopes only for concrete capabilities.
+- Revocation is metadata-preserving through `revoked_at`, not hard deletion.
+- Optional expiry must be validated as a future timestamp.
+- `last_used_at` is updated only after successful machine authentication; M2.1 does not fabricate use.
+- Owner/admin/editor may manage project keys; viewers and foreign-tenant callers may not.
 
 ### 3.8 Logging
 
@@ -246,7 +257,7 @@ Secrets belong in environment/secret managers, never source control.
 
 ## 6. ClickHouse and telemetry rules
 
-V1 only establishes connectivity. Later telemetry implementation must follow these rules:
+V1 M1 only establishes connectivity. V1 M2 telemetry implementation must follow these rules:
 
 - Every row includes tenant identifiers required for enforcement and query pruning.
 - Ingestion validates tenant credentials before accepting data.

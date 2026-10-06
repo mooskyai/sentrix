@@ -68,6 +68,8 @@ SDKs / Agents -> OpenTelemetry Collector -> Ingestion Gateway -> Stream -> Worke
 ├── CODING_GUIDELINE.md
 ├── V1_MILESTONE.md
 ├── V1_MILESTONE_TESTING.md
+├── V1_M2_MILESTONE.md
+├── V1_M2_MILESTONE_TESTING.md
 ├── docker-compose.yml
 └── .env.example
 ```
@@ -158,6 +160,9 @@ GET    /api/v1/projects/
 POST   /api/v1/projects/
 GET    /api/v1/projects/{id}/
 PATCH  /api/v1/projects/{id}/
+GET    /api/v1/projects/{id}/api-keys/
+POST   /api/v1/projects/{id}/api-keys/
+DELETE /api/v1/projects/{id}/api-keys/{api_key_id}/
 ```
 
 ## Dependency locking
@@ -236,15 +241,21 @@ The complete rules are in [CODING_GUIDELINE.md](CODING_GUIDELINE.md). The non-ne
 
 ## Milestone documents
 
-- [V1_MILESTONE.md](V1_MILESTONE.md) defines the V1 implementation scope and acceptance criteria.
-- [V1_MILESTONE_TESTING.md](V1_MILESTONE_TESTING.md) defines the test matrix and release gate.
-- [ARCHITECTURE.md](ARCHITECTURE.md) defines system boundaries and the path from the V1 control plane to telemetry ingestion.
+- [V1_MILESTONE.md](V1_MILESTONE.md) defines the completed V1 M1 platform-foundation scope.
+- [V1_MILESTONE_TESTING.md](V1_MILESTONE_TESTING.md) defines the V1 M1 test matrix and release gate.
+- [V1_M2_MILESTONE.md](V1_M2_MILESTONE.md) defines the telemetry-ingestion milestone and its ordered parts.
+- [V1_M2_MILESTONE_TESTING.md](V1_M2_MILESTONE_TESTING.md) defines the M2 per-part acceptance gates.
+- [ARCHITECTURE.md](ARCHITECTURE.md) defines system boundaries from the control plane through telemetry ingestion.
 
-## V1 definition of done
+## V1 M1 definition of done
 
-V1 is complete when a user can authenticate, create an organization, create a project, and access only resources permitted by their membership and role; the React application can operate against those APIs; PostgreSQL, Redis, and ClickHouse health are observable; and all documented backend/frontend quality gates pass.
+V1 M1 is complete when a user can authenticate, create an organization, create a project, and access only resources permitted by their membership and role; the React application can operate against those APIs; PostgreSQL, Redis, and ClickHouse health are observable; and all documented backend/frontend quality gates pass.
 
-Metrics, logs, traces, OpenTelemetry ingestion, dashboards, alert evaluation, and incident workflows are deliberately reserved for later milestones after the control-plane boundaries are proven.
+V1 M2 starts the real telemetry path. Part M2.1 adds project-scoped API keys only; machine authentication, OTLP ingestion, and ClickHouse telemetry persistence remain blocked until M2.1 is green, committed, and pushed.
+
+### V1 M2.1 project API keys
+
+Project API keys are control-plane credentials for future telemetry ingestion. Owner/admin/editor roles may create, list, and revoke keys for member projects; viewers cannot manage them. Raw secrets are returned exactly once at creation, only a one-way hash is persisted, and revocation preserves metadata by setting `revoked_at`.
 
 ## Project workspace flow
 

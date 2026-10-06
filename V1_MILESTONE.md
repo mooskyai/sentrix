@@ -1,4 +1,4 @@
-# Sentrix V1 Milestone — Platform Foundation
+# Sentrix V1 M1 — Platform Foundation
 
 ## 1. Goal
 

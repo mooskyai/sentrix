@@ -1,4 +1,4 @@
-# Sentrix V1 Milestone Testing
+# Sentrix V1 M1 — Platform Foundation Testing
 
 ## 1. Purpose
 

@@ -1,12 +1,14 @@
+from datetime import datetime
 from typing import Any
 
 from django.contrib.auth.models import User
+from django.utils import timezone
 from rest_framework import serializers
 
 from apps.organizations.models import Organization, OrganizationMembership
 from apps.organizations.selectors import WRITE_ROLES
 
-from .models import Project
+from .models import Project, ProjectApiKey
 
 
 class ProjectSerializer(serializers.ModelSerializer[Project]):
@@ -55,3 +57,33 @@ class ProjectSerializer(serializers.ModelSerializer[Project]):
                 {"organization_id": "Moving a project between organizations is not supported."}
             )
         return attrs
+
+
+class ProjectApiKeySerializer(serializers.ModelSerializer[ProjectApiKey]):
+    project_id = serializers.UUIDField(read_only=True)
+
+    class Meta:
+        model = ProjectApiKey
+        fields = (
+            "id",
+            "project_id",
+            "name",
+            "prefix",
+            "scopes",
+            "created_by",
+            "expires_at",
+            "last_used_at",
+            "revoked_at",
+            "created_at",
+        )
+        read_only_fields = fields
+
+
+class ProjectApiKeyCreateSerializer(serializers.Serializer[Any]):
+    name = serializers.CharField(max_length=160)
+    expires_at = serializers.DateTimeField(required=False, allow_null=True)
+
+    def validate_expires_at(self, value: datetime | None) -> datetime | None:
+        if value is not None and value <= timezone.now():
+            raise serializers.ValidationError("Expiry must be in the future.")
+        return value

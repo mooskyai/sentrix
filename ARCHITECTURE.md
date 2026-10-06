@@ -371,33 +371,39 @@ Database
 
 Never reverse this by loading an arbitrary tenant object first and deciding later whether the user may see it.
 
-## 16. Production evolution
+## 16. Version 1 milestone evolution
 
-### V1
+### V1 M1
 
 Control-plane foundation.
 
-### V2
+### V1 M2
 
 OpenTelemetry ingestion gateway, machine API keys, ClickHouse telemetry schemas, ingestion metering.
 
-### V3
+### V1 M3
 
 Metrics explorer and first dashboard panels.
 
-### V4
+### V1 M4
 
 Logs and trace correlation.
 
-### V5
+### Later
 
 Alert evaluation and notification dispatch.
-
-### V6+
 
 Service catalog, Kubernetes/infrastructure views, incidents, integrations, usage-based plans, SSO, advanced analytics.
 
 This sequence preserves a stable tenancy/security core while adding independently scalable telemetry capabilities.
+
+V1 M2 is delivered in ordered parts. M2.1 introduces project-scoped API-key lifecycle only. Each
+credential belongs to one project and therefore one organization. The full raw secret is shown only
+when the key is created; PostgreSQL stores the public prefix, one-way secret hash, scope metadata,
+optional expiry, last-use metadata, and revocation state.
+
+The initial scope is deliberately narrow: `telemetry:write`. Browser sessions continue to protect
+control-plane APIs. Machine credentials are not accepted as a global replacement for session auth.
 
 ## 17. Project workspace routing
 
