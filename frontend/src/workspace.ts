@@ -7,6 +7,7 @@ export const WORKSPACE_SECTIONS = [
   "traces",
   "dashboards",
   "alerts",
+  "settings",
 ] as const;
 
 export type WorkspaceSection = (typeof WORKSPACE_SECTIONS)[number];

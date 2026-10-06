@@ -266,9 +266,9 @@ The control-plane UI now has a canonical tenant-aware project workspace route:
 /orgs/:organizationSlug/projects/:projectSlug/:section
 ```
 
-Supported workspace sections are `overview`, `metrics`, `logs`, `traces`, `dashboards`, and
-`alerts`. Only the overview contains control-plane project context in V1; the remaining routes are
-intentional placeholders for later data-plane milestones and do not fabricate telemetry.
+Supported workspace sections are `overview`, `metrics`, `logs`, `traces`, `dashboards`, `alerts`, and
+`settings`. Overview and settings contain real control-plane state; telemetry sections remain honest
+placeholders for tenant-safe query/explorer work and never fabricate telemetry.
 
 Workspace behavior:
 
@@ -443,3 +443,25 @@ cd ..
 docker compose build api
 docker compose up -d api
 ```
+
+## V1 M2.6 project API-key management UI
+
+Project workspace settings expose the existing project credential control plane at:
+
+```text
+/orgs/:organizationSlug/projects/:projectSlug/settings
+```
+
+Owners, admins, and editors can list safe API-key metadata, create a telemetry credential with an
+optional expiry, copy the raw secret from the one-time creation result, and revoke existing keys.
+Viewers see a read-only access message and the browser does not issue API-key management requests for
+that project.
+
+The raw credential is deliberately kept out of TanStack Query server-state caches, browser storage,
+URLs, and logs. It lives only in transient component state after creation and is cleared when the
+message is dismissed or when project context changes. Subsequent list responses show only the public
+prefix, scopes, expiry, last-used time, revocation state, and other safe metadata.
+
+The settings UI uses the same project UUID already resolved through the authenticated tenant-scoped
+workspace. Browser role checks improve UX only; Django remains authoritative for list/create/revoke
+authorization.

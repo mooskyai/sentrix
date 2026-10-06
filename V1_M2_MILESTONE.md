@@ -326,3 +326,47 @@ M2.5 is green only when:
 - API-key management UI.
 
 M2.6 may begin only after M2.5 is green, committed, and pushed.
+
+## 20. M2.6 — API Key Management UI
+
+M2.6 exposes the existing project API-key control plane through project settings. The browser route is:
+
+```text
+/orgs/:organizationSlug/projects/:projectSlug/settings
+```
+
+Owners, admins, and editors can list project credentials, create a credential with an optional expiry,
+copy the one-time raw secret, inspect scope/expiry/last-used/revocation metadata, and revoke a key.
+Viewers remain read-only and do not request API-key metadata because backend management endpoints are
+restricted to project write roles.
+
+Secret handling remains stricter than ordinary server state. The create response is handled directly
+instead of being stored in TanStack Query mutation/query cache data. The raw credential exists only in
+transient component state until dismissed or project context changes.
+
+## 21. M2.6 acceptance
+
+M2.6 is green only when:
+
+- project navigation exposes a customer-facing Settings route without internal milestone labels;
+- owner/admin/editor workspaces list safe key metadata through the project-scoped endpoint;
+- viewer workspaces show read-only guidance without issuing the management list request;
+- authorized users can create a named key with optional future expiry;
+- the create response reveals the raw credential once with copy/dismiss affordances;
+- raw secrets are not inserted into TanStack Query server-state caches or browser persistence;
+- switching project context clears any one-time secret state;
+- scope, expiry, last-used, active/expired/revoked status, and prefix metadata are readable;
+- non-revoked keys can be revoked after explicit confirmation and the current project's key list is
+  refreshed;
+- frontend lint, typecheck, tests, and build pass together with backend regression gates;
+- documentation reflects the settings route, RBAC behavior, and one-time-secret boundary.
+
+## 22. Explicitly out of scope for M2.6
+
+- editing API-key scopes or names after creation;
+- secret recovery or redisplay after the one-time create response;
+- automatic credential rotation;
+- telemetry query APIs or explorer implementation;
+- retention/billing UI and operational deployment verification.
+
+M2.7 may begin only after M2.6 is green, committed, and pushed.

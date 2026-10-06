@@ -277,3 +277,54 @@ than truncating shared tables, so repeated local runs remain safe.
 Commit and push the durable OTLP-to-ClickHouse path only after all three signal integrations, tenant
 isolation, real OpenTelemetry exporter interoperability, schema validation, and repository quality
 gates pass. Only then may M2.6 API-key management UI work begin.
+
+## 12. M2.6 — API Key Management UI
+
+### Automated cases
+
+| ID | Scenario | Expected |
+| --- | --- | --- |
+| UIKEY-001 | project workspace navigation | Settings resolves to the current tenant/project route |
+| UIKEY-002 | viewer opens Settings | read-only guidance, no API-key list request |
+| UIKEY-003 | authorized key list | prefix/scope/status metadata rendered, no raw secret |
+| UIKEY-004 | create key | name + optional expiry sent to current project endpoint |
+| UIKEY-005 | create response | raw secret displayed in one-time transient state |
+| UIKEY-006 | project context changes | one-time secret state is discarded |
+| UIKEY-007 | revoke key | explicit confirmation, DELETE request, current project query refreshed |
+| UIKEY-008 | customer-facing copy | no V1/M2/patch identifiers shown in the UI |
+
+### Frontend release gate
+
+```powershell
+docker compose exec web npm run lint
+docker compose exec web npm run typecheck
+docker compose exec web npm test -- --run
+docker compose exec web npm run build
+```
+
+The pre-M2.6 frontend baseline has six tests. M2.6 adds three credential-management component cases,
+so approximately nine tests are expected. Exact count is informational; zero failures and the secret
+handling/RBAC assertions are mandatory.
+
+### Backend and infrastructure regression gate
+
+```powershell
+docker compose exec api /opt/venv/bin/python -m pytest
+docker compose exec api /opt/venv/bin/ruff check .
+docker compose exec api /opt/venv/bin/ruff format --check .
+docker compose exec api /opt/venv/bin/mypy .
+docker compose exec api /opt/venv/bin/python manage.py check
+docker compose exec api /opt/venv/bin/python manage.py makemigrations --check --dry-run
+docker compose exec api /opt/venv/bin/python manage.py clickhouse_schema --check
+docker compose config --quiet
+git diff --check
+```
+
+M2.6 introduces no backend schema change and no new package dependency. The existing backend regression
+suite must remain green.
+
+## 13. M2.6 stop condition
+
+Commit and push the project API-key management UI only after role-aware behavior, one-time secret
+handling, frontend quality gates, backend regressions, schema validation, and documentation all pass.
+Only then may M2.7 operational verification and final M2 documentation work begin.

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { getOrganizations, getProjects } from "../api/resources";
+import { ProjectApiKeysPanel } from "../components/ProjectApiKeysPanel";
 import {
   canWriteProjects,
   isWorkspaceSection,
@@ -18,15 +19,15 @@ const SECTION_COPY: Record<WorkspaceSection, { title: string; description: strin
   },
   metrics: {
     title: "Metrics",
-    description: "Metric ingestion and exploration arrive with the telemetry data-plane milestone.",
+    description: "Metric ingestion is active; tenant-safe query and exploration UI comes next.",
   },
   logs: {
     title: "Logs",
-    description: "Log ingestion and search arrive with the telemetry data-plane milestone.",
+    description: "Log ingestion is active; search and filtering UI follows the query boundary.",
   },
   traces: {
     title: "Traces",
-    description: "Trace ingestion and service correlation arrive with the telemetry data-plane milestone.",
+    description: "Trace ingestion is active; trace exploration and service correlation come next.",
   },
   dashboards: {
     title: "Dashboards",
@@ -35,6 +36,10 @@ const SECTION_COPY: Record<WorkspaceSection, { title: string; description: strin
   alerts: {
     title: "Alerts",
     description: "Alert evaluation follows queryable telemetry and notification infrastructure.",
+  },
+  settings: {
+    title: "Project settings",
+    description: "Manage credentials used by collectors and telemetry exporters for this project.",
   },
 };
 
@@ -182,13 +187,19 @@ export function ProjectWorkspacePage() {
               <small>Authorization remains enforced by Django.</small>
             </div>
           </div>
+        ) : activeSection === "settings" ? (
+          <ProjectApiKeysPanel
+            key={`${workspace.project.id}:${writable ? "manage" : "read"}`}
+            projectId={workspace.project.id}
+            canManage={writable}
+          />
         ) : (
           <div className="empty-feature">
-            <strong>Workspace route ready.</strong>
+            <strong>Explorer UI is not connected yet.</strong>
             <p className="muted">{copy.description}</p>
             <p className="muted">
-              This page intentionally contains no synthetic telemetry. The next data-plane milestone will
-              connect real signals here.
+              This page intentionally contains no synthetic telemetry. Real data will appear only after
+              tenant-safe query APIs and explorer behavior are implemented.
             </p>
           </div>
         )}

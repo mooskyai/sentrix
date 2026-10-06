@@ -1,5 +1,11 @@
 import { api, ensureCsrf } from "./client";
-import type { Organization, Project, User } from "../types";
+import type {
+  Organization,
+  Project,
+  ProjectApiKey,
+  ProjectApiKeyCreateResult,
+  User,
+} from "../types";
 
 export async function login(username: string, password: string): Promise<User> {
   await ensureCsrf();
@@ -41,4 +47,25 @@ export function createProject(input: {
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function getProjectApiKeys(projectId: string): Promise<ProjectApiKey[]> {
+  return api<ProjectApiKey[]>(`/projects/${encodeURIComponent(projectId)}/api-keys/`);
+}
+
+export function createProjectApiKey(
+  projectId: string,
+  input: { name: string; expires_at: string | null },
+): Promise<ProjectApiKeyCreateResult> {
+  return api<ProjectApiKeyCreateResult>(`/projects/${encodeURIComponent(projectId)}/api-keys/`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function revokeProjectApiKey(projectId: string, apiKeyId: string): Promise<void> {
+  return api<void>(
+    `/projects/${encodeURIComponent(projectId)}/api-keys/${encodeURIComponent(apiKeyId)}/`,
+    { method: "DELETE" },
+  );
 }

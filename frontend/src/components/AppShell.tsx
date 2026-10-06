@@ -16,6 +16,7 @@ const SECTION_LABELS = {
   traces: "Traces",
   dashboards: "Dashboards",
   alerts: "Alerts",
+  settings: "Settings",
 } as const;
 
 export function AppShell({ user, onLogout, children }: AppShellProps) {
@@ -55,6 +56,7 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
               <span className="nav-item disabled">Traces</span>
               <span className="nav-item disabled">Dashboards</span>
               <span className="nav-item disabled">Alerts</span>
+              <span className="nav-item disabled">Settings</span>
             </>
           )}
         </nav>

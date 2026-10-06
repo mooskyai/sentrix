@@ -433,10 +433,9 @@ Render project workspace or unavailable state
 Direct object reads and mutations still go through Django's membership-scoped project queryset. A
 foreign UUID therefore remains inaccessible even if a caller knows it exactly.
 
-The workspace navigation exposes `overview`, `metrics`, `logs`, `traces`, `dashboards`, and `alerts`.
-In V1, only the overview owns real control-plane state. The other sections establish stable URLs and
-navigation slots for future telemetry capabilities without introducing fake data or crossing the
-control-plane/data-plane boundary.
+The workspace navigation exposes `overview`, `metrics`, `logs`, `traces`, `dashboards`, `alerts`, and
+`settings`. Overview and settings own real control-plane state. Telemetry sections keep stable routes
+without inventing synthetic data while tenant-safe query APIs and explorers are still pending.
 
 Organization/project switchers are also tenant-scoped. Changing organization selects only a project
 already present in the authenticated user's project collection. If the selected organization has no
@@ -625,3 +624,34 @@ Normalization remains separate from the HTTP view and from ClickHouse DDL. Metri
 family-specific shapes; logs retain trace/span correlation; spans retain parentage, status, events,
 and links. OpenTelemetry integer nanosecond timestamps are converted to UTC `DateTime64` values for the
 current Python/ClickHouse client boundary; duration remains explicitly stored in nanoseconds.
+
+## 22. Project credential management UI
+
+V1 M2.6 exposes project API-key lifecycle through the browser without weakening the separation between
+session-authenticated control-plane actions and machine-authenticated telemetry ingestion:
+
+```text
+Project workspace /settings
+        |
+        | Django session + CSRF
+        v
+/api/v1/projects/{project_id}/api-keys/
+        |
+        +--> list safe metadata
+        +--> create -> raw secret returned once
+        `--> revoke
+```
+
+The settings route resolves organization/project slugs only inside the already tenant-scoped browser
+workspace, then uses the immutable project UUID for control-plane requests. Backend membership/RBAC
+checks remain authoritative. Viewer workspaces do not fetch project API-key metadata because the
+control-plane endpoint intentionally requires project write authority.
+
+The one-time create secret is a special client-side boundary. It must not enter TanStack Query caches,
+local/session storage, URLs, analytics, or logs. The create request is therefore handled directly and
+the raw credential is kept only in transient component state. Project changes remount the credential
+panel so any undisclosed secret is dropped with the previous project context.
+
+List state remains tenant-safe through a query key that includes the project UUID. Revoke and create
+operations invalidate only that project's API-key query. The UI may show expiry, last-used, revocation,
+scope, and prefix metadata because those values are already part of the safe control-plane response.

@@ -459,3 +459,23 @@ M2.5 activates ClickHouse writes. Required rules:
 - tests for persistence must use unique tenant/project IDs and query using those tenant keys;
 - include at least one real OpenTelemetry SDK/exporter interoperability test rather than relying only
   on hand-built protobuf fixtures.
+
+## 17. Project API-key UI rules
+
+M2.6 exposes sensitive credential lifecycle through the first-party browser. Required rules:
+
+- API-key list queries must include the immutable project UUID in the TanStack Query key;
+- viewer workspaces must not issue API-key management requests merely to discover that the backend
+  will reject them;
+- create/list/revoke authorization remains a backend responsibility even when controls are hidden or
+  disabled in the browser;
+- never place a newly created raw API-key secret in TanStack Query cache data, browser storage, URLs,
+  analytics, or logs;
+- keep the one-time secret only in transient component state and clear it when dismissed or when
+  project context changes;
+- list views may display only safe metadata returned by the list endpoint: prefix, scopes, expiry,
+  last-used/revocation state, and creation metadata;
+- destructive revocation requires an explicit user confirmation and must refresh only the current
+  project's credential state;
+- client expiry validation improves feedback, but server validation remains authoritative;
+- customer-facing credential screens must never expose internal milestone or patch identifiers.

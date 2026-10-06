@@ -35,6 +35,10 @@ describe("AppShell", () => {
       "href",
       "/orgs/acme/projects/api/metrics",
     );
+    expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute(
+      "href",
+      "/orgs/acme/projects/api/settings",
+    );
     expect(screen.getByRole("link", { name: "Logs" })).toHaveClass("active");
   });
 });

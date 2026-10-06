@@ -49,6 +49,9 @@ describe("workspace helpers", () => {
     expect(workspacePath("org-a", "project-a", "logs")).toBe(
       "/orgs/org-a/projects/project-a/logs",
     );
+    expect(workspacePath("org-a", "project-a", "settings")).toBe(
+      "/orgs/org-a/projects/project-a/settings",
+    );
   });
 
   it("resolves only a project that belongs to the requested visible organization", () => {
