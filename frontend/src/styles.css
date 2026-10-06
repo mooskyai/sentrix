@@ -1,83 +1,406 @@
+@import "tailwindcss";
+
+@import "./theme.css";
+
 :root {
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #e8edf5;
-  background: #0c111b;
+  color-scheme: dark;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-canvas);
   font-synthesis: none;
 }
 
-* { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; min-height: 100vh; background: #0c111b; }
-button, input { font: inherit; }
-button { cursor: pointer; }
+@layer base {
+  * {
+    @apply box-border;
+  }
 
-.app-shell { min-height: 100vh; display: grid; grid-template-columns: 230px 1fr; }
-.sidebar { padding: 24px 16px; background: #111827; border-right: 1px solid #263244; }
-.brand { font-weight: 800; font-size: 22px; letter-spacing: -.02em; margin: 0 8px 28px; color: #f8fbff; }
-.sidebar nav { display: grid; gap: 6px; }
-.nav-item { display: block; color: #c7d2e2; text-decoration: none; padding: 9px 10px; border-radius: 8px; }
-.nav-item.active { background: #1d2a3d; color: white; }
-.nav-item.disabled { opacity: .42; cursor: default; }
-.main { min-width: 0; }
-.topbar { min-height: 64px; padding: 12px 24px; border-bottom: 1px solid #263244; display: flex; align-items: center; justify-content: space-between; }
-.content { padding: 28px; }
-.page-heading { display: flex; justify-content: space-between; margin-bottom: 20px; }
-h1, h2, p { margin-top: 0; }
-h1 { font-size: 28px; margin-bottom: 8px; }
-h2 { font-size: 18px; }
-.eyebrow { color: #73b7ff; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; font-weight: 800; }
-.muted { color: #8fa0b6; }
-.grid.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-.panel { background: #121a27; border: 1px solid #263244; border-radius: 12px; padding: 18px; }
-.stack { display: grid; gap: 10px; }
-input { width: 100%; color: #edf3fb; background: #0d1420; border: 1px solid #344258; border-radius: 8px; padding: 10px 12px; outline: none; }
-input:focus { border-color: #68adf5; box-shadow: 0 0 0 3px rgba(104, 173, 245, .12); }
-.button { color: #06111f; background: #79bfff; border: 0; border-radius: 8px; padding: 9px 13px; font-weight: 700; }
-.button:disabled { opacity: .5; cursor: not-allowed; }
-.button.secondary { color: #dbe7f6; background: #1a2637; border: 1px solid #344258; }
-.list { display: grid; gap: 8px; margin-top: 18px; }
-.list-item { width: 100%; background: #0f1723; color: #e7edf5; border: 1px solid #263244; border-radius: 8px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; text-align: left; }
-.list-item.selected { border-color: #68adf5; }
-.list-item small { color: #8fa0b6; }
-.error { color: #ffb1b1; background: #321b22; border: 1px solid #64313e; padding: 9px 10px; border-radius: 8px; }
-.center-state, .login-layout { min-height: 100vh; display: grid; place-items: center; }
-.login-card { width: min(420px, calc(100vw - 32px)); padding: 26px; border-radius: 14px; background: #121a27; border: 1px solid #263244; }
-.login-brand { margin-bottom: 18px; padding: 8px 10px; background: #ffffff; border-radius: 10px; }
-.login-brand img { display: block; width: min(240px, 100%); height: auto; }
-.login-card form { display: grid; gap: 14px; }
-.login-card label { display: grid; gap: 6px; color: #c8d4e4; }
+  html {
+    @apply bg-canvas text-ink;
+  }
 
-@media (max-width: 850px) {
-  .app-shell { grid-template-columns: 1fr; }
-  .sidebar { display: none; }
-  .grid.two { grid-template-columns: 1fr; }
-  .content { padding: 18px; }
+  body {
+    @apply m-0 min-h-screen min-w-80 bg-canvas text-ink antialiased;
+    background-image:
+      radial-gradient(circle at 14% 0%, rgb(139 132 216 / 0.05), transparent 28rem),
+      radial-gradient(circle at 88% 8%, rgb(74 177 170 / 0.04), transparent 26rem);
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+
+  button,
+  select {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  h1,
+  h2,
+  p {
+    @apply mt-0;
+  }
+
+  h1 {
+    @apply mb-1.5 font-bold text-ink;
+    font-size: 1.625rem;
+    letter-spacing: -0.025em;
+  }
+
+  h2 {
+    @apply mb-3 text-base font-semibold text-ink;
+    letter-spacing: -0.01em;
+  }
 }
 
-.brand { display: block; text-decoration: none; }
-.notice { color: #cbd7e7; background: #142033; border: 1px solid #344258; border-radius: 8px; padding: 10px 12px; }
-.workspace-link { text-decoration: none; }
-.workspace-link:hover { border-color: #68adf5; background: #142033; }
-.list-meta { display: flex; align-items: center; gap: 10px; }
-.inline-button { display: inline-block; text-decoration: none; }
-.narrow-panel { max-width: 720px; }
-.workspace-heading { gap: 18px; align-items: flex-start; }
-.role-badge { border-radius: 999px; padding: 7px 10px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
-.role-badge.write { color: #bce8d5; background: #123127; border: 1px solid #235a46; }
-.role-badge.read-only { color: #ffe0a6; background: #332815; border: 1px solid #66502a; }
-.workspace-toolbar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
-.workspace-toolbar label { display: grid; gap: 6px; color: #c8d4e4; }
-select { width: 100%; color: #edf3fb; background: #0d1420; border: 1px solid #344258; border-radius: 8px; padding: 10px 12px; outline: none; }
-select:focus { border-color: #68adf5; box-shadow: 0 0 0 3px rgba(104, 173, 245, .12); }
-.workspace-section { min-height: 280px; }
-.workspace-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.workspace-card { min-width: 0; display: grid; gap: 6px; background: #0f1723; border: 1px solid #263244; border-radius: 10px; padding: 14px; }
-.workspace-card strong { overflow-wrap: anywhere; }
-.workspace-card small { color: #8fa0b6; }
-.mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 13px; }
-.empty-feature { max-width: 720px; padding: 22px 0; }
+@layer components {
+  .app-shell {
+    @apply grid min-h-screen;
+    grid-template-columns: 208px minmax(0, 1fr);
+  }
+
+  .sidebar {
+    @apply sticky top-0 h-screen border-r border-line px-3 py-4 backdrop-blur-xl;
+    background:
+      linear-gradient(180deg, rgb(18 30 45 / 0.98), rgb(11 19 32 / 0.99)),
+      var(--color-panel);
+  }
+
+  .brand {
+    @apply mb-4 flex items-center gap-2 rounded-control px-2 py-1.5 text-lg font-extrabold text-ink no-underline;
+    letter-spacing: -0.03em;
+  }
+
+  .brand::before {
+    content: "";
+    @apply block size-2.5 rounded-full;
+    background: linear-gradient(135deg, var(--color-signal), var(--color-violet));
+    box-shadow: 0 0 14px rgb(74 177 170 / 0.22);
+  }
+
+  .sidebar nav {
+    @apply grid gap-1;
+  }
+
+  .nav-item {
+    @apply block rounded-control border border-transparent px-2.5 py-2 font-medium text-ink-soft no-underline transition;
+    font-size: 0.8125rem;
+  }
+
+  .nav-item:hover:not(.disabled) {
+    @apply border-line bg-panel-raised text-ink;
+  }
+
+  .nav-item.active {
+    @apply border-line-strong bg-panel-hover text-ink;
+    box-shadow: inset 3px 0 0 var(--color-signal);
+  }
+
+  .nav-item.disabled {
+    @apply cursor-default text-ink-disabled;
+  }
+
+  .main {
+    @apply min-w-0;
+  }
+
+  .topbar {
+    @apply flex items-center justify-between border-b border-line px-5 py-2;
+    min-height: 52px;
+    background: rgb(11 19 32 / 0.84);
+    backdrop-filter: blur(18px);
+  }
+
+  .topbar strong {
+    @apply text-sm font-semibold text-ink;
+  }
+
+  .content {
+    @apply px-5 py-4 lg:px-6 lg:py-5;
+  }
+
+  .page-heading {
+    @apply mb-4 flex items-start justify-between gap-4;
+  }
+
+  .page-heading .muted {
+    @apply max-w-3xl;
+  }
+
+  .eyebrow {
+    @apply mb-1.5 font-bold uppercase text-signal;
+    font-size: 0.6875rem;
+    letter-spacing: 0.13em;
+  }
+
+  .muted {
+    @apply leading-5 text-ink-muted;
+    font-size: 0.8125rem;
+  }
+
+  .grid.two {
+    @apply grid grid-cols-2 gap-3.5;
+  }
+
+  .panel {
+    @apply rounded-panel border border-line bg-panel p-4 shadow-panel;
+  }
+
+  .panel:hover {
+    border-color: color-mix(in oklab, var(--color-line-strong) 72%, var(--color-line));
+  }
+
+  .stack {
+    @apply grid gap-2;
+  }
+
+  input,
+  select {
+    @apply h-9 w-full rounded-control border border-line bg-canvas-soft px-2.5 text-ink outline-none transition;
+    font-size: 0.8125rem;
+  }
+
+  input::placeholder {
+    @apply text-ink-muted;
+  }
+
+  input:hover,
+  select:hover {
+    @apply border-line-strong;
+  }
+
+  input:focus,
+  select:focus {
+    @apply border-signal;
+    box-shadow: var(--shadow-focus);
+  }
+
+  .button {
+    @apply inline-flex min-h-9 items-center justify-center rounded-control border border-transparent px-3 py-1.5 font-bold text-on-accent no-underline transition;
+    font-size: 0.8125rem;
+    background: var(--color-signal-strong);
+    box-shadow: 0 7px 20px -14px rgb(35 112 108 / 0.55);
+  }
+
+  .button:hover:not(:disabled) {
+    filter: brightness(1.04);
+    transform: translateY(-1px);
+  }
+
+  .button:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .button:focus-visible {
+    @apply outline-none;
+    box-shadow: var(--shadow-focus);
+  }
+
+  .button:disabled {
+    opacity: 0.65;
+  }
+
+  .button.secondary {
+    @apply border-line text-ink-soft shadow-none;
+    background: var(--color-panel-raised);
+  }
+
+  .button.secondary:hover:not(:disabled) {
+    @apply border-line-strong text-ink;
+    background: var(--color-panel-hover);
+  }
+
+  .list {
+    @apply mt-3.5 grid gap-1.5;
+  }
+
+  .list-item {
+    @apply flex min-h-10 w-full items-center justify-between rounded-control border border-line bg-canvas-soft px-2.5 py-2 text-left text-ink transition;
+    font-size: 0.8125rem;
+  }
+
+  .list-item:hover {
+    @apply border-line-strong bg-panel-raised;
+  }
+
+  .list-item.selected {
+    @apply border-line-strong bg-panel-raised;
+    box-shadow: inset 3px 0 0 var(--color-signal);
+  }
+
+  .list-item small {
+    @apply text-ink-muted;
+    font-size: 0.6875rem;
+  }
+
+  .error {
+    @apply rounded-control border px-2.5 py-2 text-danger;
+    font-size: 0.8125rem;
+    border-color: rgb(223 125 136 / 0.32);
+    background: rgb(223 125 136 / 0.07);
+  }
+
+  .notice {
+    @apply rounded-control border border-line px-2.5 py-2 text-ink-soft;
+    font-size: 0.8125rem;
+    background: linear-gradient(90deg, rgb(139 132 216 / 0.05), rgb(74 177 170 / 0.03));
+  }
+
+  .center-state,
+  .login-layout {
+    @apply grid min-h-screen place-items-center;
+  }
+
+  .center-state {
+    @apply text-sm text-ink-muted;
+  }
+
+  .login-layout {
+    @apply px-4;
+    background:
+      radial-gradient(circle at 32% 20%, rgb(139 132 216 / 0.08), transparent 28rem),
+      radial-gradient(circle at 72% 62%, rgb(74 177 170 / 0.06), transparent 26rem);
+  }
+
+  .login-card {
+    @apply w-full rounded-panel border border-line bg-panel p-5 shadow-panel;
+    max-width: 390px;
+  }
+
+  .login-brand {
+    @apply mb-4 rounded-control bg-white px-2.5 py-2;
+  }
+
+  .login-brand img {
+    @apply block h-auto w-full;
+    max-width: 210px;
+  }
+
+  .login-card form {
+    @apply grid gap-2.5;
+  }
+
+  .login-card label,
+  .workspace-toolbar label {
+    @apply grid gap-1.5 font-semibold text-ink-soft;
+    font-size: 0.75rem;
+  }
+
+  .workspace-link {
+    @apply no-underline;
+  }
+
+  .list-meta {
+    @apply flex items-center gap-2;
+  }
+
+  .list-meta > span:last-child {
+    @apply text-signal;
+  }
+
+  .inline-button {
+    @apply inline-flex;
+  }
+
+  .narrow-panel {
+    max-width: 720px;
+  }
+
+  .workspace-heading {
+    @apply items-start;
+  }
+
+  .role-badge {
+    @apply rounded-full border px-2.5 py-1 font-extrabold uppercase;
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+  }
+
+  .role-badge.write {
+    @apply border-success text-success;
+    background: rgb(103 184 148 / 0.08);
+  }
+
+  .role-badge.read-only {
+    @apply border-amber text-amber;
+    background: rgb(213 168 94 / 0.08);
+  }
+
+  .workspace-toolbar {
+    @apply mb-3.5 grid grid-cols-2 gap-3 p-3.5;
+  }
+
+  .workspace-section {
+    min-height: 260px;
+  }
+
+  .workspace-grid {
+    @apply grid grid-cols-2 gap-2.5;
+  }
+
+  .workspace-card {
+    @apply grid min-w-0 gap-1 rounded-control border border-line bg-canvas-soft p-3;
+  }
+
+  .workspace-card:hover {
+    @apply border-line-strong bg-panel-raised;
+  }
+
+  .workspace-card strong {
+    @apply text-sm text-ink;
+    overflow-wrap: anywhere;
+  }
+
+  .workspace-card small {
+    @apply leading-4 text-ink-muted;
+    font-size: 0.6875rem;
+  }
+
+  .mono {
+    @apply font-mono;
+    font-size: 0.75rem;
+  }
+
+  .empty-feature {
+    @apply border-l-2 border-violet py-3 pl-3.5;
+    max-width: 720px;
+  }
+
+  .empty-feature > strong {
+    @apply text-sm text-violet-soft;
+  }
+}
 
 @media (max-width: 850px) {
-  .workspace-toolbar, .workspace-grid { grid-template-columns: 1fr; }
-  .workspace-heading { display: grid; }
-  .role-badge { width: fit-content; }
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    @apply hidden;
+  }
+
+  .grid.two,
+  .workspace-toolbar,
+  .workspace-grid {
+    @apply grid-cols-1;
+  }
+
+  .content {
+    @apply px-4 py-4;
+  }
+
+  .workspace-heading {
+    @apply grid;
+  }
+
+  .role-badge {
+    @apply w-fit;
+  }
 }

@@ -363,3 +363,20 @@ verification that:
 3. switching organizations never displays a project from the previous tenant;
 4. viewer memberships do not receive project-create controls;
 5. a foreign or unknown slug cannot be used to discover another tenant's project.
+
+## 12. UI system refinement
+
+The V1 control-plane/workspace experience uses Tailwind CSS 4 and the Sentrix Spectrum theme. This
+refinement does not change domain behavior; it standardizes the visual foundation before telemetry
+screens multiply the number of reusable controls.
+
+Acceptance additions:
+
+- [ ] Tailwind CSS 4 runs through the official Vite plugin.
+- [ ] global product tokens are defined with CSS-first `@theme` configuration.
+- [ ] navigation, panels, buttons, forms, badges, notices, and errors share one visual system.
+- [ ] primary, muted, placeholder, and disabled text remain clearly readable on dark surfaces.
+- [ ] the palette avoids pure-white glare, black-on-neon actions, and excessive decorative glow.
+- [ ] desktop spacing is compact enough for observability workflows and mobile layouts remain usable.
+- [ ] focus states remain keyboard-visible and semantic states are not communicated by color alone.
+- [ ] styling changes do not weaken or replace backend RBAC/tenant enforcement.

@@ -26,7 +26,7 @@ export function LoginPage({ error, onLogin }: LoginPageProps) {
         <div className="login-brand"><img src="/brand/sentrix-logo.png" alt="Sentrix" /></div>
         <p className="eyebrow">Observability & Monitoring</p>
         <h1>Sign in</h1>
-        <p className="muted">V1 establishes the secure organization and project control plane.</p>
+        <p className="muted">Secure access to your organizations, projects, and observability workspaces.</p>
         <form onSubmit={(event) => void submit(event)}>
           <label>
             Username

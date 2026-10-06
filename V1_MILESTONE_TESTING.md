@@ -384,3 +384,25 @@ After applying the workspace patch, rerun all backend and frontend gates. The ba
 expected to collect three additional project authorization tests, and the frontend suite adds helper
 and workspace-navigation regression coverage. Exact test counts are informative; zero failures and
 the documented security assertions are the release requirement.
+
+## 15. Tailwind/theme verification
+
+After visual-system changes, install refreshed frontend dependencies in the existing Compose volume
+and rerun the complete frontend gate:
+
+```powershell
+docker compose exec web npm install
+docker compose restart web
+docker compose exec web npm run lint
+docker compose exec web npm run typecheck
+docker compose exec web npm test -- --run
+docker compose exec web npm run build
+```
+
+Manual UI verification must cover login, organization/project overview, writable and read-only role
+states, project workspace navigation, forms, errors/notices, and a viewport below 850px. Confirm that
+active navigation, focus-visible controls, disabled controls, and semantic status states remain
+visually distinct without changing any authorization behavior. Specifically inspect sidebar disabled
+labels, top-bar secondary text, helper copy, placeholders, primary/secondary buttons, and empty states
+at normal brightness; text must remain readable without relying on pure white or highly saturated
+backgrounds.

@@ -272,3 +272,32 @@ Workspace behavior:
 
 Frontend routing is a navigation concern only. URL organization/project slugs must never be treated
 as authorization evidence.
+
+## Sentrix visual system
+
+The web application uses **Tailwind CSS 4** through the official Vite plugin. Sentrix keeps the
+framework configuration CSS-first: `frontend/src/styles.css` imports Tailwind and the dedicated `frontend/src/theme.css` token file;
+`theme.css` defines product design tokens with `@theme`, while the global stylesheet composes the
+current semantic component classes with Tailwind utilities.
+
+The default product theme is **Sentrix Spectrum**, a compact observability-focused dark interface:
+
+- deep navy canvas and elevated blue-black surfaces with softened off-white text instead of pure white;
+- restrained signal teal for primary actions and active navigation, avoiding neon treatment;
+- electric violet as a secondary data/feature accent;
+- dedicated amber, green, and red states for read-only/warning, success, and errors;
+- readable muted, helper, placeholder, and disabled text without low-opacity labels disappearing into the canvas;
+- comfortable contrast that preserves legibility while avoiding glare from pure-white text or over-saturated controls;
+- tighter 52px application chrome, compact controls, reduced panel padding, and denser lists;
+- consistent radii, borders, focus rings, buttons, inputs, selects, badges, and empty states.
+
+After pulling a change that modifies frontend packages, refresh the existing Compose node_modules
+volume before running frontend gates:
+
+```powershell
+docker compose exec web npm install
+docker compose restart web
+```
+
+The visual system must not encode authorization. Disabled/hidden project controls improve UX, while
+Django remains the security boundary.

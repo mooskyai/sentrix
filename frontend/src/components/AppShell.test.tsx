@@ -19,6 +19,7 @@ describe("AppShell", () => {
     expect(screen.getByText("Sentrix")).toBeInTheDocument();
     expect(screen.getByText("udit")).toBeInTheDocument();
     expect(screen.getByText("Workspace content")).toBeInTheDocument();
+    expect(screen.queryByText(/\bV1\b/i)).not.toBeInTheDocument();
   });
 
   it("enables project workspace navigation when the route has tenant context", () => {

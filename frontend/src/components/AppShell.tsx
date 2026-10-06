@@ -61,10 +61,7 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
       </aside>
       <main className="main">
         <header className="topbar">
-          <div>
-            <strong>{user.username}</strong>
-            <span className="muted"> · control-plane V1</span>
-          </div>
+          <strong>{user.username}</strong>
           <button className="button secondary" onClick={() => void onLogout()} type="button">
             Sign out
           </button>

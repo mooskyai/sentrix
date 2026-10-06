@@ -347,3 +347,24 @@ Required rules:
 Workspace section routes may be created before their telemetry implementation only when the UI makes
 their unavailable/not-connected state explicit. Do not render sample telemetry in production paths
 to make an unfinished data-plane feature appear complete.
+
+## 12. Tailwind and Sentrix visual-system rules
+
+The frontend uses Tailwind CSS 4 with the official Vite plugin. Keep theme configuration in `frontend/src/theme.css` using `@theme`; do not add a legacy
+`tailwind.config.js` unless a concrete capability requires it.
+
+Rules:
+
+- reuse Sentrix theme tokens instead of introducing one-off hex values in React components;
+- prefer Tailwind utilities in markup for new components and `@apply` for existing shared semantic
+  classes when incremental migration keeps the component API clearer;
+- keep operational screens dense: avoid oversized cards, excessive vertical whitespace, and large
+  decorative headings that reduce information density;
+- primary actions use the restrained signal-teal family; violet is secondary emphasis, not a competing primary;
+- avoid pure-white body text, black-on-neon controls, and decorative glow that produces unnecessary eye strain;
+- normal, muted, helper, placeholder, and disabled labels must remain readable on their actual surface; do not make important text disappear by stacking low-opacity text on dark backgrounds;
+- warning/read-only, success, and error states use their semantic tokens and never rely on color alone;
+- target WCAG AA contrast for normal interactive and informational text while keeping the palette visually soft;
+- focus-visible states must remain obvious for keyboard users;
+- responsive layouts must preserve tenant/project context and action discoverability;
+- CSS visibility/disabled state is never authorization; backend permission checks remain mandatory.

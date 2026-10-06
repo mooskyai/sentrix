@@ -439,3 +439,20 @@ project, the UI returns to the control-plane overview where an authorized user c
 RBAC-aware frontend controls improve usability, but Django remains authoritative. Owner, admin, and
 editor roles may receive project-write controls; viewer controls are read-only. Hiding a control is
 never a substitute for backend authorization.
+
+## 17. Frontend design system
+
+Sentrix uses Tailwind CSS 4 as the styling engine through `@tailwindcss/vite`. The design system is
+CSS-first rather than JavaScript-config-first: product tokens are declared with Tailwind's `@theme`
+directive in `frontend/src/theme.css`, and semantic application classes in the global stylesheet
+compose utilities with `@apply`.
+
+The initial theme is **Sentrix Spectrum**. Its visual hierarchy intentionally favors dense operational
+workflows: a compact 208px project sidebar, 52px top bar, reduced content/panel spacing, restrained
+signal teal for active state and actions, violet for secondary signal emphasis, and separate semantic
+colors for success, warning/read-only, and error states. Text uses softened off-white, readable muted,
+and explicit disabled tokens so the dark theme remains legible without relying on glare or neon color.
+
+Design tokens are presentation contracts only. Organization/project tenancy, RBAC, API scope, and
+telemetry boundaries remain owned by the application/backend architecture and must never depend on
+CSS state.
