@@ -167,3 +167,54 @@ M2.3 introduces no schema migration. `makemigrations --check --dry-run` must rep
 Commit and push the protocol gateway only after the dependency lock, automated tests, static checks,
 frontend regression gate, and Compose validation all pass. Only then may M2.4 ClickHouse telemetry
 schema work begin.
+
+
+## 8. M2.4 — ClickHouse Telemetry Schema
+
+### Automated cases
+
+| ID | Scenario | Expected |
+| --- | --- | --- |
+| CH-001 | schema apply | three idempotent `CREATE TABLE IF NOT EXISTS` statements |
+| CH-002 | expected telemetry tables | metrics, logs, spans definitions present |
+| CH-003 | tenant invariant | every table contains organization/project IDs |
+| CH-004 | metric representation | number/histogram/exponential-histogram/summary fields preserved |
+| CH-005 | table partitioning | monthly partition expression is defined |
+| CH-006 | physical tenant ordering | sorting keys start with organization/project |
+| CH-007 | schema validation | exact live columns/types and keys are accepted |
+| CH-008 | schema drift | missing/changed columns or keys are reported |
+
+### Live ClickHouse verification
+
+Apply the schema and then validate the live server:
+
+```powershell
+docker compose exec api /opt/venv/bin/python manage.py clickhouse_schema
+docker compose exec api /opt/venv/bin/python manage.py clickhouse_schema --check
+```
+
+Both commands must succeed. The second command must report all three tables as valid.
+
+### Release gate
+
+```powershell
+docker compose exec api /opt/venv/bin/python -m pytest
+docker compose exec api /opt/venv/bin/ruff check .
+docker compose exec api /opt/venv/bin/ruff format --check .
+docker compose exec api /opt/venv/bin/mypy .
+docker compose exec api /opt/venv/bin/python manage.py check
+docker compose exec api /opt/venv/bin/python manage.py makemigrations --check --dry-run
+docker compose exec web npm run lint
+docker compose exec web npm run typecheck
+docker compose exec web npm test -- --run
+docker compose exec web npm run build
+docker compose config --quiet
+git diff --check
+```
+
+M2.4 introduces ClickHouse schema only. Django's migration check must still report no changes.
+
+## 9. M2.4 stop condition
+
+Commit and push the ClickHouse schema only after live schema application/validation and all repository
+quality gates pass. Only then may M2.5 wire OTLP normalization and durable writes.

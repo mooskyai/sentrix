@@ -371,3 +371,36 @@ cd ..
 docker compose build api
 docker compose up -d api
 ```
+
+
+## V1 M2.4 ClickHouse telemetry schema
+
+M2.4 establishes the durable ClickHouse table contract without wiring OTLP requests into writes yet.
+The schema is managed explicitly through Django:
+
+```powershell
+docker compose exec api /opt/venv/bin/python manage.py clickhouse_schema
+docker compose exec api /opt/venv/bin/python manage.py clickhouse_schema --check
+```
+
+The command creates and validates three `MergeTree` tables:
+
+```text
+sentrix_metrics
+sentrix_logs
+sentrix_spans
+```
+
+Every table carries `schema_version`, `organization_id`, `project_id`, signal time, service/environment,
+instrumentation-scope context, resource attributes, and signal-specific fields. Tables partition by
+month and order by tenant/project plus useful signal dimensions and time. No retention TTL is guessed
+in M2.4; retention remains an explicit product/storage decision.
+
+Metrics use one row per data point and preserve dedicated fields for gauge/sum, histogram,
+exponential-histogram, and summary representations instead of flattening every metric into a single
+number. Logs preserve trace/span correlation IDs. Spans preserve trace identity plus event/link JSON
+payloads for later normalization decisions.
+
+M2.4 does not change the M2.3 sink behavior: non-empty OTLP requests still return HTTP 503. M2.5 is
+responsible for translating decoded OTLP batches into these schemas and acknowledging only after a
+durable ClickHouse write succeeds.

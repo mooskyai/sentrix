@@ -217,3 +217,57 @@ M2.3 is green only when:
 - API-key management UI.
 
 M2.4 may begin only after M2.3 is green, committed, and pushed.
+
+
+## 14. M2.4 — ClickHouse Telemetry Schema
+
+M2.4 defines the first durable raw telemetry contract without yet connecting decoded OTLP batches to
+writes. It creates three ClickHouse tables:
+
+```text
+sentrix_metrics
+sentrix_logs
+sentrix_spans
+```
+
+Every row is tenant-bound through `organization_id` and `project_id`, carries `schema_version = 1`,
+and has an explicit signal timestamp. Monthly partitions bound partition growth while tenant-first
+sorting keys support the query-isolation invariant.
+
+Metric rows preserve dedicated representations for number points, classic histograms, exponential
+histograms, and summary quantiles. Log rows retain severity/body and trace/span correlation IDs. Span
+rows retain trace lineage, timing, status, attributes, and serialized event/link structures.
+
+Schema management is idempotent and independent from Django migrations:
+
+```powershell
+docker compose exec api /opt/venv/bin/python manage.py clickhouse_schema
+docker compose exec api /opt/venv/bin/python manage.py clickhouse_schema --check
+```
+
+## 15. M2.4 acceptance
+
+M2.4 is green only when:
+
+- all three tables are created successfully in the configured ClickHouse database;
+- `--check` confirms the exact expected columns/types, monthly partition key, and tenant-first sorting
+  key for each table;
+- every table contains `schema_version`, `organization_id`, and `project_id`;
+- metrics have distinct storage fields for number, histogram, exponential-histogram, and summary data;
+- logs preserve trace/span correlation identifiers;
+- spans preserve trace/parent relationships and event/link payload fields;
+- no telemetry Django model or PostgreSQL migration is introduced;
+- no retention TTL is introduced without an explicit retention decision;
+- the M2.3 default sink remains unavailable for non-empty telemetry;
+- backend/frontend/infrastructure quality gates remain green.
+
+## 16. Explicitly out of scope for M2.4
+
+- OTLP-to-row normalization;
+- writes from the HTTP gateway into ClickHouse;
+- successful acknowledgement of non-empty telemetry;
+- query APIs or explorers;
+- retention TTL policy;
+- rollups, projections, materialized views, and streaming infrastructure.
+
+M2.5 may begin only after M2.4 is green, committed, and pushed.

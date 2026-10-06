@@ -422,3 +422,22 @@ M2.3 introduces the first public telemetry protocol boundary. Required rules:
 - keep the decoder independent of ClickHouse schema/SQL so M2.4 can add storage without changing the
   external protocol contract;
 - never log raw bearer credentials or unrestricted telemetry payloads.
+
+
+## 15. ClickHouse telemetry-schema rules
+
+M2.4 establishes the first durable telemetry schema. Required rules:
+
+- manage telemetry tables through explicit ClickHouse schema code/commands, not Django models or
+  PostgreSQL migrations;
+- every telemetry table carries `schema_version`, `organization_id`, and `project_id`;
+- physical sorting keys begin with tenant/project identity before signal-specific dimensions;
+- time-partition raw telemetry by month unless measured behavior justifies a different partition;
+- do not add TTLs, projections, codecs, or skip indexes speculatively;
+- metric storage must preserve the distinction between number, histogram, exponential-histogram, and
+  summary data instead of coercing all values into one scalar;
+- trace and span identifiers use fixed-width lowercase-hex storage contracts suitable for correlation;
+- keep ClickHouse DDL independent from the OTLP HTTP decoder;
+- M2.4 may create/validate tables but must not acknowledge non-empty OTLP requests until M2.5 wires a
+  durable write path;
+- schema validation must compare live columns/types and partition/sort keys before M2.4 is accepted.

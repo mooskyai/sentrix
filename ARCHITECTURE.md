@@ -538,3 +538,44 @@ content encodings are HTTP 415, and authentication/scope failures remain 401/403
 M2.3 intentionally has no durable telemetry sink. Non-empty valid batches therefore receive HTTP 503
 rather than a false OTLP success acknowledgement. Empty OTLP requests may return the protocol-defined
 success response because no telemetry can be lost. ClickHouse persistence begins in M2.4/M2.5.
+
+
+## 20. ClickHouse telemetry schema
+
+V1 M2.4 makes ClickHouse tenancy and signal shape explicit while keeping persistence disconnected from
+the OTLP request path until M2.5.
+
+```text
+sentrix_metrics
+  PARTITION BY toYYYYMM(timestamp)
+  ORDER BY (organization_id, project_id, metric_name, timestamp)
+
+sentrix_logs
+  PARTITION BY toYYYYMM(timestamp)
+  ORDER BY (organization_id, project_id, service_name, timestamp, trace_id)
+
+sentrix_spans
+  PARTITION BY toYYYYMM(start_time)
+  ORDER BY (organization_id, project_id, service_name, start_time, trace_id)
+```
+
+All three tables use `MergeTree`, carry `schema_version = 1`, and start their physical sort keys with
+organization/project identity. This makes tenant boundaries useful for pruning rather than merely
+logical metadata.
+
+The metric table is point-oriented and has explicit columns for number points, classic histograms,
+exponential histograms, and summaries. The schema therefore does not pretend every OpenTelemetry
+metric can be represented as one floating-point value. Log rows preserve severity/body plus trace and
+span IDs. Span rows preserve trace/span/parent IDs, duration/status, attributes, and serialized event
+and link payloads.
+
+Resource and record attributes initially use `Map(String, String)`. Nested span events/links remain JSON
+strings in M2.4 so the first storage contract does not invent unstable nested ClickHouse structures
+before real query patterns exist.
+
+There is deliberately no TTL in M2.4. Retention policy, codecs, projections, skip indexes, and
+materialized views require measured ingestion/query behavior or an explicit product decision.
+
+Schema lifecycle is independent of Django migrations. `manage.py clickhouse_schema` applies idempotent
+`CREATE TABLE IF NOT EXISTS` statements; `manage.py clickhouse_schema --check` validates the live
+column/type layout plus partition and sorting keys.
