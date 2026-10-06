@@ -1,1 +1,1 @@
-{"root":["./src/App.tsx","./src/main.tsx","./src/types.ts","./src/api/client.ts","./src/api/resources.ts","./src/components/AppShell.test.tsx","./src/components/AppShell.tsx","./src/pages/LoginPage.tsx","./src/pages/OverviewPage.tsx","./src/test/setup.ts"],"errors":true,"version":"5.9.3"}
+{"root":["./src/App.tsx","./src/main.tsx","./src/types.ts","./src/api/client.ts","./src/api/resources.ts","./src/components/AppShell.test.tsx","./src/components/AppShell.tsx","./src/pages/LoginPage.tsx","./src/pages/OverviewPage.tsx","./src/test/setup.ts"],"version":"5.9.3"}
