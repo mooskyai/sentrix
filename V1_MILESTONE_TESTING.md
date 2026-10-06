@@ -353,3 +353,34 @@ Security / tenancy
 ## 14. Release gate
 
 V1 is accepted only when all mandatory checks pass on the intended baseline commit. A known failing test is a blocker unless the acceptance criteria are formally changed in `V1_MILESTONE.md` with the reason documented.
+
+## 15. Project workspace regression gate
+
+The project-workspace checkpoint adds the following mandatory cases.
+
+### Backend
+
+| ID | Scenario | Expected |
+| --- | --- | --- |
+| PRJ-011 | viewer patches own-tenant project | HTTP 403, project unchanged |
+| PRJ-012 | viewer deletes own-tenant project | HTTP 403, project still exists |
+| PRJ-013 | editor patches own-tenant project | HTTP 200, project updated |
+| PRJ-014 | non-member patches foreign project by exact UUID | HTTP 404, unchanged |
+| PRJ-015 | non-member deletes foreign project by exact UUID | HTTP 404, still exists |
+
+### Frontend
+
+| ID | Scenario | Expected |
+| --- | --- | --- |
+| UI-008 | open project from overview | canonical organization/project route |
+| UI-009 | workspace sidebar | project sections become navigable links |
+| UI-010 | switch project | route and displayed project context change together |
+| UI-011 | switch organization | only projects belonging to the new organization are selectable |
+| UI-012 | viewer organization | project creation UI is read-only/hidden |
+| UI-013 | mismatched organization/project slugs | unavailable workspace, no cross-tenant data |
+| UI-014 | unknown workspace section | unavailable workspace |
+
+After applying the workspace patch, rerun all backend and frontend gates. The backend suite is
+expected to collect three additional project authorization tests, and the frontend suite adds helper
+and workspace-navigation regression coverage. Exact test counts are informative; zero failures and
+the documented security assertions are the release requirement.

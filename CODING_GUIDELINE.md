@@ -325,3 +325,25 @@ A change is ready for review when:
 ## 11. Definition of done
 
 A feature is done only when its production behavior, authorization, tests, configuration, and documentation agree. Code that works only through a developer's local manual sequence is not complete.
+
+## 12. Tenant-aware frontend routing
+
+Project workspace URLs use organization/project slugs for navigation, never authorization.
+
+Required rules:
+
+- resolve workspace slugs only against organization/project data returned by authenticated,
+  tenant-scoped API calls;
+- never call an unscoped backend endpoint because a slug appeared in the URL;
+- keep immutable UUIDs as backend/data-plane identifiers even when browser URLs use slugs;
+- when organization/project context changes, navigate to a new canonical route instead of retaining
+  stale tenant state;
+- TanStack Query cache keys must remain tenant-safe as query scope becomes more granular;
+- unknown or inaccessible organization/project route combinations render an unavailable state and
+  must not reveal whether a foreign tenant resource exists;
+- owner/admin/editor UI may expose project-write actions while viewer UI is read-only, but every
+  write still requires backend role enforcement.
+
+Workspace section routes may be created before their telemetry implementation only when the UI makes
+their unavailable/not-connected state explicit. Do not render sample telemetry in production paths
+to make an unfinished data-plane feature appear complete.

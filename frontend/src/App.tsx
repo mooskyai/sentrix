@@ -1,10 +1,27 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link, Route, Routes } from "react-router-dom";
 
 import { getMe, login, logout } from "./api/resources";
 import { AppShell } from "./components/AppShell";
 import { LoginPage } from "./pages/LoginPage";
 import { OverviewPage } from "./pages/OverviewPage";
+import { ProjectWorkspacePage } from "./pages/ProjectWorkspacePage";
+
+function NotFoundPage() {
+  return (
+    <section className="panel narrow-panel">
+      <p className="eyebrow">Not found</p>
+      <h1>Workspace unavailable</h1>
+      <p className="muted">
+        The requested Sentrix workspace does not exist or is not available to your account.
+      </p>
+      <Link className="button inline-button" to="/">
+        Back to overview
+      </Link>
+    </section>
+  );
+}
 
 export default function App() {
   const queryClient = useQueryClient();
@@ -39,7 +56,15 @@ export default function App() {
         window.location.reload();
       }}
     >
-      <OverviewPage />
+      <Routes>
+        <Route path="/" element={<OverviewPage />} />
+        <Route path="/orgs/:organizationSlug/projects/:projectSlug" element={<ProjectWorkspacePage />} />
+        <Route
+          path="/orgs/:organizationSlug/projects/:projectSlug/:section"
+          element={<ProjectWorkspacePage />}
+        />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
     </AppShell>
   );
 }

@@ -245,3 +245,30 @@ The complete rules are in [CODING_GUIDELINE.md](CODING_GUIDELINE.md). The non-ne
 V1 is complete when a user can authenticate, create an organization, create a project, and access only resources permitted by their membership and role; the React application can operate against those APIs; PostgreSQL, Redis, and ClickHouse health are observable; and all documented backend/frontend quality gates pass.
 
 Metrics, logs, traces, OpenTelemetry ingestion, dashboards, alert evaluation, and incident workflows are deliberately reserved for later milestones after the control-plane boundaries are proven.
+
+## Project workspace flow
+
+The control-plane UI now has a canonical tenant-aware project workspace route:
+
+```text
+/orgs/:organizationSlug/projects/:projectSlug
+/orgs/:organizationSlug/projects/:projectSlug/:section
+```
+
+Supported workspace sections are `overview`, `metrics`, `logs`, `traces`, `dashboards`, and
+`alerts`. Only the overview contains control-plane project context in V1; the remaining routes are
+intentional placeholders for later data-plane milestones and do not fabricate telemetry.
+
+Workspace behavior:
+
+- organization and project switchers navigate only through resources returned by the authenticated,
+  tenant-scoped APIs;
+- owner/admin/editor memberships get project-write UI while viewer memberships are shown as
+  read-only;
+- typing a foreign or unknown slug does not grant access and resolves to an unavailable workspace;
+- backend UUID detail/update/delete endpoints remain the authorization boundary and continue to use
+  membership-scoped querysets;
+- project cards on the overview page open the canonical project workspace route.
+
+Frontend routing is a navigation concern only. URL organization/project slugs must never be treated
+as authorization evidence.

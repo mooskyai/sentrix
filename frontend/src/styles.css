@@ -52,3 +52,32 @@ input:focus { border-color: #68adf5; box-shadow: 0 0 0 3px rgba(104, 173, 245, .
   .grid.two { grid-template-columns: 1fr; }
   .content { padding: 18px; }
 }
+
+.brand { display: block; text-decoration: none; }
+.notice { color: #cbd7e7; background: #142033; border: 1px solid #344258; border-radius: 8px; padding: 10px 12px; }
+.workspace-link { text-decoration: none; }
+.workspace-link:hover { border-color: #68adf5; background: #142033; }
+.list-meta { display: flex; align-items: center; gap: 10px; }
+.inline-button { display: inline-block; text-decoration: none; }
+.narrow-panel { max-width: 720px; }
+.workspace-heading { gap: 18px; align-items: flex-start; }
+.role-badge { border-radius: 999px; padding: 7px 10px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+.role-badge.write { color: #bce8d5; background: #123127; border: 1px solid #235a46; }
+.role-badge.read-only { color: #ffe0a6; background: #332815; border: 1px solid #66502a; }
+.workspace-toolbar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+.workspace-toolbar label { display: grid; gap: 6px; color: #c8d4e4; }
+select { width: 100%; color: #edf3fb; background: #0d1420; border: 1px solid #344258; border-radius: 8px; padding: 10px 12px; outline: none; }
+select:focus { border-color: #68adf5; box-shadow: 0 0 0 3px rgba(104, 173, 245, .12); }
+.workspace-section { min-height: 280px; }
+.workspace-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.workspace-card { min-width: 0; display: grid; gap: 6px; background: #0f1723; border: 1px solid #263244; border-radius: 10px; padding: 14px; }
+.workspace-card strong { overflow-wrap: anywhere; }
+.workspace-card small { color: #8fa0b6; }
+.mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 13px; }
+.empty-feature { max-width: 720px; padding: 22px 0; }
+
+@media (max-width: 850px) {
+  .workspace-toolbar, .workspace-grid { grid-template-columns: 1fr; }
+  .workspace-heading { display: grid; }
+  .role-badge { width: fit-content; }
+}

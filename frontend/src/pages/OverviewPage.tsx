@@ -1,5 +1,6 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 
 import {
   createOrganization,
@@ -7,6 +8,7 @@ import {
   getOrganizations,
   getProjects,
 } from "../api/resources";
+import { canWriteProjects, workspacePath } from "../workspace";
 
 export function OverviewPage() {
   const queryClient = useQueryClient();
@@ -19,6 +21,9 @@ export function OverviewPage() {
   const [projectSlug, setProjectSlug] = useState("");
 
   const effectiveOrgId = selectedOrgId || organizations.data?.[0]?.id || "";
+  const selectedOrganization = (organizations.data ?? []).find(
+    (organization) => organization.id === effectiveOrgId,
+  );
   const visibleProjects = useMemo(
     () => (projects.data ?? []).filter((project) => project.organization_id === effectiveOrgId),
     [projects.data, effectiveOrgId],
@@ -50,7 +55,7 @@ export function OverviewPage() {
 
   function submitProject(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!effectiveOrgId) return;
+    if (!effectiveOrgId || !selectedOrganization) return;
     createProjectMutation.mutate({
       organization_id: effectiveOrgId,
       name: projectName,
@@ -62,9 +67,11 @@ export function OverviewPage() {
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">Platform foundation</p>
-          <h1>Workspace</h1>
-          <p className="muted">Create the tenant boundary before connecting telemetry.</p>
+          <p className="eyebrow">Control plane</p>
+          <h1>Organizations & projects</h1>
+          <p className="muted">
+            Select a tenant, create projects when your role allows it, then enter a project workspace.
+          </p>
         </div>
       </div>
 
@@ -72,9 +79,21 @@ export function OverviewPage() {
         <section className="panel">
           <h2>Organizations</h2>
           <form onSubmit={submitOrganization} className="stack">
-            <input placeholder="Organization name" value={orgName} onChange={(e) => setOrgName(e.target.value)} required />
-            <input placeholder="organization-slug" value={orgSlug} onChange={(e) => setOrgSlug(e.target.value)} required />
-            <button className="button" disabled={createOrg.isPending} type="submit">Create organization</button>
+            <input
+              placeholder="Organization name"
+              value={orgName}
+              onChange={(event) => setOrgName(event.target.value)}
+              required
+            />
+            <input
+              placeholder="organization-slug"
+              value={orgSlug}
+              onChange={(event) => setOrgSlug(event.target.value)}
+              required
+            />
+            <button className="button" disabled={createOrg.isPending} type="submit">
+              Create organization
+            </button>
             {createOrg.error && <div className="error">{createOrg.error.message}</div>}
           </form>
           <div className="list">
@@ -85,7 +104,8 @@ export function OverviewPage() {
                 type="button"
                 onClick={() => setSelectedOrgId(organization.id)}
               >
-                <span>{organization.name}</span><small>{organization.role}</small>
+                <span>{organization.name}</span>
+                <small>{organization.role}</small>
               </button>
             ))}
             {!organizations.isPending && organizations.data?.length === 0 && (
@@ -96,15 +116,48 @@ export function OverviewPage() {
 
         <section className="panel">
           <h2>Projects</h2>
-          <form onSubmit={submitProject} className="stack">
-            <input placeholder="Project name" value={projectName} onChange={(e) => setProjectName(e.target.value)} required />
-            <input placeholder="project-slug" value={projectSlug} onChange={(e) => setProjectSlug(e.target.value)} required />
-            <button className="button" disabled={!effectiveOrgId || createProjectMutation.isPending} type="submit">Create project</button>
-            {createProjectMutation.error && <div className="error">{createProjectMutation.error.message}</div>}
-          </form>
+          {selectedOrganization && canWriteProjects(selectedOrganization.role) ? (
+            <form onSubmit={submitProject} className="stack">
+              <input
+                placeholder="Project name"
+                value={projectName}
+                onChange={(event) => setProjectName(event.target.value)}
+                required
+              />
+              <input
+                placeholder="project-slug"
+                value={projectSlug}
+                onChange={(event) => setProjectSlug(event.target.value)}
+                required
+              />
+              <button className="button" disabled={createProjectMutation.isPending} type="submit">
+                Create project
+              </button>
+              {createProjectMutation.error && (
+                <div className="error">{createProjectMutation.error.message}</div>
+              )}
+            </form>
+          ) : selectedOrganization ? (
+            <div className="notice">
+              Your <strong>{selectedOrganization.role}</strong> role is read-only for project changes.
+            </div>
+          ) : (
+            <p className="muted">Create or select an organization before creating a project.</p>
+          )}
+
           <div className="list">
             {visibleProjects.map((project) => (
-              <div className="list-item" key={project.id}><span>{project.name}</span><small>{project.slug}</small></div>
+              <Link
+                className="list-item workspace-link"
+                key={project.id}
+                to={workspacePath(selectedOrganization?.slug ?? "", project.slug)}
+              >
+                <span>{project.name}</span>
+                <span className="list-meta">
+                  <small>{project.slug}</small>
+                  <span aria-hidden="true">→</span>
+                </span>
+              </Link>
             ))}
             {!!effectiveOrgId && !projects.isPending && visibleProjects.length === 0 && (
               <p className="muted">No projects in this organization yet.</p>

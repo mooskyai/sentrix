@@ -92,3 +92,67 @@ class TestProjectsApi:
         project = Project.objects.get()
         assert project.organization == org
         assert project.created_by == editor
+
+    def test_viewer_cannot_update_or_delete_project(self) -> None:
+        viewer = User.objects.create_user(username="viewer-update")
+        org = self._org(viewer, "viewer-org", OrganizationMembership.Role.VIEWER)
+        project = Project.objects.create(organization=org, name="Read only", slug="read-only")
+        client = APIClient()
+        client.force_authenticate(user=viewer)
+
+        update_response = client.patch(
+            f"/api/v1/projects/{project.id}/",
+            {"name": "Changed"},
+            format="json",
+        )
+        delete_response = client.delete(f"/api/v1/projects/{project.id}/")
+
+        project.refresh_from_db()
+        assert update_response.status_code == 403
+        assert delete_response.status_code == 403
+        assert project.name == "Read only"
+        assert Project.objects.filter(pk=project.pk).exists()
+
+    def test_editor_can_update_project(self) -> None:
+        editor = User.objects.create_user(username="editor-update")
+        org = self._org(editor, "editor-update-org", OrganizationMembership.Role.EDITOR)
+        project = Project.objects.create(organization=org, name="Before", slug="before")
+        client = APIClient()
+        client.force_authenticate(user=editor)
+
+        response = client.patch(
+            f"/api/v1/projects/{project.id}/",
+            {"name": "After"},
+            format="json",
+        )
+
+        project.refresh_from_db()
+        assert response.status_code == 200
+        assert project.name == "After"
+
+    def test_foreign_project_cannot_be_mutated_by_exact_uuid(self) -> None:
+        user_a = User.objects.create_user(username="mutation-a")
+        user_b = User.objects.create_user(username="mutation-b")
+        self._org(user_a, "mutation-org-a", OrganizationMembership.Role.OWNER)
+        org_b = self._org(user_b, "mutation-org-b", OrganizationMembership.Role.OWNER)
+        foreign_project = Project.objects.create(
+            organization=org_b,
+            name="Foreign",
+            slug="foreign",
+            created_by=user_b,
+        )
+        client = APIClient()
+        client.force_authenticate(user=user_a)
+
+        update_response = client.patch(
+            f"/api/v1/projects/{foreign_project.id}/",
+            {"name": "Compromised"},
+            format="json",
+        )
+        delete_response = client.delete(f"/api/v1/projects/{foreign_project.id}/")
+
+        foreign_project.refresh_from_db()
+        assert update_response.status_code == 404
+        assert delete_response.status_code == 404
+        assert foreign_project.name == "Foreign"
+        assert Project.objects.filter(pk=foreign_project.pk).exists()

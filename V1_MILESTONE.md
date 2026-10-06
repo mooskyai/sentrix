@@ -336,3 +336,30 @@ The detailed test matrix is in `V1_MILESTONE_TESTING.md`.
 When all mandatory acceptance checks pass, commit V1 as a stable baseline before starting telemetry ingestion.
 
 The next milestone should introduce **machine/API-key authentication and OpenTelemetry ingestion**, not dashboard polish. The product needs trustworthy data flow before advanced visualization.
+
+## 12. Project workspace implementation checkpoint
+
+The final interactive control-plane checkpoint before telemetry ingestion adds:
+
+- canonical `/orgs/:organizationSlug/projects/:projectSlug` workspace URLs;
+- stable workspace section routes for overview, metrics, logs, traces, dashboards, and alerts;
+- organization and project switchers inside project context;
+- links from the control-plane overview into a project workspace;
+- RBAC-aware project creation controls (owner/admin/editor write, viewer read-only);
+- unavailable workspace handling for unknown or inaccessible slug combinations;
+- backend regression coverage for viewer update/delete denial;
+- backend regression coverage for foreign project mutation by exact UUID;
+- frontend tests for canonical workspace paths, tenant/project resolution, role behavior, and
+  workspace navigation.
+
+This checkpoint does not change the data-plane scope. Metrics/logs/traces/dashboard/alert routes are
+navigation placeholders until real telemetry ingestion and query infrastructure exist.
+
+Acceptance for this checkpoint requires the existing backend/frontend quality gates plus manual
+verification that:
+
+1. a project card opens its canonical workspace;
+2. switching projects updates the route and context;
+3. switching organizations never displays a project from the previous tenant;
+4. viewer memberships do not receive project-create controls;
+5. a foreign or unknown slug cannot be used to discover another tenant's project.

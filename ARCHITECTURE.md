@@ -398,3 +398,44 @@ Alert evaluation and notification dispatch.
 Service catalog, Kubernetes/infrastructure views, incidents, integrations, usage-based plans, SSO, advanced analytics.
 
 This sequence preserves a stable tenancy/security core while adding independently scalable telemetry capabilities.
+
+## 17. Project workspace routing
+
+The browser has a canonical project-context route:
+
+```text
+/orgs/:organizationSlug/projects/:projectSlug
+/orgs/:organizationSlug/projects/:projectSlug/:section
+```
+
+This route is intentionally human-readable, but slugs are not security credentials. Workspace
+resolution follows this order:
+
+```text
+Authenticated session
+      |
+      v
+GET member organizations + member projects
+      |
+      v
+Resolve URL slugs only inside that already-scoped result set
+      |
+      v
+Render project workspace or unavailable state
+```
+
+Direct object reads and mutations still go through Django's membership-scoped project queryset. A
+foreign UUID therefore remains inaccessible even if a caller knows it exactly.
+
+The workspace navigation exposes `overview`, `metrics`, `logs`, `traces`, `dashboards`, and `alerts`.
+In V1, only the overview owns real control-plane state. The other sections establish stable URLs and
+navigation slots for future telemetry capabilities without introducing fake data or crossing the
+control-plane/data-plane boundary.
+
+Organization/project switchers are also tenant-scoped. Changing organization selects only a project
+already present in the authenticated user's project collection. If the selected organization has no
+project, the UI returns to the control-plane overview where an authorized user can create one.
+
+RBAC-aware frontend controls improve usability, but Django remains authoritative. Owner, admin, and
+editor roles may receive project-write controls; viewer controls are read-only. Hiding a control is
+never a substitute for backend authorization.
