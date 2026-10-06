@@ -168,3 +168,52 @@ M2.2 is green only when:
 
 Those capabilities remain ordered behind M2.2. M2.3 begins only after this part is green, committed,
 and pushed.
+
+## 11. M2.3 — OTLP/HTTP Ingestion Gateway
+
+M2.3 establishes the real OTLP/HTTP protocol boundary while intentionally stopping before durable
+telemetry storage. The standard signal routes are:
+
+```text
+POST /v1/metrics
+POST /v1/logs
+POST /v1/traces
+```
+
+All three routes require a valid project API key containing `telemetry:write`. The API-key principal is
+the only source of organization/project/key identity. Requests initially use binary protobuf
+(`application/x-protobuf`) and may be uncompressed or gzip-compressed.
+
+The decoder produces a common `OtlpBatch` envelope containing the authenticated tenant context, signal,
+and official decoded OTLP request message. The sink boundary is deliberately separate from protocol
+decoding. Until durable persistence is wired, non-empty batches return retryable HTTP 503 instead of a
+false success response.
+
+## 12. M2.3 acceptance
+
+M2.3 is green only when:
+
+- `/v1/metrics`, `/v1/logs`, and `/v1/traces` accept valid binary OTLP protobuf through a test sink;
+- every decoded batch carries organization/project/API-key IDs derived from the credential;
+- missing credentials return 401 and missing `telemetry:write` returns 403;
+- malformed protobuf returns 400;
+- oversized bodies return 413;
+- unsupported media types/content encodings return 415;
+- gzip payloads are decoded with the size limit rechecked after decompression;
+- protocol errors for binary requests use `google.rpc.Status`;
+- non-empty telemetry is not acknowledged while durable persistence is unavailable;
+- empty OTLP requests may return the correct empty Export*ServiceResponse;
+- no Django model or telemetry migration is introduced;
+- the dependency lock is refreshed after adding the official protobuf packages;
+- backend/frontend/infrastructure quality gates remain green.
+
+## 13. Explicitly out of scope for M2.3
+
+- OTLP/JSON decoding;
+- ClickHouse metrics/log/span schemas;
+- durable telemetry writes;
+- query APIs/explorers;
+- streaming/queue infrastructure;
+- API-key management UI.
+
+M2.4 may begin only after M2.3 is green, committed, and pushed.

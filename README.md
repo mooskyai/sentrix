@@ -335,3 +335,39 @@ the initial machine scope remains `telemetry:write`.
 Request payloads and URLs must never override the tenant identity established by the credential. M2.2
 adds no OTLP routes, telemetry parsing, or ClickHouse writes; those remain blocked behind M2.3 and
 later parts.
+
+## V1 M2.3 OTLP/HTTP ingestion gateway
+
+M2.3 exposes the standard OTLP/HTTP signal paths outside the Sentrix control-plane `/api/v1/`
+namespace:
+
+```text
+POST /v1/metrics
+POST /v1/logs
+POST /v1/traces
+```
+
+Each endpoint requires `Authorization: Bearer <project-api-key>` with `telemetry:write`. The tenant and
+project are derived only from that credential. This part uses the official OpenTelemetry generated
+protobuf messages and initially accepts `application/x-protobuf`; gzip and identity content encodings
+are supported. The request body is bounded by `OTLP_MAX_REQUEST_BYTES` (64 MiB by default).
+
+OTLP/JSON is deliberately not accepted in M2.3. OTLP JSON has protocol-specific identifier encoding
+rules that differ from generic protobuf JSON, so Sentrix will not claim JSON compatibility until a
+fully compliant decoder is covered by tests.
+
+M2.3 also refuses to acknowledge non-empty telemetry while no durable sink exists: the default sink
+returns HTTP 503 so standard exporters can retry rather than silently losing data. Tests replace that
+sink seam to prove metrics, logs, and traces decode correctly and carry the credential-derived tenant
+context. M2.4 defines ClickHouse schemas; M2.5 wires durable persistence and then enables successful
+acknowledgement for non-empty telemetry.
+
+After applying M2.3, refresh backend dependencies and the lockfile before running gates:
+
+```powershell
+cd backend
+uv lock
+cd ..
+docker compose build api
+docker compose up -d api
+```

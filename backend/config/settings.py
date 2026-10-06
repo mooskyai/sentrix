@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.organizations",
     "apps.projects",
+    "apps.telemetry",
 ]
 
 MIDDLEWARE = [
@@ -122,3 +123,6 @@ CLICKHOUSE = {
     "username": os.getenv("CLICKHOUSE_USER", "default"),
     "password": os.getenv("CLICKHOUSE_PASSWORD", ""),
 }
+
+OTLP_MAX_REQUEST_BYTES = int(os.getenv("OTLP_MAX_REQUEST_BYTES", str(64 * 1024 * 1024)))
+DATA_UPLOAD_MAX_MEMORY_SIZE = OTLP_MAX_REQUEST_BYTES

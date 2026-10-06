@@ -501,3 +501,40 @@ authentication. Scope authorization occurs after authentication; a valid key can
 recognized while still receiving HTTP 403 when it lacks an endpoint's required scope.
 
 M2.2 does not create public ingestion routes. OTLP/HTTP protocol handling begins in M2.3.
+
+## 19. OTLP/HTTP ingestion gateway
+
+V1 M2.3 adds a dedicated telemetry protocol app and keeps the OTLP wire contract separate from the
+control-plane API:
+
+```text
+Collector / SDK
+      |
+      | POST /v1/{metrics|logs|traces}
+      | Authorization: Bearer sentrix_pk_...
+      | application/x-protobuf
+      v
+Project API-key authentication
+      |
+      v
+OTLP body-size / gzip boundary
+      |
+      v
+Official Export*ServiceRequest protobuf decode
+      |
+      v
+OtlpBatch(organization_id, project_id, api_key_id, signal, message)
+      |
+      v
+Telemetry sink seam
+```
+
+The initial receiver supports binary OTLP protobuf plus `identity` and `gzip` encodings. The 64 MiB
+default body limit is configurable through `OTLP_MAX_REQUEST_BYTES` and is enforced again after gzip
+decompression. Malformed payloads are HTTP 400, oversized payloads are HTTP 413, unsupported media or
+content encodings are HTTP 415, and authentication/scope failures remain 401/403. Error bodies use
+`google.rpc.Status` when the request uses binary protobuf.
+
+M2.3 intentionally has no durable telemetry sink. Non-empty valid batches therefore receive HTTP 503
+rather than a false OTLP success acknowledgement. Empty OTLP requests may return the protocol-defined
+success response because no telemetry can be lost. ClickHouse persistence begins in M2.4/M2.5.

@@ -10,6 +10,8 @@ dependencies = [
   "psycopg[binary]>=3.2,<4",
   "redis>=6,<7",
   "clickhouse-connect>=0.9,<1",
+  "opentelemetry-proto>=1.45,<2",
+  "googleapis-common-protos>=1.75.5,<2",
   "uvicorn[standard]>=0.37,<1",
   "gunicorn>=23,<24",
 ]
@@ -55,4 +57,8 @@ django_settings_module = "config.settings"
 
 [[tool.mypy.overrides]]
 module = ["clickhouse_connect", "clickhouse_connect.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["opentelemetry.proto.*", "google.rpc.*"]
 ignore_missing_imports = true

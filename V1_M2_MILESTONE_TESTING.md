@@ -109,3 +109,61 @@ There is no M2.2 migration. `makemigrations --check --dry-run` must report `No c
 
 After every M2.2 backend, frontend, documentation, and infrastructure gate passes, commit and push the
 machine-authentication boundary. Only then may M2.3 OTLP/HTTP ingestion be designed or patched.
+
+## 6. M2.3 — OTLP/HTTP Ingestion Gateway
+
+### Automated cases
+
+| ID | Scenario | Expected |
+| --- | --- | --- |
+| OTLP-001 | valid metrics protobuf with test sink | HTTP 200, tenant-bound metrics batch |
+| OTLP-002 | valid logs protobuf with test sink | HTTP 200, tenant-bound logs batch |
+| OTLP-003 | valid traces protobuf with test sink | HTTP 200, tenant-bound traces batch |
+| OTLP-004 | missing project key | HTTP 401 |
+| OTLP-005 | key lacks `telemetry:write` | HTTP 403 |
+| OTLP-006 | malformed protobuf | HTTP 400 with OTLP Status |
+| OTLP-007 | unsupported JSON media type | HTTP 415 |
+| OTLP-008 | body exceeds configured limit | HTTP 413 |
+| OTLP-009 | valid gzip body | decoded and delivered to test sink |
+| OTLP-010 | malformed gzip | HTTP 400 |
+| OTLP-011 | unsupported content encoding | HTTP 415 |
+| OTLP-012 | non-empty batch with default unavailable sink | HTTP 503, not falsely acknowledged |
+| OTLP-013 | empty valid request | HTTP 200 empty Export*ServiceResponse |
+
+### Dependency refresh
+
+M2.3 adds official OpenTelemetry protobuf dependencies. Regenerate the lockfile and rebuild the API
+container before testing:
+
+```powershell
+cd backend
+uv lock
+cd ..
+docker compose build api
+docker compose up -d api
+```
+
+### Release gate
+
+```powershell
+docker compose exec api /opt/venv/bin/python -m pytest
+docker compose exec api /opt/venv/bin/ruff check .
+docker compose exec api /opt/venv/bin/ruff format --check .
+docker compose exec api /opt/venv/bin/mypy .
+docker compose exec api /opt/venv/bin/python manage.py check
+docker compose exec api /opt/venv/bin/python manage.py makemigrations --check --dry-run
+docker compose exec web npm run lint
+docker compose exec web npm run typecheck
+docker compose exec web npm test -- --run
+docker compose exec web npm run build
+docker compose config --quiet
+git diff --check
+```
+
+M2.3 introduces no schema migration. `makemigrations --check --dry-run` must report no changes.
+
+## 7. M2.3 stop condition
+
+Commit and push the protocol gateway only after the dependency lock, automated tests, static checks,
+frontend regression gate, and Compose validation all pass. Only then may M2.4 ClickHouse telemetry
+schema work begin.

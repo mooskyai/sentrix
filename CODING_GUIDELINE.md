@@ -403,3 +403,22 @@ endpoint that consumes a project API key:
 
 The initial required telemetry capability remains `telemetry:write`. Additional scopes require a real
 endpoint capability and corresponding tests; do not create speculative permission matrices.
+
+## 14. OTLP/HTTP protocol-boundary rules
+
+M2.3 introduces the first public telemetry protocol boundary. Required rules:
+
+- keep OTLP routes at `/v1/metrics`, `/v1/logs`, and `/v1/traces`; do not nest them under the Sentrix
+  control-plane `/api/v1/` namespace;
+- authenticate before parsing telemetry bodies and derive tenant identity exclusively from the project key;
+- accept only protocol encodings that are implemented faithfully; M2.3 accepts binary protobuf and
+  does not approximate OTLP/JSON with generic protobuf JSON parsing;
+- use official OpenTelemetry generated protobuf message classes instead of hand-written wire models;
+- support `identity` and `gzip` request encodings and enforce the configured size limit after
+  decompression;
+- return non-retryable 4xx statuses for bad data, unsupported encodings, and oversized payloads as
+  appropriate; use 503 when a valid batch cannot be durably accepted;
+- never return OTLP success for non-empty telemetry that has only been decoded and then discarded;
+- keep the decoder independent of ClickHouse schema/SQL so M2.4 can add storage without changing the
+  external protocol contract;
+- never log raw bearer credentials or unrestricted telemetry payloads.
