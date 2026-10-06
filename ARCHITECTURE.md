@@ -462,3 +462,42 @@ and explicit disabled tokens so the dark theme remains legible without relying o
 Design tokens are presentation contracts only. Organization/project tenancy, RBAC, API scope, and
 telemetry boundaries remain owned by the application/backend architecture and must never depend on
 CSS state.
+
+
+## 18. Machine authentication boundary
+
+V1 M2.2 keeps browser and machine trust paths deliberately separate:
+
+```text
+Browser                         Collector / Agent
+   |                                  |
+   | Django session                   | Bearer project API key
+   v                                  v
+Control-plane API             ProjectApiKeyAuthentication
+                                      |
+                                      v
+                              verify secret hash
+                                      |
+                              revoked / expiry check
+                                      |
+                                      v
+                        ProjectApiKeyPrincipal
+                         organization_id
+                         project_id
+                         api_key_id
+                         scopes
+                                      |
+                                      v
+                             scope permission
+```
+
+Machine authentication is opt-in per endpoint; it is not added to DRF's global authentication list.
+A successful credential lookup derives tenant context from the persisted API-key relationship, so a
+caller cannot switch organization or project by supplying identifiers in an ingestion payload.
+
+The raw bearer value is never persisted or logged. Django's password hasher verifies the secret,
+revoked and expired keys fail authentication, and `last_used_at` advances only after valid credential
+authentication. Scope authorization occurs after authentication; a valid key can therefore be
+recognized while still receiving HTTP 403 when it lacks an endpoint's required scope.
+
+M2.2 does not create public ingestion routes. OTLP/HTTP protocol handling begins in M2.3.

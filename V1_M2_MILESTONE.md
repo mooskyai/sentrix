@@ -107,3 +107,64 @@ M2.1 is green only when:
 - API key management UI.
 
 Those belong to later M2 parts and must not be pulled forward before M2.1 is accepted.
+
+
+## 8. M2.2 — Machine Authentication Boundary
+
+M2.2 makes the M2.1 project API keys usable as machine credentials. It introduces a dedicated DRF
+authenticator and scope permission without registering machine credentials globally or creating an
+OTLP endpoint.
+
+Authentication flow:
+
+```text
+Authorization: Bearer sentrix_pk_<prefix>_<secret>
+                    |
+                    v
+          parse public prefix
+                    |
+                    v
+          load ProjectApiKey
+                    |
+                    v
+       verify one-way secret hash
+                    |
+          revoked / expiry check
+                    |
+                    v
+       ProjectApiKeyPrincipal
+ organization_id / project_id / api_key_id / scopes
+                    |
+                    v
+          endpoint scope check
+```
+
+A successful authentication updates `last_used_at` and returns the persisted API-key object as
+`request.auth`. The principal is the sole source of tenant/project identity for future machine
+endpoints.
+
+## 9. M2.2 acceptance
+
+M2.2 is green only when:
+
+- a valid Bearer key authenticates and exposes the correct organization/project/key IDs and scopes;
+- `last_used_at` advances after successful credential authentication;
+- wrong-secret, unknown, revoked, expired, and malformed credentials are rejected;
+- failed credential authentication does not update `last_used_at`;
+- a valid key missing an endpoint-required scope receives HTTP 403;
+- a browser/session user without a project Bearer key cannot pass a machine-only endpoint;
+- machine authentication is not added to the global DRF authentication classes;
+- no schema migration is introduced by M2.2;
+- Ruff, Ruff formatting, mypy, Django checks, pytest, frontend regressions, and Compose validation pass.
+
+## 10. Explicitly out of scope for M2.2
+
+- `/v1/metrics`, `/v1/logs`, or `/v1/traces` routes;
+- OTLP protobuf or JSON decoding;
+- request-body limits for telemetry payloads;
+- ClickHouse telemetry schemas or writes;
+- streaming/queue infrastructure;
+- API-key management UI.
+
+Those capabilities remain ordered behind M2.2. M2.3 begins only after this part is green, committed,
+and pushed.

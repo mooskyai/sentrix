@@ -379,3 +379,27 @@ Rules:
 - focus-visible states must remain obvious for keyboard users;
 - responsive layouts must preserve tenant/project context and action discoverability;
 - CSS visibility/disabled state is never authorization; backend permission checks remain mandatory.
+
+
+## 13. Machine authentication implementation rules
+
+V1 M2.2 introduces the reusable machine-authentication primitive. These rules are mandatory for every
+endpoint that consumes a project API key:
+
+- machine authentication must be explicitly enabled on the endpoint; do not add project API keys to
+  global DRF authentication defaults;
+- accept project credentials only through the Bearer authorization scheme and validate the Sentrix
+  token shape before database lookup;
+- verify the secret with Django's password-hashing API; never compare plaintext secrets directly;
+- reject unknown, revoked, and expired credentials with a generic authentication failure;
+- derive `organization_id`, `project_id`, `api_key_id`, and scopes from the persisted credential rather
+  than caller-supplied tenant identifiers;
+- update `last_used_at` only after the secret and credential state authenticate successfully;
+- enforce endpoint capabilities with named scope permissions after authentication;
+- a valid credential without a required scope is an authorization failure, not an authentication
+  failure;
+- keep browser session authentication and machine authentication separate trust paths;
+- never log the bearer value, raw secret, stored hash, or unrestricted request payload.
+
+The initial required telemetry capability remains `telemetry:write`. Additional scopes require a real
+endpoint capability and corresponding tests; do not create speculative permission matrices.

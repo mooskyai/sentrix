@@ -56,3 +56,56 @@ assertions above are the release requirement.
 
 After M2.1 passes, commit and push it. Only then may M2.2 machine authentication be designed or
 patched.
+
+
+## 4. M2.2 — Machine Authentication Boundary
+
+### Automated cases
+
+| ID | Scenario | Expected |
+| --- | --- | --- |
+| MACH-001 | valid Bearer key | authenticated project/organization/key context, HTTP 200 |
+| MACH-002 | valid Bearer key | `last_used_at` populated |
+| MACH-003 | wrong secret | HTTP 401, `last_used_at` unchanged |
+| MACH-004 | revoked key | HTTP 401, `last_used_at` unchanged |
+| MACH-005 | expired key | HTTP 401, `last_used_at` unchanged |
+| MACH-006 | valid key without required scope | HTTP 403 |
+| MACH-007 | malformed token | HTTP 401 |
+| MACH-008 | unknown public prefix | HTTP 401 |
+| MACH-009 | browser user without Bearer key | machine-only view returns HTTP 401 |
+| MACH-010 | successful authentication | `request.auth` is the persisted project API key |
+
+### Backend gate
+
+```powershell
+docker compose exec api /opt/venv/bin/python -m pytest
+docker compose exec api /opt/venv/bin/ruff check .
+docker compose exec api /opt/venv/bin/ruff format --check .
+docker compose exec api /opt/venv/bin/mypy .
+docker compose exec api /opt/venv/bin/python manage.py check
+docker compose exec api /opt/venv/bin/python manage.py makemigrations --check --dry-run
+docker compose config --quiet
+```
+
+M2.1 establishes a 20-test backend baseline. M2.2 adds nine collected machine-authentication cases,
+so approximately 29 tests are expected. Exact count is informational; zero failures and all security
+assertions are mandatory.
+
+### Regression gate
+
+M2.2 does not intentionally change frontend source or the Sentrix theme, but the release gate still
+requires the existing frontend regression commands before commit:
+
+```powershell
+docker compose exec web npm run lint
+docker compose exec web npm run typecheck
+docker compose exec web npm test -- --run
+docker compose exec web npm run build
+```
+
+There is no M2.2 migration. `makemigrations --check --dry-run` must report `No changes detected`.
+
+## 5. M2.2 stop condition
+
+After every M2.2 backend, frontend, documentation, and infrastructure gate passes, commit and push the
+machine-authentication boundary. Only then may M2.3 OTLP/HTTP ingestion be designed or patched.

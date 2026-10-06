@@ -27,9 +27,7 @@ class TestOrganizationsApi:
         user_b = User.objects.create_user(username="b")
         client_b = APIClient()
         client_b.force_authenticate(user=user_b)
-        created = client_b.post(
-            "/api/v1/organizations/", {"name": "B", "slug": "b"}, format="json"
-        )
+        created = client_b.post("/api/v1/organizations/", {"name": "B", "slug": "b"}, format="json")
         assert created.status_code == 201
 
         client_a = APIClient()

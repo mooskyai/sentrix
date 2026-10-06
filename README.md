@@ -312,3 +312,26 @@ docker compose restart web
 
 The visual system must not encode authorization. Disabled/hidden project controls improve UX, while
 Django remains the security boundary.
+
+
+## V1 M2.2 machine authentication boundary
+
+M2.2 turns the project credentials from M2.1 into a reusable machine-authentication boundary without
+changing browser authentication or accepting telemetry yet. Machine-only endpoints opt in to
+`ProjectApiKeyAuthentication`; the global DRF default remains Django session authentication for the
+first-party web application.
+
+Machine requests use:
+
+```text
+Authorization: Bearer sentrix_pk_<public-prefix>_<secret>
+```
+
+Successful authentication verifies the stored one-way secret hash, rejects revoked or expired keys,
+derives organization/project identity from the credential, exposes the authenticated key as
+`request.auth`, and updates `last_used_at`. `HasProjectApiKeyScopes` enforces endpoint-required scopes;
+the initial machine scope remains `telemetry:write`.
+
+Request payloads and URLs must never override the tenant identity established by the credential. M2.2
+adds no OTLP routes, telemetry parsing, or ClickHouse writes; those remain blocked behind M2.3 and
+later parts.
