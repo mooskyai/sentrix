@@ -1,0 +1,18 @@
+{
+  "name": "sentrix",
+  "stack": {
+    "backend": "Python 3.14 + Django 6.1.x + Django REST Framework",
+    "frontend": "React 19.3 + TypeScript + Vite 8.3+",
+    "control_plane": "PostgreSQL",
+    "cache_coordination": "Redis",
+    "telemetry_store": "ClickHouse"
+  },
+  "milestone": "V1 Platform Foundation",
+  "file_count": 77,
+  "product": "Sentrix",
+  "repository": "sentrix",
+  "brand_assets": [
+    "assets/sentrix-logo.png",
+    "frontend/public/brand/sentrix-logo.png"
+  ]
+}

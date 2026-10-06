@@ -1,0 +1,400 @@
+# Sentrix Architecture
+
+## 1. System goal
+
+Sentrix is designed as a multi-tenant observability product covering metrics, logs, traces, dashboards, monitors, incidents, infrastructure, and integrations.
+
+V1 intentionally builds the identity and tenancy foundation first. Telemetry ingestion comes after tenant and permission boundaries are stable.
+
+## 2. Architectural principles
+
+1. **Separate control plane from telemetry data plane.**
+2. **Tenant isolation is enforced server-side.**
+3. **Start as a modular monolith; split only workloads that need independent scaling.**
+4. **Use OpenTelemetry as the primary future ingestion contract.**
+5. **Choose storage by workload rather than forcing one database to do everything.**
+6. **Prefer stateless HTTP services and independently scalable workers.**
+7. **Make Sentrix itself observable from the beginning.**
+
+## 3. Context diagram
+
+```text
+                       Browser
+                          |
+                          | HTTPS
+                          v
+                 +-----------------+
+                 | React Web App   |
+                 +--------+--------+
+                          |
+                          | /api/v1
+                          v
+                 +-----------------+
+                 | Django API      |
+                 | Control Plane   |
+                 +--+-----------+--+
+                    |           |
+                    |           +--------------+
+                    v                          v
+             +-------------+             +-----------+
+             | PostgreSQL  |             | Redis     |
+             +-------------+             +-----------+
+
+                 Future query boundary
+                          |
+                          v
+                    +-----------+
+                    | ClickHouse|
+                    +-----------+
+```
+
+## 4. Future telemetry data plane
+
+```text
+Applications / Hosts / Kubernetes / Cloud Integrations
+                         |
+                         | OTLP / Prometheus / logs
+                         v
+              +------------------------+
+              | OpenTelemetry Collector|
+              +-----------+------------+
+                          |
+                          v
+                  +---------------+
+                  | Ingestion API |
+                  +-------+-------+
+                          |
+                          v
+                  +---------------+
+                  | Stream Layer  |
+                  | Redpanda/Kafka|
+                  +---+-------+---+
+                      |       |
+        +-------------+       +--------------+
+        v                                    v
+ +--------------+                      +--------------+
+ | Metric Worker|   ...                | Trace Worker |
+ +------+-------+                      +------+-------+
+        |                                     |
+        +-----------------+-------------------+
+                          v
+                    +-----------+
+                    | ClickHouse|
+                    +-----+-----+
+                          |
+                          v
+                    +-----------+
+                    | Query API |
+                    +-----+-----+
+                          |
+                          v
+                      React UI
+```
+
+The stream layer is not required in the V1 starter. It is introduced when ingestion begins so write bursts can be decoupled from ClickHouse persistence and downstream processors.
+
+## 5. V1 deployment units
+
+### React web application
+
+Responsibilities:
+
+- login/logout UI
+- organization/project selection
+- platform navigation
+- API calls
+- user-visible authorization states
+
+The React app is not an authorization boundary.
+
+### Django API
+
+Responsibilities:
+
+- sessions/authentication
+- organizations and memberships
+- projects
+- RBAC enforcement
+- health/readiness
+- future dashboard/alert/integration configuration
+
+Django is the authoritative control-plane boundary.
+
+### PostgreSQL
+
+Stores durable relational control-plane state.
+
+V1 examples:
+
+```text
+auth_user
+organizations_organization
+organizations_organizationmembership
+projects_project
+```
+
+Future examples:
+
+```text
+dashboards
+alert_rules
+notification_channels
+integrations
+audit_events
+subscriptions
+```
+
+### Redis
+
+Used for ephemeral coordination. V1 readiness validates connectivity; later milestones can add cache, rate-limit state, locks, queues, and short-lived stream coordination.
+
+### ClickHouse
+
+V1 validates connectivity only. It is reserved for telemetry and analytical workloads.
+
+Do not put user/session/organization truth in ClickHouse.
+
+## 6. Tenant model
+
+```text
+User
+  |
+  +---- OrganizationMembership ---- Organization
+                                      |
+                                      +---- Project
+                                      |
+                                      +---- Project
+```
+
+A user can belong to multiple organizations. Membership carries the organization-level role.
+
+Initial roles:
+
+```text
+OWNER
+ADMIN
+EDITOR
+VIEWER
+```
+
+Role intent:
+
+| Role | Manage org | Manage members | Create/update projects | Read projects |
+| --- | --- | --- | --- | --- |
+| Owner | Yes | Yes | Yes | Yes |
+| Admin | Limited/Yes | Yes | Yes | Yes |
+| Editor | No | No | Yes | Yes |
+| Viewer | No | No | No | Yes |
+
+V1 implements the reusable role model and project write boundary. Fine-grained permissions can be added without replacing membership.
+
+## 7. Tenant query invariant
+
+A project list is not:
+
+```text
+SELECT * FROM projects;
+```
+
+Conceptually it is:
+
+```text
+SELECT projects.*
+FROM projects
+JOIN memberships ON memberships.organization_id = projects.organization_id
+WHERE memberships.user_id = :authenticated_user;
+```
+
+Object-detail routes use the same scoped queryset. This prevents insecure direct object reference bugs caused by guessing UUIDs.
+
+## 8. Authentication
+
+V1 browser authentication uses Django sessions.
+
+Flow:
+
+```text
+Browser
+  |
+  | GET /auth/csrf/
+  v
+CSRF cookie
+  |
+  | POST /auth/login/ + X-CSRFToken
+  v
+Django authenticate()
+  |
+  v
+Session cookie
+  |
+  | authenticated API requests
+  v
+/api/v1/...
+```
+
+Why session authentication first:
+
+- first-party web application
+- strong CSRF protections are built into Django
+- no need to store bearer tokens in browser storage
+- simple logout/invalidation semantics
+
+Future agent/ingestion authentication uses scoped API keys or machine credentials, separate from browser sessions.
+
+## 9. API boundary
+
+The public application boundary starts at `/api/v1/`.
+
+V1 routes:
+
+```text
+/api/v1/health/live/
+/api/v1/health/ready/
+/api/v1/auth/*
+/api/v1/organizations/*
+/api/v1/projects/*
+```
+
+Rules:
+
+- Browser sends credentials only to the configured API origin.
+- API serializes stable resource shapes.
+- Views do not expose database internals.
+- Tenant checks happen before data is returned.
+
+## 10. Health model
+
+### Liveness
+
+`/health/live/` answers whether the Django process is running. It does not require downstream services.
+
+### Readiness
+
+`/health/ready/` checks whether the instance can serve normal application traffic by probing:
+
+- PostgreSQL
+- Redis
+- ClickHouse
+
+The endpoint returns HTTP `200` when dependencies are available and `503` when one or more required dependencies fail.
+
+In later production deployments, readiness requirements may differ by deployment unit. For example, a control-plane API that does not execute telemetry queries may treat ClickHouse as a degraded dependency rather than a hard readiness dependency. That decision should be explicit.
+
+## 11. Data ownership
+
+| Data | Owner | Storage |
+| --- | --- | --- |
+| Users | Django | PostgreSQL |
+| Organizations | Django | PostgreSQL |
+| Memberships/RBAC | Django | PostgreSQL |
+| Projects | Django | PostgreSQL |
+| Dashboard definitions | Django | PostgreSQL |
+| Alert definitions | Django | PostgreSQL |
+| Integration configuration | Django | PostgreSQL |
+| Metrics | Telemetry services | ClickHouse |
+| Logs | Telemetry services | ClickHouse |
+| Traces/spans | Telemetry services | ClickHouse |
+| Cache/locks | Runtime services | Redis |
+
+## 12. Telemetry schema direction
+
+Later milestones should make tenant filtering physically useful, not only logically correct. Typical rows will include:
+
+```text
+organization_id
+project_id
+timestamp
+service_name
+environment
+signal-specific fields
+attributes
+```
+
+Every user query has a bounded tenant scope and time range.
+
+ClickHouse table engines, partitioning, ordering keys, TTLs, projections, and materialized views will be chosen from measured query patterns rather than guessed during V1.
+
+## 13. Background work
+
+Do not run long-lived work inside request handlers.
+
+Future asynchronous workloads include:
+
+- alert evaluation
+- notification delivery
+- integration polling
+- data rollups
+- retention/cleanup coordination
+- scheduled reports
+
+A later milestone can introduce Celery/Dramatiq or purpose-built workers after the actual workload is known. Redis availability in V1 does not force a queue technology choice.
+
+## 14. Repository architecture
+
+The backend begins as a modular monolith:
+
+```text
+backend/apps/
+  accounts/
+  common/
+  organizations/
+  projects/
+  dashboards/      future
+  alerts/          future
+  integrations/    future
+```
+
+This is intentional. Service boundaries will be introduced around scaling/failure domains, particularly ingestion and telemetry processing, instead of splitting CRUD domains into network services prematurely.
+
+## 15. Security boundary
+
+Trust order:
+
+```text
+Untrusted browser input
+       |
+       v
+Authentication
+       |
+       v
+Membership / role authorization
+       |
+       v
+Validated serializer input
+       |
+       v
+Domain operation
+       |
+       v
+Database
+```
+
+Never reverse this by loading an arbitrary tenant object first and deciding later whether the user may see it.
+
+## 16. Production evolution
+
+### V1
+
+Control-plane foundation.
+
+### V2
+
+OpenTelemetry ingestion gateway, machine API keys, ClickHouse telemetry schemas, ingestion metering.
+
+### V3
+
+Metrics explorer and first dashboard panels.
+
+### V4
+
+Logs and trace correlation.
+
+### V5
+
+Alert evaluation and notification dispatch.
+
+### V6+
+
+Service catalog, Kubernetes/infrastructure views, incidents, integrations, usage-based plans, SSO, advanced analytics.
+
+This sequence preserves a stable tenancy/security core while adding independently scalable telemetry capabilities.
