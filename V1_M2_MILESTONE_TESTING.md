@@ -328,3 +328,77 @@ suite must remain green.
 Commit and push the project API-key management UI only after role-aware behavior, one-time secret
 handling, frontend quality gates, backend regressions, schema validation, and documentation all pass.
 Only then may M2.7 operational verification and final M2 documentation work begin.
+
+
+## 14. M2.7 — Operational Verification and Documentation
+
+### Operational cases
+
+| ID | Scenario | Expected |
+| --- | --- | --- |
+| OPS-001 | fresh Compose bootstrap | all five services start without deleting persisted volumes |
+| OPS-002 | PostgreSQL migration verification | migrations apply; no model migration drift |
+| OPS-003 | ClickHouse schema apply/check | metrics/logs/spans tables apply and validate |
+| OPS-004 | API liveness/readiness | both return HTTP 200; readiness reports dependencies available |
+| OPS-005 | project API-key operational flow | credential created from project settings; secret shown once |
+| OPS-006 | real OTLP exporter | authenticated Python OTLP/HTTP span export succeeds |
+| OPS-007 | durable row verification | generated span exists under credential-derived `project_id` |
+| OPS-008 | invalid/revoked credential regression | ingestion remains HTTP 401 |
+| OPS-009 | durable sink failure regression | ClickHouse failure remains retryable HTTP 503 |
+| OPS-010 | complete M2 release gate | backend/frontend/schema/Compose/whitespace gates have zero failures |
+
+### Fresh-environment verification
+
+From a clean clone, create `.env` and start Sentrix with the platform bootstrap:
+
+```powershell
+.\bootstrap.cmd
+```
+
+The bash equivalent is `./bootstrap.sh`. Confirm the final Compose status shows `postgres`, `redis`,
+`clickhouse`, `api`, and `web` running. Bootstrap must not invoke `docker compose down -v`.
+
+Create/sign in to a user, create an organization/project, then create a telemetry credential from the
+project Settings route. Keep the one-time secret only long enough to run the smoke verifier:
+
+```powershell
+./scripts/verify-m2.ps1
+```
+
+The verifier securely prompts for the key, validates running services/schema/health, sends a real
+OpenTelemetry OTLP/HTTP span, and queries ClickHouse by the project ID derived from the authenticated
+credential. It must report the generated span without printing the bearer credential.
+
+### Final M2 release gate
+
+```powershell
+docker compose exec api /opt/venv/bin/python -m pytest
+docker compose exec api /opt/venv/bin/ruff check .
+docker compose exec api /opt/venv/bin/ruff format --check .
+docker compose exec api /opt/venv/bin/mypy .
+docker compose exec api /opt/venv/bin/python manage.py check
+docker compose exec api /opt/venv/bin/python manage.py makemigrations --check --dry-run
+docker compose exec api /opt/venv/bin/python manage.py clickhouse_schema --check
+docker compose exec web npm run lint
+docker compose exec web npm run typecheck
+docker compose exec web npm test -- --run
+docker compose exec web npm run build
+docker compose config --quiet
+git diff --check
+git status --short
+```
+
+`./scripts/verify.ps1` runs the executable quality-gate subset above (through `git diff --check`) against
+the Compose environment. `git status --short` remains a deliberate final inspection because M2.7 is not
+committed until every verification result is confirmed green.
+
+The pre-M2.7 automated baseline is 53 backend tests and 3 frontend test files / 9 frontend tests. Test
+counts may increase; zero failures and preservation of the security/tenancy assertions matter more
+than an exact count.
+
+## 15. M2.7 stop condition
+
+Do not mark M2 complete from documentation or expected output alone. The operator must actually run the
+operational smoke and complete release gate, review `git status --short`, then commit and push M2.7.
+After push, require `git status -sb` to show `main...origin/main` with no local changes before starting
+M3.

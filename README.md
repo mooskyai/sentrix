@@ -105,7 +105,7 @@ After services become healthy:
 Create a Django superuser:
 
 ```powershell
-docker compose exec api uv run python manage.py createsuperuser
+docker compose exec api /opt/venv/bin/python manage.py createsuperuser
 ```
 
 ## Local development without containerizing the app processes
@@ -465,3 +465,79 @@ prefix, scopes, expiry, last-used time, revocation state, and other safe metadat
 The settings UI uses the same project UUID already resolved through the authenticated tenant-scoped
 workspace. Browser role checks improve UX only; Django remains authoritative for list/create/revoke
 authorization.
+
+## V1 M2.7 operational verification
+
+M2.7 closes the telemetry-ingestion milestone by making the existing path reproducible from bootstrap
+through durable ClickHouse storage. It does not add telemetry query/explorer behavior.
+
+For a fresh local environment, use the repository bootstrap instead of manually re-creating its steps:
+
+```powershell
+.\bootstrap.cmd
+```
+
+On bash-compatible systems:
+
+```bash
+./bootstrap.sh
+```
+
+The bootstrap preserves existing volumes, creates `.env` from `.env.example` only when needed, starts
+the Compose stack, applies PostgreSQL migrations, applies and validates the ClickHouse schema, checks
+Django, verifies liveness/readiness, and creates the first Django superuser only when none exists. It
+never runs `docker compose down -v`; that command deletes local PostgreSQL and ClickHouse data.
+
+After signing in, create an organization and project, then open:
+
+```text
+/orgs/<organization>/projects/<project>/settings
+```
+
+Create a telemetry credential and copy the full `sentrix_pk_...` value immediately. The full secret is
+shown only once and cannot be recovered from later list responses.
+
+To prove that a real OpenTelemetry HTTP exporter can authenticate with that credential and persist a
+tenant-scoped span, run:
+
+```powershell
+./scripts/verify-m2.ps1
+```
+
+The script prompts for the API key using a secure PowerShell prompt, checks that all Compose services
+are running, verifies the web/API health endpoints and ClickHouse schema, sends a real OTLP/HTTP span
+through `/v1/traces`, and confirms the resulting `sentrix_spans` row using the project ID derived from
+the authenticated key. The credential is piped over stdin and is never printed by the verification
+tooling.
+
+OpenTelemetry OTLP/HTTP exporters may also use the standard base endpoint configuration:
+
+```text
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:8000
+OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+OTEL_EXPORTER_OTLP_HEADERS=Authorization=Bearer sentrix_pk_...
+```
+
+With a base OTLP/HTTP endpoint, standard exporters send traces, metrics, and logs to `/v1/traces`,
+`/v1/metrics`, and `/v1/logs` respectively. Sentrix currently supports binary protobuf only; OTLP/JSON
+is intentionally unsupported. Do not commit exporter credentials to `.env`, scripts, or source files.
+
+Operational failure meanings:
+
+| Status | Meaning |
+| --- | --- |
+| `400` | malformed OTLP protobuf/gzip payload |
+| `401` | missing, malformed, unknown, revoked, or expired project credential |
+| `403` | authenticated credential lacks `telemetry:write` |
+| `413` | request exceeds `OTLP_MAX_REQUEST_BYTES` |
+| `415` | unsupported media type or content encoding |
+| `503` | durable ClickHouse acceptance is unavailable; exporter should retry |
+
+Run the complete release gate before committing M2.7:
+
+```powershell
+./scripts/verify.ps1
+```
+
+That script runs the backend tests/static checks, Django migration/schema checks, frontend lint/typecheck/
+tests/build, Compose validation, and `git diff --check` against the running development stack.

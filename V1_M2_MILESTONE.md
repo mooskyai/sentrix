@@ -370,3 +370,60 @@ M2.6 is green only when:
 - retention/billing UI and operational deployment verification.
 
 M2.7 may begin only after M2.6 is green, committed, and pushed.
+
+
+## 23. M2.7 — Operational Verification and Documentation
+
+M2.7 proves the complete M2 ingestion path can be reproduced from documented setup through durable
+ClickHouse storage using standard OpenTelemetry tooling. This part closes setup, verification, and
+documentation gaps only; it does not introduce a telemetry query product surface.
+
+The operational path is:
+
+```text
+clean clone
+  -> .env/bootstrap
+  -> Compose services
+  -> PostgreSQL migrations
+  -> ClickHouse schema apply/check
+  -> liveness/readiness
+  -> user + organization + project
+  -> one-time project telemetry credential
+  -> real OTLP/HTTP exporter
+  -> durable ClickHouse row
+  -> project-scoped verification
+```
+
+## 24. M2.7 acceptance
+
+M2.7 is green only when:
+
+- the existing Windows and bash bootstrap scripts start a fresh Compose environment without deleting
+  existing volumes;
+- PostgreSQL migrations apply and Django reports no migration drift;
+- the ClickHouse schema applies idempotently and `clickhouse_schema --check` validates all three signal
+  tables;
+- frontend, API liveness, API readiness, and ClickHouse dependencies are operational;
+- the README documents organization/project/API-key setup and the one-time-secret boundary;
+- a real OpenTelemetry Python OTLP/HTTP exporter can send a span using a project credential;
+- the smoke verifier confirms the span in ClickHouse using the project ID derived from that credential;
+- automated M2 tests still prove metrics, logs, traces, tenant isolation, exporter interoperability, and
+  retryable ClickHouse failure behavior;
+- operational tooling never prints, stores, or commits the raw project credential;
+- HTTP 400/401/403/413/415/503 failure meanings are documented;
+- README, architecture, coding guideline, and M2 testing documents describe the final ingestion path;
+- backend tests/Ruff/format/mypy/Django checks, frontend lint/typecheck/tests/build, Compose validation,
+  ClickHouse schema validation, and `git diff --check` are green.
+
+Only after these checks are run successfully, M2.7 is committed/pushed, and `main` is aligned with
+`origin/main` is **V1 M2 complete**.
+
+## 25. Explicitly out of scope for M2.7
+
+- telemetry query APIs or metrics/logs/traces explorers;
+- dashboards, alert evaluation, retention/TTL, billing, or usage metering changes;
+- asynchronous ingestion/streaming infrastructure;
+- OTLP/JSON support;
+- new telemetry schemas or speculative ClickHouse optimization.
+
+M3 must not begin until M2.7 is green, committed, and pushed.

@@ -54,7 +54,7 @@ echo.
 echo ==^> Waiting for the Django API
 set "API_READY="
 for /L %%I in (1,1,60) do (
-    docker compose exec -T api /opt/venv/bin/python manage.py check >nul 2>&1
+    docker compose exec -T api /opt/venv/bin/python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/live/', timeout=2).read()" >nul 2>&1
     if not errorlevel 1 (
         set "API_READY=1"
         goto :api_ready
@@ -91,6 +91,11 @@ docker compose exec -T api /opt/venv/bin/python manage.py check
 if errorlevel 1 goto :failed
 
 echo.
+echo ==^> Verifying application readiness
+docker compose exec -T api /opt/venv/bin/python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready/', timeout=5).read()"
+if errorlevel 1 goto :failed
+
+echo.
 echo ==^> Ensuring an initial Django admin user exists
 docker compose exec -T api /opt/venv/bin/python manage.py shell -c "from django.contrib.auth import get_user_model; raise SystemExit(0 if get_user_model().objects.filter(is_superuser=True).exists() else 1)" >nul 2>&1
 if not errorlevel 1 (
@@ -112,6 +117,9 @@ echo Sentrix initial setup is complete.
 echo.
 echo Web:        http://localhost:5173
 echo Django API: http://localhost:8000
+echo Liveness:   http://localhost:8000/api/v1/health/live/
+echo Readiness:  http://localhost:8000/api/v1/health/ready/
+echo ClickHouse: http://localhost:8123
 echo Admin:      http://localhost:8000/admin/
 echo.
 echo Useful commands:

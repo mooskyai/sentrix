@@ -479,3 +479,25 @@ M2.6 exposes sensitive credential lifecycle through the first-party browser. Req
   project's credential state;
 - client expiry validation improves feedback, but server validation remains authoritative;
 - customer-facing credential screens must never expose internal milestone or patch identifiers.
+
+
+## 18. Operational verification rules
+
+M2.7 makes operability part of the release contract. Required rules:
+
+- bootstrap and verification commands must be executable from the documented repository root;
+- commands executed inside the API container use `/opt/venv/bin/python`, `/opt/venv/bin/ruff`, and
+  `/opt/venv/bin/mypy`; do not run `uv run` inside the built API container;
+- bootstrap may apply idempotent migrations/schema changes but must never delete persistent volumes;
+- verify both `/api/v1/health/live/` and `/api/v1/health/ready/`; readiness failure is a release blocker;
+- operational telemetry smoke tests must enter through the public authenticated OTLP boundary rather
+  than inserting ClickHouse rows directly;
+- persistence verification must always include the credential-derived `project_id`; never use an
+  unscoped raw-telemetry query as an application/verification example;
+- project API-key secrets must not be accepted as ordinary command-line arguments, printed, written to
+  files, committed, or included in failure output; prefer a secure prompt/stdin for local tooling;
+- verification may print safe identifiers such as project UUID, API-key public prefix, generated span
+  name, and row counts;
+- an OTLP 503 is a retryable durable-sink failure and must never be rewritten into success by tooling;
+- M2.7 may improve scripts/docs/tests for the existing ingestion path but must not pull query APIs,
+  telemetry explorers, dashboards, retention, alerting, billing, or other M3+ features forward.

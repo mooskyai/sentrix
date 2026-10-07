@@ -655,3 +655,43 @@ panel so any undisclosed secret is dropped with the previous project context.
 List state remains tenant-safe through a query key that includes the project UUID. Revoke and create
 operations invalidate only that project's API-key query. The UI may show expiry, last-used, revocation,
 scope, and prefix metadata because those values are already part of the safe control-plane response.
+
+
+## 23. Operational verification boundary
+
+V1 M2.7 does not add another product/data-plane capability. It closes the ingestion foundation by
+proving the existing boundaries can be operated together from a clean local environment:
+
+```text
+bootstrap
+   |
+   +--> PostgreSQL migrations
+   +--> ClickHouse schema apply/check
+   +--> liveness/readiness
+   |
+   v
+project settings -> one-time project API key
+   |
+   v
+real OpenTelemetry OTLP/HTTP exporter
+   |
+   v
+/v1/traces -> project API-key auth -> ClickHouse insert
+   |
+   v
+tenant-scoped ClickHouse verification
+```
+
+Operational verification must use the same production-shaped contracts as normal ingestion. It must
+not insert synthetic rows directly into ClickHouse, derive tenant identity from OTLP payloads, or
+print/store the one-time bearer credential. The smoke exporter sends through the public OTLP route and
+verifies persistence using the `project_id` derived from the authenticated credential.
+
+The readiness endpoint remains the dependency-level operational signal: it checks PostgreSQL, Redis,
+and ClickHouse and returns HTTP 503 when any dependency is unavailable. ClickHouse schema validation is
+separate because dependency reachability alone does not prove the expected telemetry table contract.
+
+M2.7 also makes the development release gate Compose-first. Commands executed inside the API container
+use `/opt/venv/bin/...`; `uv run` is reserved for host-side development because running it inside the
+built container can resynchronize `/opt/venv`. Persistent volumes are never deleted as part of normal
+bootstrap or verification.

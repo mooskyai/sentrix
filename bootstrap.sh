@@ -37,7 +37,7 @@ docker compose up -d --build
 log "Waiting for the Django API"
 api_ready=0
 for ((attempt = 1; attempt <= 60; attempt++)); do
-  if docker compose exec -T api /opt/venv/bin/python manage.py check >/dev/null 2>&1; then
+  if docker compose exec -T api /opt/venv/bin/python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/live/', timeout=2).read()" >/dev/null 2>&1; then
     api_ready=1
     break
   fi
@@ -62,6 +62,10 @@ docker compose exec -T api /opt/venv/bin/python manage.py clickhouse_schema --ch
 log "Running Django system check"
 docker compose exec -T api /opt/venv/bin/python manage.py check
 
+log "Verifying application readiness"
+docker compose exec -T api /opt/venv/bin/python -c \
+  "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready/', timeout=5).read()"
+
 log "Ensuring an initial Django admin user exists"
 if docker compose exec -T api /opt/venv/bin/python manage.py shell -c \
   'from django.contrib.auth import get_user_model; raise SystemExit(0 if get_user_model().objects.filter(is_superuser=True).exists() else 1)'; then
@@ -83,6 +87,9 @@ Sentrix initial setup is complete.
 
 Web:        http://localhost:5173
 Django API: http://localhost:8000
+Liveness:   http://localhost:8000/api/v1/health/live/
+Readiness:  http://localhost:8000/api/v1/health/ready/
+ClickHouse: http://localhost:8123
 Admin:      http://localhost:8000/admin/
 
 Useful commands:
