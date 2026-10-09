@@ -817,3 +817,43 @@ Dashboard panels use raw returned gauge/sum number points. Latest/min/max are pr
 the bounded response, not new persisted aggregations or semantic transformations. M3.3 introduces no
 counter-rate function, histogram flattening, percentile computation, materialized view, or dashboard-
 specific telemetry API.
+
+## 27. M3 operational verification boundary
+
+M3.4 verifies the complete read path without introducing another application data path:
+
+```text
+project telemetry key
+      |
+      v
+public OTLP/HTTP /v1/metrics
+      |
+      v
+ClickHouse sentrix_metrics
+      |
+      +--> project-scoped durable persistence check
+      |
+normal browser session + membership
+      |
+      v
+M3.1 catalog / numeric-series APIs
+      |
+      +--> Metrics explorer
+      |
+      `--> temporary ProjectDashboardPanel --> Dashboards
+```
+
+The OTLP smoke derives organization/project identity by authenticating the existing project key. Its
+ClickHouse diagnostic uses both IDs, the unique metric name, exact service/environment, and a narrow UTC
+window; it does not perform an unscoped telemetry scan. That diagnostic proves durable ingestion, while
+the subsequent session-authenticated catalog/series requests independently prove the application read
+boundary.
+
+Dashboard verification intentionally uses ordinary PostgreSQL control-plane configuration. The closeout
+creates one temporary panel through the public project API, asks the operator to confirm the fresh metric
+in the real Metrics and Dashboards routes, and then removes only that temporary panel. No telemetry rows
+are deleted or rewritten by verification.
+
+`verify-m3.ps1` recreates application containers from the current repository but never removes persistent
+volumes. It delegates the final static/test/build checks to `verify.ps1`; M3 operational verification is
+therefore an end-to-end runtime proof layered on top of, not a replacement for, the normal release gate.

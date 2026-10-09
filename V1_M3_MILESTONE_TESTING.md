@@ -306,3 +306,76 @@ smoke, and full release gate are green; the change is committed and pushed; and:
 ```
 
 is clean. Only then may M3.4 Operational Verification and Documentation begin.
+
+## 14. M3.4 operational closeout
+
+Run from the repository root on Windows/PowerShell:
+
+```powershell
+./scripts/verify-m3.ps1
+```
+
+The default closeout recreates current Compose containers with build/force-recreate but preserves all
+persistent volumes. `-SkipComposeRecreate` and `-SkipReleaseGate` exist only for diagnosing a failed
+step; neither switch is acceptable for the final M3 sign-off.
+
+The verifier requires:
+
+- one valid project telemetry API key with `telemetry:write`;
+- a normal Sentrix username/password whose membership includes the same project;
+- owner/admin/editor role for that browser user so a temporary panel can be created;
+- one free dashboard panel slot (the V1 maximum remains six).
+
+`SENTRIX_OTLP_API_KEY` may provide the telemetry key and `SENTRIX_BROWSER_USERNAME` may provide the
+username. The browser password is always read with `Read-Host -AsSecureString`. Do not place passwords or
+one-time keys in repository files or command history.
+
+## 15. M3.4 runtime assertions
+
+The verifier must prove, in order:
+
+1. Compose configuration is valid and postgres/redis/clickhouse/api/web are running;
+2. web, liveness, readiness, and ClickHouse schema checks pass;
+3. `otlp_metric_smoke.py` exports a uniquely named raw scalar value through `/v1/metrics`;
+4. the helper authenticates the key, scopes its diagnostic by derived organization/project IDs, and
+   finds the expected value durably in `sentrix_metrics`;
+5. a CSRF/session-authenticated browser user can access that project through normal membership APIs;
+6. the fresh metric appears through the project catalog and exact-filter numeric-series API;
+7. the verifier creates and re-reads one temporary dashboard panel for the fresh query;
+8. the operator opens the printed Metrics and Dashboards URLs and confirms the same fresh metric/value;
+9. the temporary panel is deleted (with best-effort cleanup also attempted if a later step fails);
+10. the entire `scripts/verify.ps1` release gate passes.
+
+The browser confirmation does not replace API checks. Conversely, the direct ClickHouse persistence
+check does not replace the session-authenticated query check.
+
+## 16. Expected M3.4 success
+
+A successful run ends with:
+
+```text
+M3 operational verification passed.
+```
+
+Then verify repository state:
+
+```powershell
+git diff --check
+git status -sb
+git diff --stat
+```
+
+Before the closeout commit, only the intended M3.4 script/documentation cleanup should be present.
+Generated `frontend/*.tsbuildinfo` files are ignored and must not be staged.
+
+## 17. M3 stop condition
+
+M3 is complete only after `verify-m3.ps1` passes without its diagnostic skip switches, the closeout
+changes are committed and pushed, and:
+
+```text
+## main...origin/main
+```
+
+is clean. At that point M3.1 query, M3.2 explorer, M3.3 dashboard, and M3.4 operational evidence form one
+closed milestone; do not continue adding M3 behavior after sign-off.

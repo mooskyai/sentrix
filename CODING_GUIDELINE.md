@@ -574,3 +574,28 @@ M3.3 project dashboards must preserve the control-plane/data-plane separation:
 - panel removal requires explicit confirmation in the browser, while backend RBAC remains authoritative;
 - frontend/backend tests must cover viewer read-only behavior, foreign-project non-discovery, panel
   scoping, duplicate/limit enforcement, pin propagation, real series rendering, empty state, and removal.
+
+## 22. Operational verification rules
+
+M3+ operational smoke tooling must follow the same trust boundaries as production code:
+
+- send telemetry through the public OTLP endpoint; never satisfy an ingestion smoke by inserting rows
+  directly into ClickHouse;
+- derive tenant IDs from an authenticated project credential and scope every direct diagnostic query by
+  both organization and project plus a unique smoke identifier;
+- use typed ClickHouse parameters in operational diagnostics when values are dynamic;
+- verify first-party reads through a normal CSRF/session-authenticated HTTP flow; direct ClickHouse
+  persistence alone is not proof that the browser query boundary works;
+- require the browser/session user to independently have membership in the project bound to the
+  telemetry key; the key itself must not grant browser access;
+- do not print, write, cache, or commit bearer keys or browser passwords; clear plaintext variables after
+  use and prefer secure prompts;
+- temporary dashboard configuration must be created through the normal API, clearly identified, and
+  removed after verification; never delete unrelated user panels to make room for a smoke run;
+- normal operational verification may recreate containers but must not delete persistent volumes;
+- an operator confirmation may be used for the rendered browser surface, but automated API/persistence
+  checks must pass first and failures must remain failures rather than being recorded as a successful
+  smoke;
+- operational closeout must finish with the complete `scripts/verify.ps1` gate and a clean repository;
+- generated build state such as `*.tsbuildinfo` must remain untracked so verification itself does not
+  produce milestone changes.

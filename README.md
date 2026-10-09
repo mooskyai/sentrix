@@ -637,3 +637,40 @@ docker compose exec api /opt/venv/bin/python manage.py migrate
 ```
 
 Fresh bootstrap/startup continues to apply Django migrations automatically.
+
+## V1 M3.4 operational verification and closeout
+
+M3 closes with one production-shaped verification command:
+
+```powershell
+./scripts/verify-m3.ps1
+```
+
+The script recreates the current Compose services with `--build --force-recreate` while preserving
+PostgreSQL and ClickHouse persistent volumes. Use `-SkipComposeRecreate` only while debugging an already
+fresh stack; it is not the final M3 acceptance path. The script then checks frontend/API readiness and
+the ClickHouse schema, securely prompts for a project telemetry key, exports a uniquely named real
+OTLP/HTTP metric, and proves that metric is durably present under the project/organization derived from
+the credential.
+
+M3.4 also verifies the first-party read path rather than stopping at a direct ClickHouse diagnostic. It
+prompts for a normal Sentrix browser username/password, establishes a real CSRF/session-authenticated
+HTTP session, resolves the telemetry-key project through that user's memberships, and verifies the fresh
+metric through both `/metrics/catalog/` and `/metrics/series/` with exact service/environment filters.
+The browser user must have owner/admin/editor access because the smoke temporarily creates one dashboard
+panel; a project with six panels must free one slot before running the closeout.
+
+The script prints exact Metrics and Dashboards URLs and pauses for a human browser confirmation that the
+fresh value is visible in both views. The temporary panel is removed after confirmation (and cleanup is
+attempted on failure), then the normal `scripts/verify.ps1` release gate runs. A successful M3 closeout
+ends with:
+
+```text
+M3 operational verification passed.
+```
+
+Secrets are read from secure prompts and are never printed. `SENTRIX_OTLP_API_KEY` and
+`SENTRIX_BROWSER_USERNAME` may be supplied for convenience, but the browser password is always prompted
+securely. The operational metric remains in ClickHouse as real telemetry; only the temporary dashboard
+configuration is deleted. Generated TypeScript `.tsbuildinfo` state is ignored and no longer versioned,
+so the production frontend build does not dirty the repository.

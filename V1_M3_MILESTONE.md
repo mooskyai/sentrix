@@ -255,3 +255,66 @@ M3.3 is green only when:
 - logs/traces panels, alerts, incidents, billing, or AI analysis.
 
 M3.4 must not begin until M3.3 is green, committed, pushed, and `main` is aligned with `origin/main`.
+
+## 13. M3.4 — Operational verification and milestone closeout
+
+M3.4 adds no product feature. It proves that the M2 ingestion path and M3 read/dashboard path operate
+together against a freshly recreated, volume-preserving Compose stack.
+
+The closeout flow is:
+
+```text
+real project API key
+      |
+      v
+unique OTLP metric -> durable ClickHouse row
+      |
+      v
+normal browser session -> catalog -> numeric series
+      |
+      v
+temporary persisted dashboard panel
+      |
+      v
+human confirmation in Metrics + Dashboards
+      |
+      v
+temporary panel cleanup -> full repository release gate
+```
+
+`backend/scripts/otlp_metric_smoke.py` exports one uniquely named scalar metric through `/v1/metrics`,
+authenticates the supplied key to derive organization/project identity, and verifies scoped durable
+persistence. It emits only non-secret metadata needed by `scripts/verify-m3.ps1`.
+
+`verify-m3.ps1` then establishes a normal browser session, proves the fresh metric through the M3.1
+catalog/series APIs, creates one temporary M3.3 dashboard panel, requires browser confirmation of the
+fresh value in both routes, removes the temporary panel, and runs `scripts/verify.ps1`.
+
+## 14. M3.4 acceptance
+
+M3 is closed only when:
+
+- Compose services are recreated from the current repository without deleting persistent volumes;
+- frontend, liveness, readiness, and ClickHouse schema checks are green;
+- a real project credential exports a fresh unique OTLP/HTTP scalar metric;
+- a scoped ClickHouse diagnostic proves the metric is durable for the organization/project derived from
+  that credential;
+- a separately authenticated browser user can resolve the same project through membership;
+- the session-authenticated catalog exposes the fresh metric as numeric and the numeric-series endpoint
+  returns the expected raw value using exact service/environment filters;
+- an owner/admin/editor session can create and read one temporary dashboard panel for that exact query;
+- the operator confirms the fresh metric/value appears in both the real Metrics and Dashboards routes;
+- the temporary dashboard panel is removed after the smoke while the telemetry row is left untouched;
+- the complete `scripts/verify.ps1` backend/frontend/schema/build/repository gate passes afterward;
+- no bearer credential/password is printed or persisted by the verifier;
+- generated TypeScript build metadata is not tracked and the final working tree can be clean;
+- README, architecture, coding, milestone, and testing docs describe the completed M3 contract.
+
+## 15. M3 closeout boundary
+
+M3 completion does not authorize additional query semantics or product scope. Counter rates/deltas,
+histogram percentiles, arbitrary grouping/query languages, logs/traces explorers, dashboard layout
+editing, alerts, incidents, retention/rollups, billing, and AI analysis remain future work.
+
+After M3.4 is green, commit/push the closeout and confirm `main` is aligned with `origin/main`. Only then
+should the next V1 milestone begin.
