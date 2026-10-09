@@ -599,3 +599,26 @@ M3+ operational smoke tooling must follow the same trust boundaries as productio
 - operational closeout must finish with the complete `scripts/verify.ps1` gate and a clean repository;
 - generated build state such as `*.tsbuildinfo` must remain untracked so verification itself does not
   produce milestone changes.
+
+## 23. Log query and correlation rules
+
+M4 log/trace work must preserve these rules:
+
+- resolve the project through authenticated membership before opening ClickHouse;
+- include authorized `organization_id` and `project_id` predicates in every log/span query;
+- treat trace IDs, span IDs, service names, environments, severities, bodies, and attributes as data,
+  never authorization inputs;
+- bound log-search time windows and row limits before query execution;
+- pass service/environment/severity/body/trace filters as typed ClickHouse parameters;
+- do not accept arbitrary SQL, regex, attribute-expression languages, or dynamic query fragments in the
+  initial log-search API;
+- validate correlation IDs to their OpenTelemetry hexadecimal widths before querying;
+- return the all-zero missing-ID storage sentinel as `null` rather than a navigable trace/span ID;
+- preserve raw severity/body/resource/scope/log attributes; do not fabricate normalized messages or
+  inferred correlation;
+- return HTTP 503 for ClickHouse query failure and keep empty results distinct from dependency failure;
+- close ClickHouse clients on success and failure paths;
+- add indexes, projections, materialized views, or retention changes only from measured query needs or an
+  explicit product/storage decision;
+- tests must include foreign-project non-discovery, parameterization, query bounds, dependency failure,
+  correlation-ID validation, and a live two-project isolation query.

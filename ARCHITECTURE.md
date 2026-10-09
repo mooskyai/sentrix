@@ -857,3 +857,42 @@ are deleted or rewritten by verification.
 `verify-m3.ps1` recreates application containers from the current repository but never removes persistent
 volumes. It delegates the final static/test/build checks to `verify.ps1`; M3 operational verification is
 therefore an end-to-end runtime proof layered on top of, not a replacement for, the normal release gate.
+
+## 28. Logs read/query boundary
+
+V1 M4.1 extends the proven project-scoped telemetry read pattern to `sentrix_logs`:
+
+```text
+Authenticated browser session
+        |
+        v
+projects_for_user membership-scoped lookup
+        |
+        | authorized organization_id + project_id
+        v
+bounded log-search API
+        |
+        v
+ClickHouse sentrix_logs
+```
+
+A trace ID, span ID, service name, body string, severity, or arbitrary telemetry attribute is data to
+filter or display; none of it establishes tenant authority. Django resolves the route project first, and
+every ClickHouse query includes both organization and project predicates derived from that object.
+Unknown/foreign project UUIDs therefore stop before the data plane is opened.
+
+M4.1 deliberately uses a narrow search grammar: bounded UTC time, exact service/environment, minimum
+OpenTelemetry severity number, bounded case-insensitive body substring, and an exact validated trace ID.
+Dynamic values are ClickHouse parameters. The only SQL assembled by application code is fixed query
+structure plus a validated integer row limit. Arbitrary SQL, regex, attribute-expression languages, and
+user-provided query fragments remain out of scope.
+
+Log responses preserve resource, instrumentation-scope, and record attributes alongside severity/body
+and correlation IDs. The write schema represents missing trace/span IDs with all-zero fixed-width values;
+the query boundary converts those sentinels to `null` so later UI code cannot mistake them for valid
+correlation targets. M4.3 may follow non-zero trace IDs only after independently applying the same
+project authorization to span queries.
+
+The first implementation queries the existing tenant-first ClickHouse ordering rather than adding
+indexes, projections, materialized views, or retention changes before measured log-search behavior
+exists. Query windows and row counts are bounded to keep that initial contract operationally safe.

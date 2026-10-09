@@ -674,3 +674,29 @@ Secrets are read from secure prompts and are never printed. `SENTRIX_OTLP_API_KE
 securely. The operational metric remains in ClickHouse as real telemetry; only the temporary dashboard
 configuration is deleted. Generated TypeScript `.tsbuildinfo` state is ignored and no longer versioned,
 so the production frontend build does not dirty the repository.
+
+## V1 M4.1 logs query foundation
+
+M4 extends the first-party telemetry read path to the durable log rows already written by M2. The first
+slice adds one session-authenticated, project-scoped endpoint:
+
+```text
+GET /api/v1/projects/{project_id}/logs/search/
+```
+
+As with metrics, Django resolves the project through the authenticated user's membership-scoped queryset
+before ClickHouse is opened. ClickHouse receives the organization/project IDs from that authorized
+project, never from log attributes or caller-supplied tenant fields.
+
+The search defaults to the previous hour, allows at most seven days, returns at most 1,000 rows, and
+orders results newest-first. Optional filters are exact `service_name`/`environment`, OpenTelemetry
+`min_severity_number` (`0..24`), a bounded case-insensitive `body_contains` substring, and an exact
+32-hex non-zero `trace_id`. All dynamic values are typed ClickHouse parameters; M4.1 does not expose
+arbitrary SQL, regex, or attribute-expression syntax.
+
+Returned rows preserve raw log metadata including severity, body, event name, resource/scope/log
+attributes, flags, and trace/span IDs. The all-zero storage sentinel for an absent correlation ID is
+returned as `null`. Trace lookup and browser navigation are deliberately deferred to M4.3; a trace ID
+in a log response is searchable data, not tenant authority.
+
+The Logs workspace remains a truthful placeholder until M4.2 connects it to this API.
