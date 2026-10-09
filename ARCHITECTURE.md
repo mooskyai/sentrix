@@ -896,3 +896,34 @@ project authorization to span queries.
 The first implementation queries the existing tenant-first ClickHouse ordering rather than adding
 indexes, projections, materialized views, or retention changes before measured log-search behavior
 exists. Query windows and row counts are bounded to keep that initial contract operationally safe.
+
+
+## 29. Logs explorer client boundary
+
+V1 M4.2 connects the existing Logs route to M4.1 without adding a browser-to-ClickHouse path:
+
+```text
+Project workspace /logs
+        |
+        | immutable project UUID from tenant-scoped workspace
+        v
+TanStack Query /logs/search/
+        |
+        | bounded UTC window + row limit + applied filters
+        v
+M4.1 Django membership boundary
+        |
+        v
+ClickHouse sentrix_logs
+```
+
+The explorer keeps draft filter input separate from applied query state. Service, environment, severity,
+body substring, and trace ID therefore do not trigger queries while the operator is typing. Applying or
+clearing filters advances the bounded window anchor and changes a query key containing project UUID,
+start/end, row limit, and every applied filter. Project changes remount the explorer.
+
+The UI renders raw response fields rather than normalizing log bodies or inferring missing correlation.
+Trace/span IDs are text in M4.2, including an explicit absent state for `null`; trace navigation waits for
+M4.3 so following an identifier cannot bypass the future project-scoped span authorization boundary.
+HTTP/query failures remain visible failures, healthy empty results remain empty states, and a truncated
+response warns that the visible rows are incomplete.

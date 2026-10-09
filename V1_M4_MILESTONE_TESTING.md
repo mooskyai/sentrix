@@ -103,3 +103,73 @@ and the full release gate pass; changes are committed and pushed; and:
 ```
 
 is clean. Only then may M4.2 Logs Explorer UI begin.
+
+
+## 6. M4.2 automated matrix
+
+### LE-001 — Raw row rendering
+
+Render real M4.1 response rows and verify severity/body, service/environment, trace/span IDs, and raw
+attribute details remain visible without synthetic normalization.
+
+### LE-002 — Applied-filter boundary
+
+Change draft service/environment/severity/body/trace controls and prove no request is issued on each
+keystroke. Apply the form and verify the existing API client receives those exact bounded values.
+
+### LE-003 — Healthy empty state
+
+A successful response with zero rows renders the empty-log state and is not presented as a query error.
+
+### LE-004 — Truncation honesty
+
+A response with `truncated=true` visibly warns that the selected row limit was reached.
+
+### LE-005 — Query failure
+
+A rejected/503 query renders an error and never substitutes the empty state.
+
+### LE-006 — Regression gate
+
+All M1-M4.1 backend/frontend/infrastructure checks remain green.
+
+## 7. M4.2 focused checks
+
+```powershell
+docker compose exec web npm test -- --run src/components/LogsExplorer.test.tsx
+docker compose exec web npm run lint
+docker compose exec web npm run typecheck
+```
+
+Then run the complete release gate:
+
+```powershell
+./scripts/verify.ps1
+```
+
+## 8. M4.2 manual real-data smoke
+
+With a real OTLP log persisted for the project:
+
+1. open `/orgs/<organization>/projects/<project>/logs`;
+2. confirm the row appears in the default one-hour window;
+3. apply exact service/environment filters and a suitable minimum severity;
+4. search a distinctive body substring and, for a correlated row, its exact trace ID;
+5. inspect the raw scope/resource/log attributes and trace/span IDs;
+6. use an unmatched filter and confirm the healthy empty state;
+7. clear filters, refresh, and confirm rows return;
+8. where practical, force/query a dependency failure and confirm it is shown as an error rather than
+   empty telemetry.
+
+Do not treat the trace ID as navigable yet; M4.3 owns trace lookup and correlation navigation.
+
+## 9. M4.2 stop condition
+
+M4.2 is complete only after the focused frontend tests, real-data browser smoke, full release gate,
+commit, push, and a clean:
+
+```text
+## main...origin/main
+```
+
+Only then may M4.3 Trace Lookup and Log-to-Trace Correlation begin.

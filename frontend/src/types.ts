@@ -110,3 +110,38 @@ export interface ProjectDashboardPanelCreateInput {
   service_name: string;
   environment: string;
 }
+
+export interface LogSearchRow {
+  timestamp: string;
+  observed_timestamp: string | null;
+  service_name: string;
+  environment: string;
+  scope_name: string;
+  scope_version: string;
+  scope_attributes: Record<string, string>;
+  resource_attributes: Record<string, string>;
+  severity_number: number;
+  severity_text: string;
+  body: string;
+  event_name: string;
+  trace_id: string | null;
+  span_id: string | null;
+  flags: number;
+  dropped_attributes_count: number;
+  attributes: Record<string, string>;
+}
+
+export interface LogSearchResponse {
+  project_id: string;
+  start: string;
+  end: string;
+  filters: {
+    service_name: string | null;
+    environment: string | null;
+    min_severity_number: number | null;
+    body_contains: string | null;
+    trace_id: string | null;
+  };
+  logs: LogSearchRow[];
+  truncated: boolean;
+}

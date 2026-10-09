@@ -622,3 +622,23 @@ M4 log/trace work must preserve these rules:
   explicit product/storage decision;
 - tests must include foreign-project non-discovery, parameterization, query bounds, dependency failure,
   correlation-ID validation, and a live two-project isolation query.
+
+
+## 24. Logs explorer UI rules
+
+M4.2 browser log reads must preserve these rules:
+
+- use only the session-authenticated M4.1 `/logs/search/` endpoint; frontend code never queries ClickHouse;
+- include project UUID, explicit UTC start/end, selected result limit, and every applied filter in the
+  TanStack Query key;
+- remount/reset explorer-local state when project context changes;
+- keep browser time ranges within the seven-day API maximum and row limits within `1..1000`;
+- keep draft filter text separate from applied filters so typing does not create unbounded query traffic;
+- treat service/environment/severity/body/trace controls as query data only, never authorization inputs;
+- render log bodies and arbitrary telemetry attributes as escaped React text, never HTML;
+- display trace/span IDs only when returned by the API and do not create trace navigation before M4.3;
+- distinguish loading, healthy-empty, dependency/query failure, and truncated states;
+- do not infer severity classes, message templates, missing spans, or cross-log relationships that the raw
+  response does not provide;
+- frontend tests must cover raw log rendering, bounded filter propagation, healthy empty state, visible
+  truncation, and query failure behavior.

@@ -138,3 +138,52 @@ M4.1 is green only when:
 - alert evaluation, incidents, billing, integrations, or AI analysis.
 
 M4.2 must not begin until M4.1 is green, committed, pushed, and `main` is aligned with `origin/main`.
+
+
+## 7. M4.2 — Logs Explorer UI
+
+M4.2 replaces the project Logs placeholder with a read-only explorer that uses only the M4.1 endpoint.
+It does not add a second telemetry query implementation or direct browser access to ClickHouse.
+
+The explorer supports:
+
+- 1h, 6h, 24h, and 7d UTC windows;
+- bounded result limits of 100, 200, 500, or 1000 rows;
+- manual refresh of the current window;
+- exact service and environment filters;
+- minimum OpenTelemetry severity thresholds;
+- bounded case-insensitive body substring input;
+- exact trace-ID input;
+- newest-first raw log rows with severity/body/service/environment;
+- trace/span IDs plus raw scope/resource/log attributes in inspectable details;
+- distinct loading, healthy-empty, query-error, and truncated states.
+
+Draft filters are local form state. Requests change only when filters are applied/cleared, the time range
+or result limit changes, or the operator explicitly refreshes.
+
+## 8. M4.2 acceptance
+
+M4.2 is green only when:
+
+- `/logs` renders real rows from the M4.1 API instead of the placeholder;
+- query keys contain project UUID, explicit time bounds, row limit, and every applied filter;
+- switching projects remounts the explorer so log/filter state cannot bleed between tenants;
+- browser controls stay within the server's seven-day and 1000-row maximums;
+- typing in filter fields does not issue a request until Apply is used;
+- service/environment/severity/body/trace values propagate exactly through the existing API client;
+- trace/span IDs remain non-navigable text until M4.3 establishes the span query boundary;
+- raw attributes/body are rendered as text and no correlation or message semantics are fabricated;
+- loading, empty, error, and truncated results are visibly distinct;
+- frontend tests cover rendering, filter propagation, healthy empty state, truncation, and query failure;
+- the complete repository release gate remains green and documentation is synchronized.
+
+## 9. Explicitly out of scope for M4.2
+
+- trace lookup/detail APIs or clickable trace navigation;
+- trace waterfall rendering;
+- arbitrary attribute expressions, regex, or user-provided query languages;
+- saved searches, log aggregations/charts, dashboards, or export;
+- ClickHouse index/projection/retention changes;
+- alerts, incidents, billing, integrations, or AI analysis.
+
+M4.3 must not begin until M4.2 is green, committed, pushed, and `main` is aligned with `origin/main`.

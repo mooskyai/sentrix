@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { getOrganizations, getProjects } from "../api/resources";
 import { DashboardPanels } from "../components/DashboardPanels";
+import { LogsExplorer } from "../components/LogsExplorer";
 import { MetricsExplorer } from "../components/MetricsExplorer";
 import { ProjectApiKeysPanel } from "../components/ProjectApiKeysPanel";
 import {
@@ -25,7 +26,7 @@ const SECTION_COPY: Record<WorkspaceSection, { title: string; description: strin
   },
   logs: {
     title: "Logs",
-    description: "Log ingestion is active; search and filtering UI follows the query boundary.",
+    description: "Search real project logs with bounded time, severity, text, and correlation filters.",
   },
   traces: {
     title: "Traces",
@@ -195,6 +196,8 @@ export function ProjectWorkspacePage() {
             projectId={workspace.project.id}
             canManageDashboard={writable}
           />
+        ) : activeSection === "logs" ? (
+          <LogsExplorer key={workspace.project.id} projectId={workspace.project.id} />
         ) : activeSection === "dashboards" ? (
           <DashboardPanels
             key={workspace.project.id}

@@ -700,3 +700,27 @@ returned as `null`. Trace lookup and browser navigation are deliberately deferre
 in a log response is searchable data, not tenant authority.
 
 The Logs workspace remains a truthful placeholder until M4.2 connects it to this API.
+
+
+## V1 M4.2 logs explorer UI
+
+The project Logs workspace now reads the M4.1 project-scoped endpoint directly:
+
+```text
+/orgs/<organization>/projects/<project>/logs
+```
+
+The explorer defaults to the previous hour and offers the same bounded 1h/6h/24h/7d windows used by
+other telemetry views. Operators may select a bounded result limit (100/200/500/1000), refresh the
+window, and apply the M4.1 filters for exact service/environment, minimum OpenTelemetry severity,
+case-insensitive body substring, and exact trace ID. Filter inputs do not issue a request on every
+keystroke; the query changes only when the operator applies or clears filters.
+
+Rows remain newest-first and render the raw log body, severity, service/environment, trace/span IDs,
+instrumentation scope, resource attributes, log attributes, flags, and dropped-attribute count. Missing
+correlation IDs stay visibly absent. A non-zero trace ID is displayed as data only in M4.2; it does not
+become a link until M4.3 adds an independently project-authorized span/trace query boundary.
+
+Loading, healthy-empty, query-error, and truncated states are distinct. The browser never connects to
+ClickHouse directly, and every TanStack Query key includes the immutable project UUID, explicit time
+window, row limit, and applied filters so one project's log result cannot be reused as another's state.

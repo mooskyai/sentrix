@@ -740,3 +740,147 @@
     @apply grid;
   }
 }
+
+
+@layer components {
+  .logs-explorer {
+    @apply grid gap-3;
+  }
+
+  .logs-controls,
+  .log-filter-form {
+    @apply rounded-control border border-line bg-canvas-soft p-3;
+  }
+
+  .logs-controls {
+    @apply grid items-end gap-2.5;
+    grid-template-columns: minmax(160px, 0.6fr) minmax(160px, 0.45fr) auto;
+  }
+
+  .logs-controls label,
+  .log-filter-grid label {
+    @apply grid gap-1.5 font-semibold text-ink-soft;
+    font-size: 0.75rem;
+  }
+
+  .log-filter-form {
+    @apply grid gap-2.5;
+  }
+
+  .log-filter-grid {
+    @apply grid gap-2.5;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .log-filter-wide {
+    grid-column: span 2 / span 2;
+  }
+
+  .logs-actions {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  .log-state,
+  .log-semantics {
+    @apply mb-0;
+  }
+
+  .log-table-header {
+    @apply flex items-end justify-between gap-3;
+  }
+
+  .log-table-header h3 {
+    @apply m-0 text-sm font-semibold text-ink;
+  }
+
+  .log-table-header p {
+    @apply mb-0;
+  }
+
+  .log-table {
+    min-width: 1180px;
+  }
+
+  .log-severity {
+    @apply inline-flex rounded-full border border-violet px-1.5 py-0.5 text-violet-soft;
+    font-size: 0.625rem;
+    white-space: nowrap;
+  }
+
+  .log-service {
+    @apply block text-ink;
+    font-size: 0.75rem;
+  }
+
+  .log-environment {
+    @apply mt-0.5 block text-ink-muted;
+    font-size: 0.6875rem;
+  }
+
+  .log-body {
+    max-width: 420px;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+
+  .log-body small {
+    @apply mt-1 block text-ink-muted;
+    font-size: 0.6875rem;
+  }
+
+  .log-correlation {
+    @apply grid gap-1;
+    min-width: 300px;
+  }
+
+  .log-correlation span {
+    @apply grid gap-0.5;
+  }
+
+  .log-correlation strong,
+  .log-details dt {
+    @apply font-bold uppercase text-ink-muted;
+    font-size: 0.625rem;
+    letter-spacing: 0.05em;
+  }
+
+  .log-correlation code {
+    @apply font-mono text-ink-soft;
+    font-size: 0.6875rem;
+  }
+
+  .log-details {
+    min-width: 130px;
+  }
+
+  .log-details summary {
+    @apply cursor-pointer font-semibold text-signal;
+    font-size: 0.75rem;
+  }
+
+  .log-details dl {
+    @apply mt-2 grid gap-2 rounded-control border border-line bg-panel p-2.5;
+    min-width: 340px;
+  }
+
+  .log-details dd {
+    @apply m-0 text-ink-soft;
+    font-size: 0.6875rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 850px) {
+  .logs-controls,
+  .log-filter-grid {
+    @apply grid-cols-1;
+  }
+
+  .log-filter-wide {
+    grid-column: auto;
+  }
+
+  .log-table-header {
+    @apply grid;
+  }
+}

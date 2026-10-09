@@ -146,3 +146,33 @@ export function deleteProjectDashboardPanel(projectId: string, panelId: string):
     { method: "DELETE" },
   );
 }
+
+export interface LogSearchQuery {
+  start: string;
+  end: string;
+  limit?: number;
+  service_name?: string;
+  environment?: string;
+  min_severity_number?: number;
+  body_contains?: string;
+  trace_id?: string;
+}
+
+export function getLogs(
+  projectId: string,
+  query: LogSearchQuery,
+): Promise<import("../types").LogSearchResponse> {
+  const params = metricQueryString({
+    start: query.start,
+    end: query.end,
+    limit: query.limit,
+    service_name: query.service_name,
+    environment: query.environment,
+    min_severity_number: query.min_severity_number,
+    body_contains: query.body_contains,
+    trace_id: query.trace_id,
+  });
+  return api<import("../types").LogSearchResponse>(
+    `/projects/${encodeURIComponent(projectId)}/logs/search/?${params}`,
+  );
+}
