@@ -642,3 +642,28 @@ M4.2 browser log reads must preserve these rules:
   response does not provide;
 - frontend tests must cover raw log rendering, bounded filter propagation, healthy empty state, visible
   truncation, and query failure behavior.
+
+## 25. Trace lookup and correlation UI rules
+
+M4.3 trace work must preserve these rules:
+
+- exact trace lookup must resolve the session user's project membership before ClickHouse access;
+- every span query includes both authorized `organization_id` and `project_id`; a trace ID never supplies
+  tenant authority;
+- validate trace IDs as non-zero 32-character hexadecimal identifiers before query execution;
+- keep trace windows half-open, timezone-aware, and no longer than seven days; cap span responses at
+  `1..1000` and expose truncation;
+- pass trace IDs and timestamps as typed ClickHouse parameters; do not interpolate caller data into SQL;
+- preserve raw span timing, parent IDs, status, attributes, trace state, events, links, flags, and dropped
+  counts; normalize only all-zero missing-ID sentinels to `null`;
+- return HTTP 503 for ClickHouse failure and keep a healthy empty trace distinct from dependency failure;
+- the browser must use only the session-authenticated M4.3 endpoint and include project UUID, trace ID,
+  explicit start/end, and limit-defining state in the TanStack Query key;
+- log-to-trace links may be emitted only for a valid non-zero trace ID returned by the log API and should
+  carry the originating bounded time window;
+- never synthesize parent/child spans, critical paths, service relationships, or missing telemetry; label
+  a referenced parent outside the bounded response as not returned;
+- render arbitrary attributes plus event/link JSON as escaped text, never HTML;
+- distinguish initial, loading, healthy-empty, query-error, and truncated browser states;
+- tests must cover foreign-project non-discovery, parameterization, bounds, dependency failure, live
+  two-project trace isolation, correlated navigation, raw parentage/timing, and missing-parent honesty.

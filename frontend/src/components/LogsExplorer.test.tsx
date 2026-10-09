@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getLogs } from "../api/resources";
@@ -71,9 +72,11 @@ function renderExplorer() {
     defaultOptions: { queries: { retry: false } },
   });
   return render(
-    <QueryClientProvider client={queryClient}>
-      <LogsExplorer projectId="project-a" />
-    </QueryClientProvider>,
+    <MemoryRouter>
+      <QueryClientProvider client={queryClient}>
+        <LogsExplorer projectId="project-a" tracePath="/orgs/acme/projects/shop/traces" />
+      </QueryClientProvider>
+    </MemoryRouter>,
   );
 }
 
@@ -92,7 +95,12 @@ describe("LogsExplorer", () => {
     expect(screen.getByText("ERROR (17)")).toBeInTheDocument();
     expect(screen.getByText("0123456789abcdef0123456789abcdef")).toBeInTheDocument();
     expect(screen.getByText("route=/pay, tenant=a")).toBeInTheDocument();
-    expect(screen.getByText(/Trace navigation is added in M4.3/i)).toBeInTheDocument();
+    const traceLink = screen.getByRole("link", { name: "Open trace" });
+    const href = traceLink.getAttribute("href") ?? "";
+    expect(href).toContain(`/orgs/acme/projects/shop/traces?trace_id=${logResponse.logs[0].trace_id}`);
+    expect(href).toContain("start=2026-10-09T07%3A00%3A00Z");
+    expect(href).toContain("end=2026-10-09T08%3A00%3A00Z");
+    expect(screen.getByText(/project-scoped trace view/i)).toBeInTheDocument();
   });
 
   it("applies the bounded M4.1 log filters without querying on each keystroke", async () => {

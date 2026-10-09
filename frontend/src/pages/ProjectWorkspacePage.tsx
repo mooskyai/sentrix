@@ -7,6 +7,7 @@ import { DashboardPanels } from "../components/DashboardPanels";
 import { LogsExplorer } from "../components/LogsExplorer";
 import { MetricsExplorer } from "../components/MetricsExplorer";
 import { ProjectApiKeysPanel } from "../components/ProjectApiKeysPanel";
+import { TraceExplorer } from "../components/TraceExplorer";
 import {
   canWriteProjects,
   isWorkspaceSection,
@@ -30,7 +31,7 @@ const SECTION_COPY: Record<WorkspaceSection, { title: string; description: strin
   },
   traces: {
     title: "Traces",
-    description: "Trace ingestion is active; trace exploration and service correlation come next.",
+    description: "Inspect project-scoped traces with raw span parentage, timing, status, and attributes.",
   },
   dashboards: {
     title: "Dashboards",
@@ -197,7 +198,13 @@ export function ProjectWorkspacePage() {
             canManageDashboard={writable}
           />
         ) : activeSection === "logs" ? (
-          <LogsExplorer key={workspace.project.id} projectId={workspace.project.id} />
+          <LogsExplorer
+            key={workspace.project.id}
+            projectId={workspace.project.id}
+            tracePath={workspacePath(workspace.organization.slug, workspace.project.slug, "traces")}
+          />
+        ) : activeSection === "traces" ? (
+          <TraceExplorer key={workspace.project.id} projectId={workspace.project.id} />
         ) : activeSection === "dashboards" ? (
           <DashboardPanels
             key={workspace.project.id}

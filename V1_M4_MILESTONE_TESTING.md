@@ -173,3 +173,95 @@ commit, push, and a clean:
 ```
 
 Only then may M4.3 Trace Lookup and Log-to-Trace Correlation begin.
+
+## 10. M4.3 automated matrix
+
+### TQ-001 — Viewer trace read
+
+A viewer membership receives HTTP 200 for an exact trace lookup in its project.
+
+### TQ-002 — Foreign project non-discovery
+
+A caller using a foreign project UUID receives `404`, and ClickHouse is never opened.
+
+### TQ-003 — Trace ID and window validation
+
+Reject malformed/all-zero trace IDs, naive timestamps, non-positive windows, windows over seven days,
+and limits outside `1..1000` before query execution.
+
+### TQ-004 — Tenant predicates and parameterization
+
+Every span query contains authorized organization/project predicates plus typed trace/start/end
+parameters. Caller-controlled trace IDs must not be interpolated into SQL text.
+
+### TQ-005 — Raw span honesty
+
+Preserve start/end/duration, service/environment, scope/resource/span attributes, span/parent IDs, trace
+state, kind/status, flags, dropped counts, and raw event/link JSON. Convert all-zero parent/span storage
+sentinels to `null` without inventing relationships.
+
+### TQ-006 — Dependency and empty behavior
+
+A ClickHouse failure returns `503` and closes the client. A valid trace with no matching spans returns a
+healthy HTTP 200 with an empty list.
+
+### TQ-007 — Live project isolation
+
+Send the same trace ID and span IDs through two project credentials, then prove a browser session for
+project A receives only A's span/resource attributes and cannot read project B's route.
+
+### TC-001 — Correlated browser navigation
+
+A log with a non-zero trace ID renders an **Open trace** link carrying the log query start/end window.
+The Traces workspace uses that trace ID/window through the M4.3 API and renders raw parentage/timing.
+
+### TC-002 — Browser state honesty
+
+The Trace explorer validates manual IDs before issuing a query and visibly distinguishes initial,
+loading, healthy-empty, query-error, and truncated states. A missing returned parent is labeled as such.
+
+## 11. M4.3 focused checks
+
+```powershell
+docker compose exec api /opt/venv/bin/python -m pytest apps/telemetry/tests/test_traces_query_api.py -v
+docker compose exec api /opt/venv/bin/ruff check apps/telemetry/traces_query.py apps/telemetry/traces_views.py apps/telemetry/tests/test_traces_query_api.py
+docker compose exec api /opt/venv/bin/ruff format --check apps/telemetry/traces_query.py apps/telemetry/traces_views.py apps/telemetry/tests/test_traces_query_api.py
+docker compose exec api /opt/venv/bin/mypy apps/telemetry/traces_query.py apps/telemetry/traces_views.py
+docker compose exec web npm test -- --run src/components/TraceExplorer.test.tsx src/components/LogsExplorer.test.tsx
+docker compose exec web npm run lint
+docker compose exec web npm run typecheck
+```
+
+Then run:
+
+```powershell
+./scripts/verify.ps1
+```
+
+## 12. M4.3 manual correlated smoke
+
+With a real OTLP trace plus a real OTLP log carrying the same trace ID in one project:
+
+1. open the project Logs workspace in a window containing the correlated log;
+2. confirm **Open trace** appears only for the non-zero trace ID;
+3. follow the link and confirm the trace ID and exact bounded log window are carried into Traces;
+4. verify the expected root/child spans, actual parent span ID, service/environment, durations, status,
+   raw attributes, event/link JSON, and dropped counts;
+5. confirm a parent not present in the bounded response is labeled "parent not returned" rather than
+   synthesized;
+6. enter an unmatched valid trace ID and confirm the healthy empty state;
+7. confirm dependency/query failure is shown as an error rather than empty telemetry.
+
+Do not validate authorization with an unscoped ClickHouse scan. M4.4 will automate the final correlated
+OTLP/persistence/browser closeout path.
+
+## 13. M4.3 stop condition
+
+M4.3 is complete only after focused backend/frontend tests, the live two-project trace-isolation test,
+manual correlated browser smoke, full release gate, commit, push, and a clean:
+
+```text
+## main...origin/main
+```
+
+Only then may M4.4 operational verification and closeout begin.

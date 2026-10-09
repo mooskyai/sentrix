@@ -145,3 +145,39 @@ export interface LogSearchResponse {
   logs: LogSearchRow[];
   truncated: boolean;
 }
+
+export interface TraceSpan {
+  start_time: string;
+  end_time: string;
+  duration_ns: number;
+  service_name: string;
+  environment: string;
+  scope_name: string;
+  scope_version: string;
+  scope_attributes: Record<string, string>;
+  resource_attributes: Record<string, string>;
+  trace_id: string | null;
+  span_id: string | null;
+  parent_span_id: string | null;
+  trace_state: string;
+  span_name: string;
+  span_kind: number;
+  status_code: number;
+  status_message: string;
+  flags: number;
+  dropped_attributes_count: number;
+  dropped_events_count: number;
+  dropped_links_count: number;
+  attributes: Record<string, string>;
+  events_json: string;
+  links_json: string;
+}
+
+export interface TraceDetailResponse {
+  project_id: string;
+  trace_id: string;
+  start: string;
+  end: string;
+  spans: TraceSpan[];
+  truncated: boolean;
+}

@@ -187,3 +187,68 @@ M4.2 is green only when:
 - alerts, incidents, billing, integrations, or AI analysis.
 
 M4.3 must not begin until M4.2 is green, committed, pushed, and `main` is aligned with `origin/main`.
+
+## 10. M4.3 — Trace lookup and log-to-trace correlation
+
+M4.3 adds the first trace read boundary over `sentrix_spans` and connects correlated log rows to it.
+The backend contract is intentionally an exact trace lookup rather than an unbounded trace-search API:
+
+```text
+GET /api/v1/projects/{project_id}/traces/{trace_id}/
+```
+
+Supported query parameters:
+
+```text
+start   optional RFC3339 timestamp with timezone
+end     optional RFC3339 timestamp with timezone
+limit   optional; default 500, maximum 1000 spans
+```
+
+The trace ID must be a non-zero 32-character hexadecimal OpenTelemetry trace ID. The default lookup
+window is the previous hour, a request may span at most seven days, and the time predicate is half-open
+`[start, end)`. Spans are ordered by observed `start_time` and then span ID. The query reads `limit + 1`
+rows so truncation is explicit without an unbounded count.
+
+Responses preserve raw span timing, service/environment, scope/resource/span attributes, trace/span/
+parent IDs, trace state, span kind, status, flags, dropped counts, and the stored event/link JSON. The
+all-zero parent/span sentinel is returned as `null`; missing parents are never synthesized.
+
+The Logs explorer creates an **Open trace** link only for a non-zero trace ID returned by M4.1. The link
+carries the same bounded start/end window as the log query, while the Traces workspace independently
+re-authorizes the project before reading `sentrix_spans`.
+
+## 11. M4.3 acceptance
+
+M4.3 is green only when:
+
+- any authenticated project member, including viewers, may read a trace for a project they can access;
+- foreign/unknown project UUIDs return `404` before ClickHouse is opened;
+- trace IDs are validated as exact non-zero 32-hex values before query execution;
+- every span query includes authorized `organization_id` and `project_id` plus typed trace/time values;
+- windows are timezone-aware, half-open, and no longer than seven days;
+- span limits are bounded to `1..1000` and truncation is explicit;
+- raw start/end/duration, parentage, status, attributes, events, links, flags, and dropped counts survive
+  the read boundary without inferred spans or synthetic relationships;
+- ClickHouse failure becomes HTTP `503`, healthy no-match becomes an empty span list, and clients close
+  on success/failure;
+- a live integration test writes the same trace ID into two projects and proves project-scoped lookup;
+- `/traces` supports exact trace-ID lookup and visibly distinguishes loading, empty, error, and truncated
+  states;
+- the trace view shows actual parent IDs and marks a parent absent from the bounded response rather than
+  fabricating it;
+- a correlated log can navigate to the project Traces workspace with the log query's bounded window;
+- frontend tests cover linked lookup, input validation, raw span rendering, missing-parent honesty,
+  truncation, and query failure;
+- the complete repository release gate remains green and documentation is synchronized.
+
+## 12. Explicitly out of scope for M4.3
+
+- unbounded trace catalogs, service-wide trace search, or arbitrary attribute query languages;
+- derived critical-path analysis, latency attribution, or synthetic/missing spans;
+- service maps or cross-trace aggregation;
+- ClickHouse index/projection/materialized-view/retention changes without measured need;
+- saved trace searches, trace dashboards, alerts, incidents, billing, integrations, or AI analysis.
+
+M4.4 operational closeout must not begin until M4.3 is green, committed, pushed, and `main` is aligned
+with `origin/main`.

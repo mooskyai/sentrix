@@ -724,3 +724,26 @@ become a link until M4.3 adds an independently project-authorized span/trace que
 Loading, healthy-empty, query-error, and truncated states are distinct. The browser never connects to
 ClickHouse directly, and every TanStack Query key includes the immutable project UUID, explicit time
 window, row limit, and applied filters so one project's log result cannot be reused as another's state.
+
+## V1 M4.3 trace lookup and log correlation
+
+Sentrix now exposes a session-authenticated, project-scoped exact trace lookup:
+
+```text
+GET /api/v1/projects/{project_id}/traces/{trace_id}/?start=<rfc3339>&end=<rfc3339>
+```
+
+The trace ID must be a non-zero 32-character hexadecimal OpenTelemetry ID. Lookups default to the last
+hour, are capped at seven days, and return at most 1,000 spans (`500` by default). Django resolves the
+project through the caller's memberships before ClickHouse is opened, and the ClickHouse query always
+uses the authorized organization/project IDs plus typed trace/time parameters.
+
+The project Traces workspace supports manual exact-ID lookup with 1h/6h/24h/7d bounded windows. It shows
+raw span start/end timing, duration, service/environment, span and parent IDs, span kind/status, scope/
+resource/span attributes, trace state, stored event/link JSON, flags, and dropped counts. Missing parent
+spans are not created; when a returned span references a parent outside the bounded response, the UI says
+that the parent was not returned.
+
+Correlated log rows with a valid trace ID now expose **Open trace**. That link carries the Logs query's
+same start/end window to `/traces`, but the destination still performs its own session-authenticated
+project lookup and span query. Knowing a trace ID therefore never grants cross-project access.

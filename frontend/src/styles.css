@@ -884,3 +884,145 @@
     @apply grid;
   }
 }
+
+@layer components {
+  .trace-explorer {
+    @apply grid gap-3;
+  }
+
+  .trace-controls {
+    @apply grid items-end gap-2.5 rounded-control border border-line bg-canvas-soft p-3;
+    grid-template-columns: minmax(300px, 1.5fr) minmax(160px, 0.5fr) auto;
+  }
+
+  .trace-controls label {
+    @apply grid gap-1.5 font-semibold text-ink-soft;
+    font-size: 0.75rem;
+  }
+
+  .trace-actions {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  .trace-state,
+  .trace-semantics {
+    @apply mb-0;
+  }
+
+  .trace-summary {
+    @apply grid gap-2;
+    grid-template-columns: minmax(280px, 2fr) repeat(3, minmax(0, 0.7fr));
+  }
+
+  .trace-stat {
+    @apply grid min-w-0 gap-1 rounded-control border border-line bg-canvas-soft p-3;
+  }
+
+  .trace-stat span {
+    @apply font-bold uppercase text-ink-muted;
+    font-size: 0.625rem;
+    letter-spacing: 0.05em;
+  }
+
+  .trace-stat strong {
+    @apply overflow-hidden text-ellipsis text-sm text-ink;
+  }
+
+  .trace-table-header {
+    @apply flex items-end justify-between gap-3;
+  }
+
+  .trace-table-header h3 {
+    @apply m-0 text-sm font-semibold text-ink;
+  }
+
+  .trace-table-header p {
+    @apply mb-0;
+  }
+
+  .trace-table {
+    min-width: 1320px;
+  }
+
+  .trace-service {
+    @apply block text-ink;
+    font-size: 0.75rem;
+  }
+
+  .trace-environment,
+  .trace-status-message {
+    @apply mt-0.5 block text-ink-muted;
+    font-size: 0.6875rem;
+  }
+
+  .trace-span-name {
+    min-width: 220px;
+  }
+
+  .trace-span-name strong,
+  .trace-span-name code {
+    @apply block;
+  }
+
+  .trace-span-name code,
+  .trace-parent {
+    @apply mt-1 font-mono text-ink-muted;
+    font-size: 0.6875rem;
+  }
+
+  .trace-parent {
+    min-width: 190px;
+    overflow-wrap: anywhere;
+  }
+
+  .trace-pill {
+    @apply mr-1 inline-flex rounded-full border border-violet px-1.5 py-0.5 text-violet-soft;
+    font-size: 0.625rem;
+  }
+
+  .trace-details {
+    min-width: 130px;
+  }
+
+  .trace-details summary {
+    @apply cursor-pointer font-semibold text-signal;
+    font-size: 0.75rem;
+  }
+
+  .trace-details dl {
+    @apply mt-2 grid gap-2 rounded-control border border-line bg-panel p-2.5;
+    min-width: 380px;
+  }
+
+  .trace-details dt {
+    @apply font-bold uppercase text-ink-muted;
+    font-size: 0.625rem;
+    letter-spacing: 0.05em;
+  }
+
+  .trace-details dd {
+    @apply m-0 text-ink-soft;
+    font-size: 0.6875rem;
+    overflow-wrap: anywhere;
+  }
+
+  .trace-link {
+    @apply mt-1 w-fit font-semibold text-signal underline decoration-transparent underline-offset-2 transition;
+    font-size: 0.6875rem;
+  }
+
+  .trace-link:hover {
+    @apply decoration-signal;
+  }
+}
+
+@media (max-width: 850px) {
+  .trace-controls,
+  .trace-summary {
+    @apply grid-cols-1;
+  }
+
+  .trace-table-header {
+    @apply grid;
+  }
+}

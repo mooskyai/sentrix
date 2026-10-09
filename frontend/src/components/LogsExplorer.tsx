@@ -1,5 +1,6 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 
 import { getLogs } from "../api/resources";
 import type { LogSearchRow } from "../types";
@@ -51,7 +52,16 @@ function logRowKey(log: LogSearchRow, index: number): string {
   return `${log.timestamp}-${log.trace_id ?? "no-trace"}-${log.span_id ?? "no-span"}-${index}`;
 }
 
-export function LogsExplorer({ projectId }: { projectId: string }) {
+function isNavigableTraceId(value: string | null): value is string {
+  return value !== null && /^[0-9a-f]{32}$/.test(value) && value !== "0".repeat(32);
+}
+
+function traceHref(tracePath: string, traceId: string, start: string, end: string): string {
+  const params = new URLSearchParams({ trace_id: traceId, start, end });
+  return `${tracePath}?${params.toString()}`;
+}
+
+export function LogsExplorer({ projectId, tracePath }: { projectId: string; tracePath: string }) {
   const [range, setRange] = useState<LogTimeRange>("1h");
   const [limit, setLimit] = useState<ResultLimit>(200);
   const [anchorMs, setAnchorMs] = useState(() => Date.now());
@@ -273,7 +283,23 @@ export function LogsExplorer({ projectId }: { projectId: string }) {
                       {log.event_name ? <small>event: {log.event_name}</small> : null}
                     </td>
                     <td className="log-correlation">
-                      <span><strong>Trace</strong> <code>{log.trace_id ?? "—"}</code></span>
+                      <span>
+                        <strong>Trace</strong>
+                        <code>{log.trace_id ?? "—"}</code>
+                        {isNavigableTraceId(log.trace_id) ? (
+                          <Link
+                            className="trace-link"
+                            to={traceHref(
+                              tracePath,
+                              log.trace_id,
+                              logQuery.data.start,
+                              logQuery.data.end,
+                            )}
+                          >
+                            Open trace
+                          </Link>
+                        ) : null}
+                      </span>
                       <span><strong>Span</strong> <code>{log.span_id ?? "—"}</code></span>
                     </td>
                     <td>
@@ -313,8 +339,8 @@ export function LogsExplorer({ projectId }: { projectId: string }) {
             </table>
           </div>
           <p className="muted log-semantics">
-            Trace and span IDs are displayed as raw correlation data only. Trace navigation is added in
-            M4.3 after the project-scoped span query boundary exists.
+            Non-zero trace IDs can open the M4.3 project-scoped trace view using this log query's same
+            bounded UTC window. Span IDs remain raw correlation data.
           </p>
         </>
       ) : null}

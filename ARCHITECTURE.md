@@ -927,3 +927,40 @@ Trace/span IDs are text in M4.2, including an explicit absent state for `null`; 
 M4.3 so following an identifier cannot bypass the future project-scoped span authorization boundary.
 HTTP/query failures remain visible failures, healthy empty results remain empty states, and a truncated
 response warns that the visible rows are incomplete.
+
+## 30. Trace read and correlation boundary
+
+V1 M4.3 adds exact trace lookup without treating correlation identifiers as authority:
+
+```text
+Logs explorer                         Traces workspace
+     |                                     |
+     | trace_id + bounded start/end        | manual trace_id + bounded start/end
+     `------------------+------------------'
+                        |
+                        v
+        Django membership-scoped project lookup
+                        |
+                        | authorized organization_id + project_id
+                        v
+           /traces/{trace_id}/ read boundary
+                        |
+                        v
+                ClickHouse sentrix_spans
+```
+
+The route trace ID is data. Django resolves the project first, validates the ID and bounded window, then
+passes organization ID, project ID, trace ID, and timestamps as typed ClickHouse parameters. A caller who
+knows another tenant's trace ID still receives no access because foreign project routes stop at the
+control plane and an authorized local-project lookup can only query that local tenant predicate.
+
+The initial trace contract is exact-ID detail, not an unbounded trace catalog. It reads at most 1,001 rows
+to return a maximum of 1,000 spans with explicit truncation. The existing `sentrix_spans` tenant-first
+schema remains unchanged; M4.3 does not add an index/projection before measured query behavior warrants
+one.
+
+Span responses preserve stored parent IDs, start/end time, duration, kind/status, attributes, events,
+links, flags, and dropped counts. All-zero fixed-width parent/span sentinels become `null`. The browser
+may summarize returned span/service counts and format durations, but it must not invent a missing parent,
+critical path, or cross-trace relationship. Log navigation carries the originating log query window so a
+correlated trace is searched in the same bounded temporal context.

@@ -176,3 +176,24 @@ export function getLogs(
     `/projects/${encodeURIComponent(projectId)}/logs/search/?${params}`,
   );
 }
+
+export interface TraceDetailQuery {
+  start: string;
+  end: string;
+  limit?: number;
+}
+
+export function getTrace(
+  projectId: string,
+  traceId: string,
+  query: TraceDetailQuery,
+): Promise<import("../types").TraceDetailResponse> {
+  const params = metricQueryString({
+    start: query.start,
+    end: query.end,
+    limit: query.limit,
+  });
+  return api<import("../types").TraceDetailResponse>(
+    `/projects/${encodeURIComponent(projectId)}/traces/${encodeURIComponent(traceId)}/?${params}`,
+  );
+}
