@@ -732,3 +732,44 @@ into SQL. ClickHouse errors become HTTP 503 without leaking connection or query 
 M3.1 does not add telemetry Django models or copy raw telemetry into PostgreSQL. PostgreSQL continues to
 own users, tenancy, projects, roles, and other control-plane state; ClickHouse remains the telemetry read
 and write store.
+
+## 25. Metrics explorer client boundary
+
+V1 M3.2 connects the existing project Metrics route to the M3.1 read contract without creating a second
+telemetry-query path:
+
+```text
+Project workspace /metrics
+        |
+        | project UUID resolved from tenant-scoped workspace
+        v
+TanStack Query catalog request
+        |
+        v
+select scalar metric + bounded window + exact filters
+        |
+        v
+TanStack Query series request
+        |
+        v
+observed-point plot + point table
+```
+
+The browser never queries ClickHouse directly and never derives tenant identity from organization/project
+slugs. Workspace resolution still happens inside the session-scoped organization/project collections,
+then the immutable project UUID is passed to the same Django query API whose membership check is the
+security boundary.
+
+Explorer query keys include project UUID, explicit start/end timestamps, selected metric, and applied
+service/environment filters. Project changes remount the explorer so selection/filter state cannot bleed
+between tenants. Query errors remain visible errors; the client must not reinterpret HTTP 503 as an empty
+series.
+
+The first visualization is an observed-point plot rather than a connected trend line. A single response
+may contain more than one service/environment combination, so connecting points could imply continuity
+between distinct series. The table exposes the raw dimensions and point attributes needed to understand
+that context.
+
+M3.2 performs no metric arithmetic. Monotonic/cumulative sums remain raw values; histograms, exponential
+histograms, and summaries remain catalog-visible but scalar-unselectable. Rate functions, aggregation,
+percentiles, grouping, and dashboard reuse remain later M3 work with explicit semantics.

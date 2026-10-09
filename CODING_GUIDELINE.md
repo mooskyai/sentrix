@@ -526,3 +526,23 @@ M3 telemetry reads must preserve the same tenant guarantees as ingestion. Requir
 - telemetry query APIs are read-only; M3 must not introduce raw telemetry mutation endpoints;
 - tests must cover viewer read access, foreign-project non-discovery, bounded validation, parameterized
   filtering, ClickHouse failure behavior, and at least one live project-isolation query.
+
+## 20. Metrics explorer UI rules
+
+M3.2 browser telemetry reads follow these rules:
+
+- use only the session-authenticated M3.1 metrics APIs; frontend code must never connect to ClickHouse;
+- include project UUID and every query-defining value in TanStack Query keys;
+- remount/reset explorer-local selection and filter state when project context changes;
+- keep time-range choices within the backend seven-day maximum and send explicit UTC start/end values;
+- show non-scalar catalog entries honestly but do not enable them as scalar series;
+- do not derive rate, delta, average, percentile, or histogram values in the browser without a defined
+  server/product semantic contract;
+- do not draw a connected line across points that may belong to different service/environment series;
+- distinguish loading, empty, error, and truncated states; HTTP 503 is not an empty series;
+- exact service/environment filter inputs are query values, not authorization inputs;
+- render raw point attributes as text only; do not interpret arbitrary telemetry attributes as HTML;
+- bound client table rendering even when the API returns thousands of points; the visualization may use
+  the returned bounded response while the table shows a clearly labeled recent subset;
+- frontend tests must prove real catalog/series rendering, non-scalar handling, exact filter propagation,
+  and visible query-failure behavior.

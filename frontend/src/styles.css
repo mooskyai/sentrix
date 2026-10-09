@@ -501,6 +501,136 @@
     @apply flex flex-wrap items-center justify-end gap-2;
   }
 
+  .metrics-explorer {
+    @apply grid gap-3;
+  }
+
+  .metrics-controls,
+  .metric-filter-form {
+    @apply grid items-end gap-2.5 rounded-control border border-line bg-canvas-soft p-3;
+  }
+
+  .metrics-controls {
+    grid-template-columns: minmax(160px, 0.55fr) minmax(260px, 1.45fr) auto;
+  }
+
+  .metric-filter-form {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  }
+
+  .metrics-controls label,
+  .metric-filter-form label {
+    @apply grid gap-1.5 font-semibold text-ink-soft;
+    font-size: 0.75rem;
+  }
+
+  .metrics-actions {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  .metric-state {
+    @apply mb-0;
+  }
+
+  .metric-summary {
+    @apply grid gap-2;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .metric-stat {
+    @apply grid min-w-0 gap-1 rounded-control border border-line bg-canvas-soft p-3;
+  }
+
+  .metric-stat span {
+    @apply font-bold uppercase text-ink-muted;
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+  }
+
+  .metric-stat strong {
+    @apply truncate text-sm text-ink;
+  }
+
+  .metric-description,
+  .metric-semantics {
+    @apply mb-0;
+  }
+
+  .metric-plot {
+    @apply overflow-hidden rounded-control border border-line bg-canvas-soft p-3;
+  }
+
+  .metric-plot-meta {
+    @apply mb-2 flex items-center justify-between gap-3 font-mono text-ink-muted;
+    font-size: 0.6875rem;
+  }
+
+  .metric-plot svg {
+    @apply block h-auto w-full;
+    min-height: 220px;
+  }
+
+  .metric-axis {
+    stroke: var(--color-line-strong);
+    stroke-width: 1;
+  }
+
+  .metric-point {
+    fill: var(--color-signal);
+    opacity: 0.84;
+  }
+
+  .metric-point:hover {
+    fill: var(--color-violet);
+    opacity: 1;
+  }
+
+  .metric-table-header {
+    @apply flex items-end justify-between gap-3;
+  }
+
+  .metric-table-header h3 {
+    @apply m-0 text-sm font-semibold text-ink;
+  }
+
+  .metric-table-wrap {
+    @apply overflow-x-auto rounded-control border border-line;
+  }
+
+  .metric-table {
+    @apply w-full border-collapse bg-canvas-soft text-left;
+    min-width: 920px;
+    font-size: 0.75rem;
+  }
+
+  .metric-table th {
+    @apply border-b border-line bg-panel-raised px-2.5 py-2 font-bold uppercase text-ink-muted;
+    font-size: 0.625rem;
+    letter-spacing: 0.05em;
+  }
+
+  .metric-table td {
+    @apply border-b border-line px-2.5 py-2 align-top text-ink-soft;
+  }
+
+  .metric-table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .metric-table tbody tr:hover {
+    background: var(--color-panel-raised);
+  }
+
+  .metric-pill {
+    @apply mr-1 inline-flex rounded-full border border-violet px-1.5 py-0.5 text-violet-soft;
+    font-size: 0.625rem;
+  }
+
+  .metric-attributes {
+    max-width: 320px;
+    overflow-wrap: anywhere;
+  }
+
   .button.danger {
     @apply border-danger text-danger shadow-none;
     background: rgb(223 125 136 / 0.08);
@@ -523,6 +653,9 @@
   .grid.two,
   .workspace-toolbar,
   .workspace-grid,
+  .metrics-controls,
+  .metric-filter-form,
+  .metric-summary,
   .api-key-form,
   .api-key-row,
   .api-key-meta {

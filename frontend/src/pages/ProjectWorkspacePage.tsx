@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { getOrganizations, getProjects } from "../api/resources";
+import { MetricsExplorer } from "../components/MetricsExplorer";
 import { ProjectApiKeysPanel } from "../components/ProjectApiKeysPanel";
 import {
   canWriteProjects,
@@ -19,7 +20,7 @@ const SECTION_COPY: Record<WorkspaceSection, { title: string; description: strin
   },
   metrics: {
     title: "Metrics",
-    description: "Metric ingestion is active; tenant-safe query and exploration UI comes next.",
+    description: "Explore real numeric gauge and sum points from this project’s telemetry.",
   },
   logs: {
     title: "Logs",
@@ -187,6 +188,8 @@ export function ProjectWorkspacePage() {
               <small>Authorization remains enforced by Django.</small>
             </div>
           </div>
+        ) : activeSection === "metrics" ? (
+          <MetricsExplorer key={workspace.project.id} projectId={workspace.project.id} />
         ) : activeSection === "settings" ? (
           <ProjectApiKeysPanel
             key={`${workspace.project.id}:${writable ? "manage" : "read"}`}

@@ -573,3 +573,27 @@ GET /api/v1/projects/<project-uuid>/metrics/series/?metric_name=process.cpu.util
 
 ClickHouse query failures return HTTP `503` without exposing dependency internals. M3.2 will connect the
 existing project Metrics workspace to this boundary after M3.1 is green, committed, and pushed.
+
+## V1 M3.2 metrics explorer UI
+
+The project Metrics workspace now reads the M3.1 catalog and numeric-series endpoints directly:
+
+```text
+/orgs/<organization>/projects/<project>/metrics
+```
+
+The explorer defaults to the previous hour and supports 1 hour, 6 hour, 24 hour, and 7 day windows.
+Users can select recently observed scalar metrics, apply exact `service.name` and deployment-environment
+filters, refresh the current window, inspect an observed-point plot, and review the latest returned
+points in a table.
+
+The explorer remains semantically conservative. Catalog entries backed only by histogram,
+exponential-histogram, or summary points are visible but cannot be selected as scalar series. Gauge and
+sum values are displayed exactly as returned by the query API; the browser does not derive rates,
+deltas, averages, percentiles, or histogram statistics. When the server marks a series as truncated,
+the UI warns that the visible result is incomplete rather than implying full coverage.
+
+Loading, empty, query-error, and dependency-unavailable states are distinct. Switching project context
+remounts the explorer and its query keys include the immutable project UUID, time window, selected
+metric, and applied filters so telemetry from one project cannot be reused as another project's browser
+state.

@@ -43,3 +43,46 @@ export interface ProjectApiKey {
 export interface ProjectApiKeyCreateResult extends ProjectApiKey {
   secret: string;
 }
+
+export interface MetricCatalogItem {
+  name: string;
+  description: string;
+  unit: string;
+  metric_types: string[];
+  value_types: string[];
+  supports_numeric_series: boolean;
+  point_count: number;
+  last_seen_at: string;
+}
+
+export interface MetricCatalogResponse {
+  project_id: string;
+  start: string;
+  end: string;
+  metrics: MetricCatalogItem[];
+}
+
+export interface MetricSeriesPoint {
+  timestamp: string;
+  service_name: string;
+  environment: string;
+  metric_type: string;
+  aggregation_temporality: string;
+  is_monotonic: boolean;
+  value_type: string;
+  value: number;
+  attributes: Record<string, string>;
+}
+
+export interface MetricSeriesResponse {
+  project_id: string;
+  metric_name: string;
+  start: string;
+  end: string;
+  filters: {
+    service_name: string | null;
+    environment: string | null;
+  };
+  points: MetricSeriesPoint[];
+  truncated: boolean;
+}

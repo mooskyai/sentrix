@@ -131,3 +131,53 @@ M3.1 is green only when:
 - alert evaluation, incidents, billing, or AI analysis.
 
 M3.2 must not begin until M3.1 is green, committed, pushed, and `main` is aligned with `origin/main`.
+
+## 7. M3.2 — Metrics Explorer UI
+
+M3.2 replaces the project Metrics placeholder with a first-party explorer backed only by the M3.1
+catalog and numeric-series APIs. The browser does not query ClickHouse directly and does not add a
+parallel metric semantics layer.
+
+Explorer behavior:
+
+- project-scoped catalog discovery;
+- automatic selection of the first scalar metric when available;
+- 1 hour, 6 hour, 24 hour, and 7 day bounded windows;
+- explicit refresh anchored to the current time;
+- exact service/environment filters;
+- observed-point visualization plus latest-point table;
+- visible metric type/value/unit/catalog count metadata;
+- explicit loading, empty, error, unsupported-family, and truncated states.
+
+## 8. M3.2 acceptance
+
+M3.2 is green only when:
+
+- the `/metrics` workspace route renders real catalog state instead of the placeholder;
+- browser requests use the immutable active project UUID and the M3.1 endpoints;
+- query keys include project, start/end, selected metric, and applied dimension filters;
+- switching project context resets/remounts the explorer state;
+- numeric gauge/sum metrics can be selected and their returned points are visible in a plot and table;
+- histogram/exponential-histogram/summary-only metrics are visible but cannot be selected as scalar
+  series;
+- no browser rate/delta/average/percentile/histogram calculation is introduced;
+- exact service/environment filters are passed to the series query;
+- loading, no-catalog-data, no-series-data, query-error, and truncated-result states remain distinct;
+- the first plot does not connect points that may belong to separate service/environment series;
+- the point table exposes timestamp, value, service, environment, type, and attributes and bounds the
+  rendered row count;
+- frontend tests cover rendering, unsupported families, filter propagation, and query failure;
+- all backend/frontend/infrastructure release gates remain green;
+- README, architecture, coding guideline, milestone, and testing docs describe the explorer contract.
+
+## 9. Explicitly out of scope for M3.2
+
+- dashboard panels or dashboard persistence;
+- metric aggregation/group-by controls;
+- counter-rate or delta derivation;
+- histogram heatmaps, percentiles, or summary quantile visualization;
+- arbitrary attribute query expressions;
+- URL-persisted/shareable explorer state;
+- logs/traces explorers, alert evaluation, retention changes, billing, or AI analysis.
+
+M3.3 must not begin until M3.2 is green, committed, pushed, and `main` is aligned with `origin/main`.

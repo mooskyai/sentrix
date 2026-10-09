@@ -122,3 +122,92 @@ committed and pushed, and:
 ```
 
 is clean. Only then may M3.2 Metrics Explorer UI begin.
+
+## 6. M3.2 frontend matrix
+
+### MX-001 — Real numeric render
+
+Mock a scalar catalog metric plus numeric series response. The explorer must select the numeric metric,
+render its observed-point visualization, show returned values/unit, and expose point attributes in the
+table.
+
+### MX-002 — Unsupported family honesty
+
+When the catalog contains only histogram/summary-style metrics with `supports_numeric_series=false`,
+the UI must explain that no scalar series are available and must not call the numeric series endpoint.
+
+### MX-003 — Exact dimension filters
+
+Entering service/environment values and applying filters must issue the series request with those exact
+values together with the selected metric and current bounded time window.
+
+### MX-004 — Dependency/query failure
+
+A rejected series request, including the backend's telemetry-query-unavailable error, must render an
+error state. It must not render the empty-series message for the same failure.
+
+### MX-005 — Query-key/project isolation
+
+Catalog and series query keys include the project UUID. The workspace renders the explorer with a key
+based on project ID so project switches discard local metric/filter state instead of carrying it into a
+different tenant context.
+
+### MX-006 — Bounded rendering
+
+The API remains the primary point-count bound. The plot may represent the returned response while the
+HTML point table renders only the latest 100 points and clearly states that subset relative to the
+returned count.
+
+### MX-007 — Truncation visibility
+
+When `truncated=true`, the explorer must warn that the visible result is incomplete and recommend a
+narrower time range or exact dimension filters.
+
+### MX-008 — Semantic honesty
+
+The frontend must not calculate counter rates, deltas, histogram averages, percentiles, or other derived
+metric semantics in M3.2. Mixed service/environment points are shown as observed points rather than one
+connected line.
+
+## 7. M3.2 manual explorer smoke
+
+With real OTLP metrics already persisted for a project:
+
+1. open `/orgs/<organization>/projects/<project>/metrics`;
+2. confirm the catalog lists the real metric name;
+3. select a scalar gauge/sum metric and confirm real ClickHouse points appear;
+4. switch among 1h/6h/24h/7d and confirm requests remain bounded;
+5. apply an exact service or environment known to exist, then an unmatched value, and verify the
+   difference between populated and empty states;
+6. remove filters and use Refresh to move the query window to the current time;
+7. if possible, stop/unavailable ClickHouse temporarily and confirm the UI shows query failure rather
+   than `No numeric points`;
+8. switch to another project and confirm the previous metric/filter selection does not carry over.
+
+## 8. M3.2 release gate
+
+Run the focused frontend tests first:
+
+```powershell
+docker compose exec web npm test -- --run src/components/MetricsExplorer.test.tsx
+```
+
+Then run the full repository release gate:
+
+```powershell
+./scripts/verify.ps1
+```
+
+Do not commit M3.2 if lint, typecheck, tests, build, backend regression checks, ClickHouse schema
+validation, Compose validation, or `git diff --check` is red.
+
+## 9. M3.2 stop condition
+
+M3.2 is complete only after the focused explorer tests, manual real-data smoke, and full release gate are
+green; the change is committed and pushed; and:
+
+```text
+## main...origin/main
+```
+
+is clean. Only then may M3.3 First Dashboard Panels begin.
