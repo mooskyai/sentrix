@@ -501,3 +501,28 @@ M2.7 makes operability part of the release contract. Required rules:
 - an OTLP 503 is a retryable durable-sink failure and must never be rewritten into success by tooling;
 - M2.7 may improve scripts/docs/tests for the existing ingestion path but must not pull query APIs,
   telemetry explorers, dashboards, retention, alerting, billing, or other M3+ features forward.
+
+## 19. Telemetry query rules
+
+M3 telemetry reads must preserve the same tenant guarantees as ingestion. Required rules:
+
+- resolve browser telemetry requests through the session-authenticated, membership-scoped project
+  queryset before opening a ClickHouse client;
+- never accept organization identity from query parameters, URL slugs, metric attributes, or other
+  caller-controlled telemetry fields;
+- every ClickHouse application query must include both `organization_id` and `project_id` predicates
+  derived from the authorized project;
+- unknown and foreign project UUIDs return the same not-found behavior and must not query ClickHouse;
+- use typed ClickHouse query parameters for metric names, timestamps, service/environment filters, and
+  all other caller-controlled values; dynamic SQL identifiers/filter expressions are not accepted;
+- bound time ranges and row/catalog limits at the API boundary before sending a query to ClickHouse;
+- use half-open `[start, end)` time windows to make adjacent requests composable;
+- do not silently coerce histogram, exponential-histogram, or summary metrics into scalar values;
+- raw numeric series preserve metric type, aggregation temporality, monotonicity, dimensions, and point
+  attributes so later UI transformations can remain explicit;
+- return dependency-unavailable behavior (HTTP 503) when ClickHouse cannot serve a query; do not return
+  an empty data set that could be mistaken for a healthy result;
+- close ClickHouse clients on both success and failure paths;
+- telemetry query APIs are read-only; M3 must not introduce raw telemetry mutation endpoints;
+- tests must cover viewer read access, foreign-project non-discovery, bounded validation, parameterized
+  filtering, ClickHouse failure behavior, and at least one live project-isolation query.

@@ -541,3 +541,35 @@ Run the complete release gate before committing M2.7:
 
 That script runs the backend tests/static checks, Django migration/schema checks, frontend lint/typecheck/
 tests/build, Compose validation, and `git diff --check` against the running development stack.
+
+## V1 M3.1 metrics query foundation
+
+M3 begins the read path over the telemetry stored by M2. M3.1 adds session-authenticated, project-scoped
+metrics query endpoints for the first-party web application; it does not add the explorer UI yet.
+
+```text
+GET /api/v1/projects/{project_id}/metrics/catalog/
+GET /api/v1/projects/{project_id}/metrics/series/
+```
+
+Both endpoints resolve the requested project through the authenticated user's membership-scoped Django
+queryset before ClickHouse is touched. A foreign project UUID therefore returns `404`, and organization/
+project predicates sent to ClickHouse are derived from that authorized project rather than query-string
+input.
+
+Queries use a half-open `[start, end)` RFC3339 time window. When omitted, the window defaults to the
+last hour; a single request may cover at most seven days. Catalog results are capped at 500 metrics and
+numeric series at 5,000 points. The series endpoint accepts exact `service_name` and `environment`
+filters and currently returns only rows with `number_value` (OpenTelemetry gauge/sum number points).
+Histograms, exponential histograms, and summaries stay visible in catalog metadata but are not flattened
+into fake scalar series.
+
+Example:
+
+```text
+GET /api/v1/projects/<project-uuid>/metrics/catalog/?start=2026-10-09T04:00:00Z&end=2026-10-09T05:00:00Z
+GET /api/v1/projects/<project-uuid>/metrics/series/?metric_name=process.cpu.utilization&start=2026-10-09T04:00:00Z&end=2026-10-09T05:00:00Z
+```
+
+ClickHouse query failures return HTTP `503` without exposing dependency internals. M3.2 will connect the
+existing project Metrics workspace to this boundary after M3.1 is green, committed, and pushed.

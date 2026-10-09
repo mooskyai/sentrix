@@ -695,3 +695,40 @@ M2.7 also makes the development release gate Compose-first. Commands executed in
 use `/opt/venv/bin/...`; `uv run` is reserved for host-side development because running it inside the
 built container can resynchronize `/opt/venv`. Persistent volumes are never deleted as part of normal
 bootstrap or verification.
+
+## 24. Metrics read/query boundary
+
+V1 M3.1 introduces the first telemetry read path while preserving the control-plane/data-plane split:
+
+```text
+Authenticated browser session
+        |
+        v
+project membership-scoped lookup in PostgreSQL
+        |
+        | authorized organization_id + project_id
+        v
+bounded metrics query service
+        |
+        v
+ClickHouse sentrix_metrics
+```
+
+The browser supplies a project UUID as a resource locator, not tenant authority. Django first resolves
+that UUID through `projects_for_user`; only the resulting persisted organization/project IDs are used in
+ClickHouse predicates. Unknown and foreign project UUIDs therefore stop at the control-plane boundary
+and never trigger telemetry reads.
+
+M3.1 keeps read semantics deliberately narrow. Catalog queries expose metric shape metadata and recent
+activity. Series queries return only scalar OpenTelemetry number points (`number_value`) and preserve
+metric type, aggregation temporality, monotonicity, service/environment, and point attributes. The read
+path does not average cumulative sums, derive rates, or flatten histogram/summary data because those
+transformations require explicit metric semantics.
+
+Every query has a bounded UTC time window and result limit. Values supplied by the client are passed to
+ClickHouse as typed query parameters; only validated integer limits and fixed SQL fragments are composed
+into SQL. ClickHouse errors become HTTP 503 without leaking connection or query internals.
+
+M3.1 does not add telemetry Django models or copy raw telemetry into PostgreSQL. PostgreSQL continues to
+own users, tenancy, projects, roles, and other control-plane state; ClickHouse remains the telemetry read
+and write store.
