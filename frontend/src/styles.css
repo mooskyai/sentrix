@@ -631,6 +631,61 @@
     overflow-wrap: anywhere;
   }
 
+  .metric-dashboard-action {
+    @apply flex flex-wrap items-center gap-2.5 rounded-control border border-line bg-canvas-soft p-3;
+  }
+
+  .dashboard-panels {
+    @apply grid gap-3;
+  }
+
+  .dashboard-toolbar {
+    @apply flex items-start justify-between gap-3 rounded-control border border-line bg-canvas-soft p-3;
+  }
+
+  .dashboard-toolbar h3,
+  .dashboard-panel-header h3 {
+    @apply mb-1 text-sm font-semibold text-ink;
+  }
+
+  .dashboard-toolbar p,
+  .dashboard-panel-header p,
+  .dashboard-panel-semantics {
+    @apply mb-0;
+  }
+
+  .dashboard-grid {
+    @apply grid grid-cols-2 gap-3;
+  }
+
+  .dashboard-panel {
+    @apply grid min-w-0 gap-3 rounded-control border border-line bg-canvas-soft p-3.5;
+  }
+
+  .dashboard-panel:hover {
+    @apply border-line-strong;
+  }
+
+  .dashboard-panel-header {
+    @apply flex items-start justify-between gap-3;
+  }
+
+  .dashboard-panel-query {
+    @apply flex flex-wrap gap-1.5;
+  }
+
+  .dashboard-panel-stats {
+    @apply grid grid-cols-4 gap-2;
+  }
+
+  .dashboard-panel .metric-plot svg {
+    min-height: 150px;
+  }
+
+  .dashboard-panel-empty {
+    max-width: none;
+  }
+
   .button.danger {
     @apply border-danger text-danger shadow-none;
     background: rgb(223 125 136 / 0.08);
@@ -656,6 +711,8 @@
   .metrics-controls,
   .metric-filter-form,
   .metric-summary,
+  .dashboard-grid,
+  .dashboard-panel-stats,
   .api-key-form,
   .api-key-row,
   .api-key-meta {
@@ -676,5 +733,10 @@
 
   .api-key-actions {
     @apply justify-start;
+  }
+
+  .dashboard-toolbar,
+  .dashboard-panel-header {
+    @apply grid;
   }
 }

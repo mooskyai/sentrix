@@ -6,6 +6,8 @@ import type {
   Project,
   ProjectApiKey,
   ProjectApiKeyCreateResult,
+  ProjectDashboardPanel,
+  ProjectDashboardPanelCreateInput,
   User,
 } from "../types";
 
@@ -72,7 +74,6 @@ export function revokeProjectApiKey(projectId: string, apiKeyId: string): Promis
   );
 }
 
-
 interface MetricWindowQuery {
   start: string;
   end: string;
@@ -82,12 +83,13 @@ interface MetricSeriesQuery extends MetricWindowQuery {
   metric_name: string;
   service_name?: string;
   environment?: string;
+  limit?: number;
 }
 
-function metricQueryString(query: Record<string, string | undefined>): string {
+function metricQueryString(query: Record<string, string | number | undefined>): string {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(query)) {
-    if (value !== undefined && value !== "") params.set(key, value);
+    if (value !== undefined && value !== "") params.set(key, String(value));
   }
   return params.toString();
 }
@@ -112,8 +114,35 @@ export function getMetricSeries(
     end: query.end,
     service_name: query.service_name,
     environment: query.environment,
+    limit: query.limit,
   });
   return api<MetricSeriesResponse>(
     `/projects/${encodeURIComponent(projectId)}/metrics/series/?${params}`,
+  );
+}
+
+export function getProjectDashboardPanels(projectId: string): Promise<ProjectDashboardPanel[]> {
+  return api<ProjectDashboardPanel[]>(
+    `/projects/${encodeURIComponent(projectId)}/dashboard-panels/`,
+  );
+}
+
+export function createProjectDashboardPanel(
+  projectId: string,
+  input: ProjectDashboardPanelCreateInput,
+): Promise<ProjectDashboardPanel> {
+  return api<ProjectDashboardPanel>(
+    `/projects/${encodeURIComponent(projectId)}/dashboard-panels/`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function deleteProjectDashboardPanel(projectId: string, panelId: string): Promise<void> {
+  return api<void>(
+    `/projects/${encodeURIComponent(projectId)}/dashboard-panels/${encodeURIComponent(panelId)}/`,
+    { method: "DELETE" },
   );
 }

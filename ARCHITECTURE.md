@@ -773,3 +773,47 @@ that context.
 M3.2 performs no metric arithmetic. Monotonic/cumulative sums remain raw values; histograms, exponential
 histograms, and summaries remain catalog-visible but scalar-unselectable. Rate functions, aggregation,
 percentiles, grouping, and dashboard reuse remain later M3 work with explicit semantics.
+
+## 26. Project dashboard configuration boundary
+
+V1 M3.3 adds the first persisted dashboard configuration without moving telemetry into PostgreSQL:
+
+```text
+Metrics explorer
+      |
+      | owner/admin/editor pins selected scalar query
+      v
+PostgreSQL ProjectDashboardPanel
+      |  metric_name / time_range / exact filters / position
+      |
+      v
+Project workspace /dashboards
+      |
+      | session-authenticated project membership
+      v
+M3.1 /metrics/series/ query boundary
+      |
+      v
+ClickHouse sentrix_metrics
+```
+
+`ProjectDashboardPanel` is control-plane state. It belongs to exactly one project and stores no observed
+values, raw attributes, rollups, or copies of ClickHouse rows. The V1 dashboard surface is intentionally
+single-project/single-dashboard with at most six panels. This bounds browser fan-out while query
+semantics are still narrow.
+
+Any project member may list configured panels. Owner/admin/editor memberships may create and remove panel
+configuration; viewer memberships remain read-only. The project is resolved through the same
+membership-scoped Django queryset before panel configuration is read or mutated, and a panel ID is always
+resolved together with its route project so cross-project deletion cannot occur.
+
+Pinning is deliberately constrained to scalar queries already proven by the Metrics explorer: metric
+name, one of the 1h/6h/24h/7d ranges, and optional exact service/environment filters. The backend does
+not open ClickHouse while creating dashboard configuration. On render, each panel calls the existing
+metrics-series API, which performs the tenant authorization and ClickHouse query. This keeps dashboard
+configuration and telemetry storage independent.
+
+Dashboard panels use raw returned gauge/sum number points. Latest/min/max are presentation summaries of
+the bounded response, not new persisted aggregations or semantic transformations. M3.3 introduces no
+counter-rate function, histogram flattening, percentile computation, materialized view, or dashboard-
+specific telemetry API.

@@ -211,3 +211,98 @@ green; the change is committed and pushed; and:
 ```
 
 is clean. Only then may M3.3 First Dashboard Panels begin.
+
+## 10. M3.3 dashboard configuration/API matrix
+
+### DP-001 — Member list access
+
+A viewer membership can list panel configuration for its own project. The response contains safe
+control-plane fields only and never embeds raw telemetry values.
+
+### DP-002 — Write-role enforcement
+
+Owner/admin/editor may create and remove panels. Viewer create/delete attempts return `403` and leave
+configuration unchanged.
+
+### DP-003 — Foreign project non-discovery
+
+An exact foreign project UUID returns `404` before dashboard configuration is listed or mutated.
+
+### DP-004 — Panel/project scoping
+
+Deleting `/projects/A/dashboard-panels/<panel-from-B>/` returns `404`; knowing a panel UUID is not enough
+to cross project boundaries.
+
+### DP-005 — Duplicate and fan-out bounds
+
+Saving the same metric/range/service/environment query twice is rejected even if the title differs. A
+seventh panel is rejected after six have been configured for a project.
+
+### DP-006 — Pin propagation
+
+For an authorized writer, the Metrics explorer sends the selected metric name, active bounded range, and
+currently applied exact service/environment filters to the dashboard-panel create endpoint. Viewers do
+not receive the pin control.
+
+### DP-007 — Dashboard telemetry reuse
+
+A configured panel calls the existing project numeric-series API with its saved query and `limit=500`.
+There is no dashboard-specific raw telemetry endpoint.
+
+### DP-008 — Read states and semantic honesty
+
+Panel loading, error, empty, truncated, and populated states remain distinct. Populated cards may show
+latest/min/max over the returned raw number points, but no rate, delta, average-over-time, histogram, or
+percentile transformation is introduced.
+
+### DP-009 — Confirmed removal
+
+The browser requires confirmation before calling the delete endpoint. Viewer dashboards remain read-only.
+
+## 11. M3.3 focused release checks
+
+After applying the migration:
+
+```powershell
+docker compose exec api /opt/venv/bin/python manage.py migrate
+```
+
+Run focused backend and frontend tests:
+
+```powershell
+docker compose exec api /opt/venv/bin/python -m pytest apps/projects/tests/test_dashboard_panels.py -v
+docker compose exec web npm test -- --run src/components/MetricsExplorer.test.tsx src/components/DashboardPanels.test.tsx
+```
+
+Then run the complete repository gate:
+
+```powershell
+./scripts/verify.ps1
+```
+
+## 12. M3.3 manual real-data smoke
+
+Using a project with a real scalar OTLP metric already visible in Metrics:
+
+1. open the Metrics workspace as owner/admin/editor;
+2. select the real scalar metric, choose a bounded range, optionally apply exact service/environment
+   filters, and pin the current query;
+3. open Dashboards and confirm the new panel appears with the saved metric/range/filter labels;
+4. confirm real points from ClickHouse render and latest/min/max correspond to the returned raw points;
+5. use Refresh panels and confirm the window moves forward without changing saved configuration;
+6. pin the same query again and confirm the UI/API reports the duplicate instead of creating another
+   panel;
+7. sign in as a viewer where practical and confirm panels remain readable without pin/remove controls;
+8. remove a panel as a writer, confirm the browser prompt, and verify the panel disappears after the
+   control-plane list refreshes.
+
+## 13. M3.3 stop condition
+
+M3.3 is complete only after the migration, focused backend/frontend tests, manual real-data dashboard
+smoke, and full release gate are green; the change is committed and pushed; and:
+
+```text
+## main...origin/main
+```
+
+is clean. Only then may M3.4 Operational Verification and Documentation begin.

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { getOrganizations, getProjects } from "../api/resources";
+import { DashboardPanels } from "../components/DashboardPanels";
 import { MetricsExplorer } from "../components/MetricsExplorer";
 import { ProjectApiKeysPanel } from "../components/ProjectApiKeysPanel";
 import {
@@ -32,7 +33,7 @@ const SECTION_COPY: Record<WorkspaceSection, { title: string; description: strin
   },
   dashboards: {
     title: "Dashboards",
-    description: "Dashboard authoring follows the first queryable telemetry signals.",
+    description: "View project-scoped metric panels pinned from the Metrics explorer.",
   },
   alerts: {
     title: "Alerts",
@@ -189,7 +190,17 @@ export function ProjectWorkspacePage() {
             </div>
           </div>
         ) : activeSection === "metrics" ? (
-          <MetricsExplorer key={workspace.project.id} projectId={workspace.project.id} />
+          <MetricsExplorer
+            key={workspace.project.id}
+            projectId={workspace.project.id}
+            canManageDashboard={writable}
+          />
+        ) : activeSection === "dashboards" ? (
+          <DashboardPanels
+            key={workspace.project.id}
+            projectId={workspace.project.id}
+            canManage={writable}
+          />
         ) : activeSection === "settings" ? (
           <ProjectApiKeysPanel
             key={`${workspace.project.id}:${writable ? "manage" : "read"}`}

@@ -181,3 +181,77 @@ M3.2 is green only when:
 - logs/traces explorers, alert evaluation, retention changes, billing, or AI analysis.
 
 M3.3 must not begin until M3.2 is green, committed, pushed, and `main` is aligned with `origin/main`.
+
+## 10. M3.3 — First read-only dashboard panels
+
+M3.3 reuses the M3.1 query boundary and M3.2 observed-point visualization to add the first project
+Dashboards experience. Dashboard configuration is explicit control-plane state rather than an implicit
+choice of whichever metric happens to appear first in ClickHouse.
+
+The V1 configuration model is intentionally narrow:
+
+```text
+ProjectDashboardPanel
+  project_id
+  title
+  metric_name
+  time_range: 1h | 6h | 24h | 7d
+  service_name (optional exact filter)
+  environment (optional exact filter)
+  position
+  created_by / timestamps
+```
+
+One project has one dashboard surface with at most six configured panels. Writers pin the current scalar
+Metrics explorer query; all project members can view resulting panels. Telemetry values are never stored
+in the panel model.
+
+Control-plane endpoints:
+
+```text
+GET    /api/v1/projects/{project_id}/dashboard-panels/
+POST   /api/v1/projects/{project_id}/dashboard-panels/
+DELETE /api/v1/projects/{project_id}/dashboard-panels/{panel_id}/
+```
+
+Each rendered panel calls the existing M3.1 numeric-series endpoint with its saved bounded range and
+exact filters, capped at 500 points.
+
+## 11. M3.3 acceptance
+
+M3.3 is green only when:
+
+- panel configuration is persisted in PostgreSQL and contains no telemetry values;
+- any authenticated project member, including viewers, can list the project's dashboard panels;
+- only owner/admin/editor memberships can create/remove panel configuration;
+- foreign project UUIDs return `404` and panel deletion is scoped to both route project and panel UUID;
+- duplicate metric/range/filter queries are rejected and a project cannot exceed six panels;
+- the Metrics explorer can pin its selected scalar metric, current 1h/6h/24h/7d range, and applied exact
+  filters without accepting arbitrary query syntax;
+- the `/dashboards` workspace renders configured panels instead of the placeholder;
+- dashboard telemetry reads reuse the existing project metrics-series API and request at most 500 points
+  per panel;
+- project changes remount the dashboard and all query keys remain project/panel/window specific;
+- a panel distinguishes loading, query failure, empty data, truncation, and populated states;
+- populated panels expose raw latest/min/max/point-count summaries plus the observed-point plot without
+  deriving rate/delta/histogram/percentile semantics;
+- viewers receive no pin/remove controls even though backend authorization remains authoritative;
+- backend tests cover tenant/RBAC/scoping/duplicate/limit behavior and frontend tests cover pinning,
+  rendering, viewer read-only behavior, empty dashboards, and confirmed removal;
+- migration drift, backend/frontend quality gates, ClickHouse schema validation, Compose validation, and
+  `git diff --check` remain green;
+- README, architecture, coding guideline, milestone, and testing docs describe the control-plane panel
+  boundary and the narrow V1 dashboard contract.
+
+## 12. Explicitly out of scope for M3.3
+
+- multiple named dashboards;
+- drag/drop layout or panel resizing/reordering;
+- free-form panel/query editors;
+- arbitrary attribute expression filters or group-by controls;
+- counter rate/delta functions, histogram/percentile/summary transformations;
+- dashboard-specific ClickHouse tables, rollups, caches, or materialized views;
+- dashboard sharing/public links;
+- logs/traces panels, alerts, incidents, billing, or AI analysis.
+
+M3.4 must not begin until M3.3 is green, committed, pushed, and `main` is aligned with `origin/main`.

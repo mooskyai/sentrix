@@ -546,3 +546,31 @@ M3.2 browser telemetry reads follow these rules:
   the returned bounded response while the table shows a clearly labeled recent subset;
 - frontend tests must prove real catalog/series rendering, non-scalar handling, exact filter propagation,
   and visible query-failure behavior.
+
+## 21. Dashboard panel rules
+
+M3.3 project dashboards must preserve the control-plane/data-plane separation:
+
+- persist dashboard panel configuration in PostgreSQL, never raw telemetry values or ClickHouse result
+  snapshots;
+- scope every configuration list/create/delete operation through the authenticated user's project
+  membership before touching panel rows;
+- viewers may read dashboard configuration but owner/admin/editor roles alone may pin or remove panels;
+- resolve a panel deletion by both `project_id` and `panel_id`; a globally known panel UUID must not
+  allow cross-project mutation;
+- keep the V1 project dashboard bounded to six panels so one browser view cannot fan out into an
+  unbounded number of ClickHouse queries;
+- prevent duplicate saved queries with the same project, metric, time range, service, and environment;
+- pin only the existing bounded 1h/6h/24h/7d scalar-query contract; do not persist arbitrary SQL,
+  attribute expressions, organization IDs, or caller-defined query code;
+- dashboard telemetry reads must reuse the M3.1 metrics-series API rather than adding a browser-to-
+  ClickHouse path or a second query implementation;
+- dashboard query keys include project ID, panel identity/configuration, and explicit start/end values;
+- keep each dashboard panel response bounded; M3.3 requests at most 500 points per panel;
+- show ClickHouse/query failures as failures and empty numeric series as empty state; never substitute
+  stale or fabricated values;
+- latest/min/max displays are simple summaries of raw returned number points, not rate/delta/histogram
+  semantics;
+- panel removal requires explicit confirmation in the browser, while backend RBAC remains authoritative;
+- frontend/backend tests must cover viewer read-only behavior, foreign-project non-discovery, panel
+  scoping, duplicate/limit enforcement, pin propagation, real series rendering, empty state, and removal.

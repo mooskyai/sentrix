@@ -8,7 +8,7 @@ from rest_framework import serializers
 from apps.organizations.models import Organization, OrganizationMembership
 from apps.organizations.selectors import WRITE_ROLES
 
-from .models import Project, ProjectApiKey
+from .models import Project, ProjectApiKey, ProjectDashboardPanel
 
 
 class ProjectSerializer(serializers.ModelSerializer[Project]):
@@ -87,3 +87,36 @@ class ProjectApiKeyCreateSerializer(serializers.Serializer[Any]):
         if value is not None and value <= timezone.now():
             raise serializers.ValidationError("Expiry must be in the future.")
         return value
+
+
+class ProjectDashboardPanelSerializer(serializers.ModelSerializer[ProjectDashboardPanel]):
+    project_id = serializers.UUIDField(read_only=True)
+
+    class Meta:
+        model = ProjectDashboardPanel
+        fields = (
+            "id",
+            "project_id",
+            "title",
+            "metric_name",
+            "time_range",
+            "service_name",
+            "environment",
+            "position",
+            "created_by",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = fields
+
+
+class ProjectDashboardPanelCreateSerializer(serializers.Serializer[Any]):
+    title = serializers.CharField(max_length=160, trim_whitespace=True)
+    metric_name = serializers.CharField(max_length=512, trim_whitespace=True)
+    time_range = serializers.ChoiceField(choices=ProjectDashboardPanel.TimeRange.choices)
+    service_name = serializers.CharField(
+        max_length=512, required=False, allow_blank=True, default="", trim_whitespace=True
+    )
+    environment = serializers.CharField(
+        max_length=512, required=False, allow_blank=True, default="", trim_whitespace=True
+    )

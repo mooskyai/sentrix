@@ -86,3 +86,27 @@ export interface MetricSeriesResponse {
   points: MetricSeriesPoint[];
   truncated: boolean;
 }
+
+export type DashboardPanelTimeRange = "1h" | "6h" | "24h" | "7d";
+
+export interface ProjectDashboardPanel {
+  id: string;
+  project_id: string;
+  title: string;
+  metric_name: string;
+  time_range: DashboardPanelTimeRange;
+  service_name: string;
+  environment: string;
+  position: number;
+  created_by: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectDashboardPanelCreateInput {
+  title: string;
+  metric_name: string;
+  time_range: DashboardPanelTimeRange;
+  service_name: string;
+  environment: string;
+}

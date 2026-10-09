@@ -2,15 +2,17 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getMetricCatalog, getMetricSeries } from "../api/resources";
-import type { MetricCatalogResponse, MetricSeriesResponse } from "../types";
+import { createProjectDashboardPanel, getMetricCatalog, getMetricSeries } from "../api/resources";
+import type { MetricCatalogResponse, MetricSeriesResponse, ProjectDashboardPanel } from "../types";
 import { MetricsExplorer } from "./MetricsExplorer";
 
 vi.mock("../api/resources", () => ({
+  createProjectDashboardPanel: vi.fn(),
   getMetricCatalog: vi.fn(),
   getMetricSeries: vi.fn(),
 }));
 
+const mockedCreateProjectDashboardPanel = vi.mocked(createProjectDashboardPanel);
 const mockedGetMetricCatalog = vi.mocked(getMetricCatalog);
 const mockedGetMetricSeries = vi.mocked(getMetricSeries);
 
@@ -75,13 +77,27 @@ const series: MetricSeriesResponse = {
   truncated: false,
 };
 
-function renderExplorer() {
+const pinnedPanel: ProjectDashboardPanel = {
+  id: "panel-a",
+  project_id: "project-a",
+  title: "http.server.duration",
+  metric_name: "http.server.duration",
+  time_range: "1h",
+  service_name: "checkout",
+  environment: "production",
+  position: 0,
+  created_by: 1,
+  created_at: "2026-10-09T05:00:00Z",
+  updated_at: "2026-10-09T05:00:00Z",
+};
+
+function renderExplorer(canManageDashboard = false) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MetricsExplorer projectId="project-a" />
+      <MetricsExplorer projectId="project-a" canManageDashboard={canManageDashboard} />
     </QueryClientProvider>,
   );
 }
@@ -91,6 +107,7 @@ describe("MetricsExplorer", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedCreateProjectDashboardPanel.mockResolvedValue(pinnedPanel);
     mockedGetMetricCatalog.mockResolvedValue(catalog);
     mockedGetMetricSeries.mockResolvedValue(series);
   });
@@ -135,6 +152,27 @@ describe("MetricsExplorer", () => {
         }),
       );
     });
+  });
+
+  it("pins the current numeric query to the project dashboard for writers", async () => {
+    renderExplorer(true);
+    await screen.findByRole("img", { name: /showing 2 observed points/i });
+
+    fireEvent.change(screen.getByLabelText("Service"), { target: { value: "checkout" } });
+    fireEvent.change(screen.getByLabelText("Environment"), { target: { value: "production" } });
+    fireEvent.click(screen.getByRole("button", { name: "Apply filters" }));
+    fireEvent.click(screen.getByRole("button", { name: /Pin current query to dashboard/i }));
+
+    await waitFor(() => {
+      expect(mockedCreateProjectDashboardPanel).toHaveBeenCalledWith("project-a", {
+        title: "http.server.duration",
+        metric_name: "http.server.duration",
+        time_range: "1h",
+        service_name: "checkout",
+        environment: "production",
+      });
+    });
+    expect(await screen.findByText(/Pinned “http.server.duration” to Dashboards/i)).toBeInTheDocument();
   });
 
   it("surfaces query failure instead of presenting it as an empty result", async () => {

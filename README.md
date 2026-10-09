@@ -597,3 +597,43 @@ Loading, empty, query-error, and dependency-unavailable states are distinct. Swi
 remounts the explorer and its query keys include the immutable project UUID, time window, selected
 metric, and applied filters so telemetry from one project cannot be reused as another project's browser
 state.
+
+## V1 M3.3 first dashboard panels
+
+The project Dashboards workspace now renders a small read-only dashboard whose configuration is stored
+in PostgreSQL while every telemetry value continues to come from the M3.1 ClickHouse metrics query API.
+M3.3 intentionally supports one dashboard surface per project and at most six panels; multiple named
+dashboards, layout editing, and arbitrary query builders remain later work.
+
+Project members can read panel configuration at:
+
+```text
+GET /api/v1/projects/{project_id}/dashboard-panels/
+```
+
+Owner/admin/editor memberships can pin or remove panel configuration:
+
+```text
+POST   /api/v1/projects/{project_id}/dashboard-panels/
+DELETE /api/v1/projects/{project_id}/dashboard-panels/{panel_id}/
+```
+
+The browser does not ask users to re-enter metric names manually. In the Metrics explorer, an authorized
+writer can select a scalar metric, choose the existing bounded time range, apply exact service/environment
+filters, and use **Pin current query to dashboard**. The saved control-plane record contains only the
+panel title, metric name, bounded range, exact filters, order, and creation metadata. It contains no raw
+telemetry values.
+
+The Dashboards route then reuses `/metrics/series/` for each configured panel with a dashboard-specific
+500-point cap. Panels show latest/min/max/raw-point count plus the same observed-point plot used by the
+explorer. Those statistics are simple summaries of the returned raw numeric points; Sentrix still does
+not derive rates, deltas, histogram statistics, or percentiles.
+
+After pulling M3.3 into an already-running local stack, apply the new control-plane migration before
+using the dashboard API:
+
+```powershell
+docker compose exec api /opt/venv/bin/python manage.py migrate
+```
+
+Fresh bootstrap/startup continues to apply Django migrations automatically.

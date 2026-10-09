@@ -1,7 +1,7 @@
 import { useMemo, useState, type FormEvent } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { getMetricCatalog, getMetricSeries } from "../api/resources";
+import { createProjectDashboardPanel, getMetricCatalog, getMetricSeries } from "../api/resources";
 import type { MetricCatalogItem, MetricSeriesPoint } from "../types";
 
 const RANGE_MS = {
@@ -40,7 +40,7 @@ function formatAttributes(attributes: Record<string, string>): string {
   return entries.map(([key, value]) => `${key}=${value}`).join(", ");
 }
 
-function MetricPointPlot({ points, unit }: { points: MetricSeriesPoint[]; unit: string }) {
+export function MetricPointPlot({ points, unit }: { points: MetricSeriesPoint[]; unit: string }) {
   const timestamps = points.map((point) => Date.parse(point.timestamp));
   const values = points.map((point) => point.value);
   const minTime = Math.min(...timestamps);
@@ -107,13 +107,20 @@ function MetricDetails({ metric }: { metric: MetricCatalogItem }) {
   );
 }
 
-export function MetricsExplorer({ projectId }: { projectId: string }) {
+export function MetricsExplorer({
+  projectId,
+  canManageDashboard = false,
+}: {
+  projectId: string;
+  canManageDashboard?: boolean;
+}) {
   const [range, setRange] = useState<MetricTimeRange>("1h");
   const [anchorMs, setAnchorMs] = useState(() => Date.now());
   const [requestedMetric, setRequestedMetric] = useState("");
   const [serviceInput, setServiceInput] = useState("");
   const [environmentInput, setEnvironmentInput] = useState("");
   const [filters, setFilters] = useState<AppliedFilters>({});
+  const queryClient = useQueryClient();
 
   const window = useMemo(
     () => ({
@@ -156,6 +163,19 @@ export function MetricsExplorer({ projectId }: { projectId: string }) {
       }),
     enabled: selectedMetric.length > 0,
     retry: false,
+  });
+
+  const pinPanel = useMutation({
+    mutationFn: () =>
+      createProjectDashboardPanel(projectId, {
+        title: selectedMetadata?.name ?? selectedMetric,
+        metric_name: selectedMetric,
+        time_range: range,
+        service_name: filters.service_name ?? "",
+        environment: filters.environment ?? "",
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["dashboard-panels", projectId] }),
   });
 
   function applyFilters(event: FormEvent<HTMLFormElement>) {
@@ -244,6 +264,28 @@ export function MetricsExplorer({ projectId }: { projectId: string }) {
       {selectedMetadata ? <MetricDetails metric={selectedMetadata} /> : null}
       {selectedMetadata?.description ? (
         <p className="muted metric-description">{selectedMetadata.description}</p>
+      ) : null}
+
+      {canManageDashboard && selectedMetric ? (
+        <div className="metric-dashboard-action">
+          <button
+            className="button secondary"
+            type="button"
+            disabled={pinPanel.isPending}
+            onClick={() => pinPanel.mutate()}
+          >
+            {pinPanel.isPending ? "Pinning…" : "Pin current query to dashboard"}
+          </button>
+          <span className="muted">
+            Saves this metric, time range, and applied exact filters in the project control plane.
+          </span>
+        </div>
+      ) : null}
+      {pinPanel.isError ? (
+        <p className="error metric-state">Unable to pin dashboard panel: {pinPanel.error.message}</p>
+      ) : null}
+      {pinPanel.data ? (
+        <p className="notice metric-state">Pinned “{pinPanel.data.title}” to Dashboards.</p>
       ) : null}
 
       {selectedMetric ? (
