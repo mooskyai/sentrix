@@ -434,8 +434,9 @@ Direct object reads and mutations still go through Django's membership-scoped pr
 foreign UUID therefore remains inaccessible even if a caller knows it exactly.
 
 The workspace navigation exposes `overview`, `metrics`, `logs`, `traces`, `dashboards`, `alerts`, and
-`settings`. Overview and settings own real control-plane state. Telemetry sections keep stable routes
-without inventing synthetic data while tenant-safe query APIs and explorers are still pending.
+`settings`. Overview and settings own control-plane state. Metrics, Logs, Traces, and Dashboards use
+their implemented project-scoped APIs; Alerts keeps an explicit unavailable/not-connected state until
+its server-side behavior exists. No workspace route may invent synthetic telemetry.
 
 Organization/project switchers are also tenant-scoped. Changing organization selects only a project
 already present in the authenticated user's project collection. If the selected organization has no
@@ -964,3 +965,49 @@ links, flags, and dropped counts. All-zero fixed-width parent/span sentinels bec
 may summarize returned span/service counts and format durations, but it must not invent a missing parent,
 critical path, or cross-trace relationship. Log navigation carries the originating log query window so a
 correlated trace is searched in the same bounded temporal context.
+
+## 31. M4 operational closeout boundary
+
+M4.4 proves the complete logs/correlation path without adding another application data route:
+
+```text
+project telemetry key
+      |
+      | secure stdin
+      v
+correlated OTLP trace + log
+      |
+      +--> /v1/traces
+      `--> /v1/logs
+              |
+              v
+     credential-derived tenant
+              |
+              v
+   sentrix_spans + sentrix_logs
+              |
+              +--> scoped durability diagnostic
+              |
+normal browser session + project membership
+              |
+              +--> /logs/search/
+              `--> /traces/{trace_id}/
+                         |
+                         v
+                Logs -> Open trace -> Traces
+```
+
+The smoke helper authenticates the same project key used by ingestion only to discover its persisted
+organization/project identity for diagnostic scoping. OTLP resource attributes remain telemetry data and
+cannot override those IDs. Direct ClickHouse verification always includes both tenant IDs, the unique
+trace/service dimensions, and a narrow time range; it never inserts rows or performs an unscoped scan.
+
+The first-party read proof uses a separate Django session. The session user must independently have
+membership in the project associated with the machine credential, preserving the browser/machine trust
+split. The operational script verifies both M4 APIs before human browser confirmation, so a visually
+present row alone cannot mask a broken dependency or authorization boundary.
+
+M4.4 creates no temporary control-plane record. Its uniquely marked smoke telemetry remains normal raw
+telemetry in ClickHouse. The final gate recreates current application containers without deleting
+volumes, validates health/schema, runs all tests/static/build checks, and keeps generated TypeScript
+build-state files out of version control so verification itself does not create repository drift.

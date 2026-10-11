@@ -252,3 +252,71 @@ M4.3 is green only when:
 
 M4.4 operational closeout must not begin until M4.3 is green, committed, pushed, and `main` is aligned
 with `origin/main`.
+
+## 13. M4.4 — Operational verification and documentation closeout
+
+M4.4 adds no new product query semantics. It packages the already-proven M4 ingestion/read/browser
+boundaries into one reproducible closeout command:
+
+```powershell
+./scripts/verify-m4.ps1
+```
+
+By default the verifier rebuilds and force-recreates the current Compose services while preserving
+PostgreSQL and ClickHouse volumes, waits for frontend/API readiness, validates the ClickHouse schema,
+then securely prompts for an existing project telemetry key.
+
+`backend/scripts/otlp_log_trace_smoke.py` authenticates that key to derive the organization/project
+identity, generates one unique trace with a real root/child parent relationship plus one ERROR log
+correlated to the child span, and sends both binary OTLP payloads through `/v1/traces` and `/v1/logs`.
+It then performs tenant-scoped ClickHouse diagnostics using both credential-derived IDs, the exact trace
+ID, service/environment, and a narrow UTC window. No row is inserted directly by verification.
+
+The PowerShell verifier separately establishes a normal CSRF/session-authenticated browser API session.
+That user must independently have membership in the telemetry-key project. It verifies the fresh row
+through `/logs/search/`, verifies the same trace through `/traces/{trace_id}/`, and checks the returned
+correlation IDs, root/child parentage, status, smoke attributes, and event JSON before asking for one
+human Logs -> **Open trace** browser confirmation.
+
+No temporary PostgreSQL configuration is created by M4.4. The unique smoke telemetry remains in
+ClickHouse as ordinary observed data. After browser confirmation, the verifier runs the full
+`scripts/verify.ps1` release gate unless `-SkipReleaseGate` is explicitly used while debugging.
+`-SkipComposeRecreate` is likewise a debugging convenience and is not the final closeout path.
+
+## 14. M4.4 acceptance
+
+M4.4 is green only when:
+
+- Compose configuration is valid and the required PostgreSQL, Redis, ClickHouse, API, and web services
+  are running from the current repository without deleting persistent volumes;
+- liveness, readiness, and live ClickHouse schema validation pass;
+- the telemetry key is read from a secure prompt/stdin path and is never printed or committed;
+- the smoke derives organization/project identity from the authenticated key rather than telemetry
+  attributes or caller-supplied tenant IDs;
+- a unique correlated trace and log are accepted through the public OTLP/HTTP endpoints;
+- project-scoped ClickHouse verification proves the expected two spans plus correlated log, including
+  real root/child parentage, span status, event data, service/environment, and smoke markers;
+- a separately authenticated browser/session user can resolve that same project through membership;
+- the session-authenticated log API returns exactly the fresh correlated row using bounded exact filters;
+- the session-authenticated trace API returns the same trace with the real root/child relationship and
+  no synthetic span;
+- the real Logs workspace shows the fresh row, **Open trace** navigates to Traces, and the expected trace
+  renders correctly;
+- the complete repository release gate passes after the operational smoke;
+- generated `frontend/tsconfig.app.tsbuildinfo` state is no longer tracked, so verification/build output
+  does not dirty the repository;
+- documentation describes the final M4 runtime and closeout procedure.
+
+## 15. M4 definition of done
+
+V1 M4 is complete only after M4.1 through M4.4 are committed and pushed, the production-shaped M4.4
+verification passes without skip flags, and the repository finishes with:
+
+```text
+## main...origin/main
+```
+
+At that point Sentrix has a tenant-safe, bounded logs explorer plus exact trace inspection and real
+log-to-trace correlation over durable ClickHouse telemetry. Broader trace search, service maps, derived
+critical-path analysis, log aggregation, retention tuning, and alerting remain later work rather than
+implicit M4 behavior.

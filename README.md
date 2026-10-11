@@ -245,6 +245,10 @@ The complete rules are in [CODING_GUIDELINE.md](CODING_GUIDELINE.md). The non-ne
 - [V1_MILESTONE_TESTING.md](V1_MILESTONE_TESTING.md) defines the V1 M1 test matrix and release gate.
 - [V1_M2_MILESTONE.md](V1_M2_MILESTONE.md) defines the telemetry-ingestion milestone and its ordered parts.
 - [V1_M2_MILESTONE_TESTING.md](V1_M2_MILESTONE_TESTING.md) defines the M2 per-part acceptance gates.
+- [V1_M3_MILESTONE.md](V1_M3_MILESTONE.md) defines the metrics-query/dashboard milestone and ordered delivery.
+- [V1_M3_MILESTONE_TESTING.md](V1_M3_MILESTONE_TESTING.md) defines the M3 acceptance and operational closeout gates.
+- [V1_M4_MILESTONE.md](V1_M4_MILESTONE.md) defines logs, trace lookup, correlation, and M4 closeout.
+- [V1_M4_MILESTONE_TESTING.md](V1_M4_MILESTONE_TESTING.md) defines the M4 test and operational verification matrix.
 - [ARCHITECTURE.md](ARCHITECTURE.md) defines system boundaries from the control plane through telemetry ingestion.
 
 ## V1 M1 definition of done
@@ -267,8 +271,9 @@ The control-plane UI now has a canonical tenant-aware project workspace route:
 ```
 
 Supported workspace sections are `overview`, `metrics`, `logs`, `traces`, `dashboards`, `alerts`, and
-`settings`. Overview and settings contain real control-plane state; telemetry sections remain honest
-placeholders for tenant-safe query/explorer work and never fabricate telemetry.
+`settings`. Overview and settings contain real control-plane state. Metrics, Logs, Traces, and
+Dashboards now use project-scoped application/query boundaries backed by real persisted data or
+configuration; Alerts remains an explicit placeholder until its backend behavior exists.
 
 Workspace behavior:
 
@@ -747,3 +752,42 @@ that the parent was not returned.
 Correlated log rows with a valid trace ID now expose **Open trace**. That link carries the Logs query's
 same start/end window to `/traces`, but the destination still performs its own session-authenticated
 project lookup and span query. Knowing a trace ID therefore never grants cross-project access.
+
+## V1 M4.4 operational verification and closeout
+
+M4 closes with one production-shaped correlated telemetry verification command:
+
+```powershell
+./scripts/verify-m4.ps1
+```
+
+The command rebuilds and force-recreates the current Compose services while preserving persistent
+volumes, verifies web/API readiness and the ClickHouse schema, securely reads a project telemetry key,
+and sends a uniquely marked root/child trace plus an ERROR log correlated to the child through the
+public `/v1/traces` and `/v1/logs` endpoints.
+
+The helper derives organization/project identity by authenticating that project key and proves both
+signals are durably present with scoped ClickHouse queries. The verification then authenticates a normal
+Django browser session, independently resolves the same project through membership, and proves the fresh
+telemetry through `/logs/search/` and `/traces/{trace_id}/` before asking for a real Logs -> **Open
+trace** browser confirmation.
+
+The browser user only needs project read membership; M4.4 creates no temporary dashboard/configuration
+records. Unique smoke telemetry remains in ClickHouse as ordinary data. After browser confirmation the
+script runs the complete `scripts/verify.ps1` release gate. `-SkipComposeRecreate` and
+`-SkipReleaseGate` exist only for debugging and are not valid for final M4 acceptance.
+
+Secrets are never printed: `SENTRIX_OTLP_API_KEY` may supply the project key and
+`SENTRIX_BROWSER_USERNAME` may supply the username, while the browser password is always prompted
+securely. The telemetry key is otherwise read via a secure prompt and piped to the helper over stdin.
+Generated `frontend/tsconfig.app.tsbuildinfo` is ignored/untracked so frontend typecheck/build execution
+no longer dirties the repository.
+
+A successful final run ends with:
+
+```text
+M4 operational verification passed.
+```
+
+After committing/pushing the closeout, `git status -sb` must show `## main...origin/main` before M4 is
+considered complete.

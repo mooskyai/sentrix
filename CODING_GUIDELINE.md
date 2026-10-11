@@ -667,3 +667,31 @@ M4.3 trace work must preserve these rules:
 - distinguish initial, loading, healthy-empty, query-error, and truncated browser states;
 - tests must cover foreign-project non-discovery, parameterization, bounds, dependency failure, live
   two-project trace isolation, correlated navigation, raw parentage/timing, and missing-parent honesty.
+
+## 26. M4 operational closeout rules
+
+M4.4 verification must preserve all existing ingestion/query trust boundaries:
+
+- generate correlated smoke telemetry with unique trace/span IDs and a unique run marker for every run;
+- send both signals through the authenticated public `/v1/traces` and `/v1/logs` routes; never insert
+  verification rows directly into ClickHouse;
+- derive organization/project IDs only by authenticating the project telemetry credential, then scope
+  every diagnostic ClickHouse query by both IDs plus exact smoke dimensions and a bounded UTC window;
+- pass dynamic diagnostic values as typed ClickHouse parameters;
+- keep the project telemetry key on secure prompt/stdin paths and never print it, write it to a file, or
+  include it in browser URLs/output;
+- require the browser/session user to independently resolve the key-bound project through normal
+  membership APIs; machine credentials must never grant first-party browser access;
+- verify the fresh row through the normal M4 log-search API and the fresh trace through the normal M4
+  exact-trace API before requesting human browser confirmation;
+- operational correlation checks must compare actual trace/span IDs, root/child parentage, status,
+  service/environment, and unique smoke markers rather than accepting any recent telemetry row;
+- browser confirmation must exercise the real Logs **Open trace** navigation, not a direct ClickHouse or
+  debug-only screen;
+- verification may rebuild/force-recreate containers but must preserve persistent volumes;
+- skip switches are debugging conveniences only; final milestone acceptance runs Compose recreation,
+  browser confirmation, and the complete repository release gate;
+- generated TypeScript build-state files covered by `.gitignore` must not remain tracked or require a
+  manual restore after every production build;
+- M4.4 is a verification/documentation closeout and must not introduce new telemetry query semantics,
+  persistence models, retention policy, or speculative ClickHouse optimization.

@@ -265,3 +265,87 @@ manual correlated browser smoke, full release gate, commit, push, and a clean:
 ```
 
 Only then may M4.4 operational verification and closeout begin.
+
+## 14. M4.4 operational matrix
+
+### OP4-001 — Fresh-stack-safe runtime
+
+Validate Compose, rebuild/force-recreate current services without deleting volumes, wait for web/API
+health, and validate the live ClickHouse schema.
+
+### OP4-002 — Credential-derived correlated ingestion
+
+Read the project telemetry key securely, derive organization/project identity from that credential,
+then send one unique root/child trace and one ERROR log correlated to the child through the public
+binary OTLP/HTTP endpoints. The smoke must never insert telemetry directly into ClickHouse.
+
+### OP4-003 — Scoped durable persistence
+
+Query `sentrix_spans` and `sentrix_logs` using both credential-derived tenant IDs plus the exact trace,
+service/environment, and narrow UTC window. Prove root/child IDs and parentage, status, event data,
+log severity/body/correlation IDs, and the unique smoke marker survived persistence.
+
+### OP4-004 — Independent session read boundary
+
+Authenticate with an ordinary Django browser session whose user independently belongs to the same
+project. Verify the fresh log through `/logs/search/` with exact bounded filters, then verify the trace
+through `/traces/{trace_id}/`. The telemetry key must not grant or substitute browser membership.
+
+### OP4-005 — Browser correlation
+
+Open the real Logs workspace, locate the fresh correlated row, use **Open trace**, and confirm the Traces
+workspace renders the expected root/child spans and actual parent relationship. Browser confirmation is
+required after automated persistence/API checks pass.
+
+### OP4-006 — Full regression gate
+
+Run the complete `scripts/verify.ps1` gate after the operational smoke and browser confirmation. A final
+M4 closeout must use the normal Compose recreate and release-gate paths, not skip switches.
+
+## 15. M4.4 command
+
+From the repository root on Windows/PowerShell 7:
+
+```powershell
+./scripts/verify-m4.ps1
+```
+
+The verifier supports these debugging-only switches:
+
+```powershell
+./scripts/verify-m4.ps1 -SkipComposeRecreate
+./scripts/verify-m4.ps1 -SkipReleaseGate
+```
+
+Do not use either switch for the final M4 acceptance run. `SENTRIX_OTLP_API_KEY` and
+`SENTRIX_BROWSER_USERNAME` may be supplied for local convenience, but the browser password remains a
+secure prompt and the verifier never prints the bearer key/password.
+
+## 16. M4.4 browser confirmation
+
+The verifier prints the unique log body, service/environment, trace ID, root/child IDs, and project Logs
+and Trace URLs. In the browser:
+
+1. open the printed Logs URL;
+2. refresh and filter by the printed trace ID or service if needed;
+3. confirm the unique ERROR log has the expected trace and child span IDs;
+4. click **Open trace** from that exact row;
+5. confirm the trace contains the printed root and child span names/IDs;
+6. confirm the child references the printed root ID and the root is shown as root;
+7. inspect the child and confirm the smoke attribute/event plus service/environment are preserved;
+8. answer `y` only when the rendered correlation is correct.
+
+The helper/API checks run before this prompt, so browser confirmation supplements rather than replaces
+automated tenant-scoped persistence and read verification.
+
+## 17. M4 stop condition
+
+M4 is complete only when `./scripts/verify-m4.ps1` passes without skip flags, including the full release
+gate and browser confirmation; the closeout changes are committed and pushed; generated build state is
+not tracked; and:
+
+```text
+## main...origin/main
+```
+
+is clean.
