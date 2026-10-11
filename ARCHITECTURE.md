@@ -438,7 +438,8 @@ foreign UUID therefore remains inaccessible even if a caller knows it exactly.
 The workspace navigation exposes `overview`, `metrics`, `logs`, `traces`, `dashboards`, `alerts`, and
 `settings`. Overview and settings own control-plane state. Metrics, Logs, Traces, and Dashboards use
 their implemented project-scoped APIs; Alerts keeps an explicit unavailable/not-connected state until
-its server-side behavior exists. No workspace route may invent synthetic telemetry.
+M5.3 connects the implemented alert rule/current-state APIs to the workspace. No workspace route may
+invent synthetic telemetry or alert state.
 
 Organization/project switchers are also tenant-scoped. Changing organization selects only a project
 already present in the authenticated user's project collection. If the selected organization has no
@@ -1049,3 +1050,46 @@ histogram coercion, arbitrary expressions, and user-provided query languages rem
 The V1 control plane caps a project at 50 alert rules. This is an explicit bounded-evaluation contract,
 not an attempt to predict long-term product limits. Increasing or removing that limit requires an
 evaluation/fan-out decision rather than silently creating an unbounded background workload.
+
+## 33. Alert evaluation-state boundary
+
+V1 M5.2 adds the first alert evaluator without moving raw telemetry into the control plane:
+
+```text
+PostgreSQL AlertRule
+      |
+      | persisted project relationship
+      v
+one-shot alert evaluator
+      |
+      | organization_id + project_id + typed rule query
+      v
+ClickHouse sentrix_metrics
+      |
+      | unique latest scalar point / no data / failure
+      v
+PostgreSQL AlertRuleState (current state only)
+```
+
+The evaluator runs outside request handlers. It derives tenant identity from the rule's persisted project,
+uses the same bounded scalar-metric semantics as the metrics read boundary, and applies exact optional
+service/environment filters. The evaluator never accepts organization/project identity from metric
+attributes or caller input.
+
+`AlertRuleState` stores only the current status and bounded operational metadata. Raw observed values and
+historical evaluation samples stay in ClickHouse; M5.2 does not introduce an alert-history table. A
+healthy empty scalar query becomes `no_data`. Dependency failure, a non-finite point, or multiple points
+sharing the newest timestamp becomes `error` rather than being rewritten as healthy state or resolved by
+an invented aggregation.
+
+PostgreSQL locks are not held while ClickHouse is queried. The evaluator snapshots the rule's
+`updated_at`, performs the telemetry read, then locks the rule/state only while persisting. If the rule
+changed or was disabled during the query, the old result is skipped. An older overlapping evaluation
+also cannot overwrite a state written for a newer evaluation timestamp. Configuration changes reset
+enabled rules to `pending`, while disabled rules expose `disabled`. `state_changed_at` moves only on a status
+transition; repeated evaluations of the same status update `evaluated_at` without fabricating a new
+transition.
+
+The management command `manage.py evaluate_alerts` is a one-shot worker entrypoint. M5.2 intentionally
+does not choose a scheduler/queue framework, create incidents, or dispatch notifications; those decisions
+remain later M5 work.

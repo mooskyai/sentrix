@@ -109,3 +109,90 @@ M5.1 is green only when:
 - ClickHouse schema/index/TTL changes.
 
 M5.2 must not begin until M5.1 is green, committed, pushed, and `main` is aligned with `origin/main`.
+
+## 7. M5.2 evaluation-state contract
+
+M5.2 adds one current `AlertRuleState` row per alert rule. It is control-plane state, not an evaluation
+history table and not a copy of metric samples. The persisted state is:
+
+```text
+pending | ok | firing | no_data | error | disabled
+```
+
+The state records evaluation time, state-transition time, the source point timestamp when one uniquely
+exists, and a bounded internal error code. The numeric telemetry value itself remains in ClickHouse.
+
+Alert-rule list/detail responses now include this current state. No request handler evaluates telemetry;
+HTTP reads only return persisted configuration/state.
+
+## 8. M5.2 evaluation semantics
+
+An enabled rule is evaluated against the half-open configured window ending at one evaluation timestamp.
+The evaluator queries `sentrix_metrics` with organization/project IDs derived from the persisted rule
+relationship, the rule metric name, and its exact optional service/environment filters.
+
+Only `number_value` rows participate. The newest timestamp is selected. If no numeric point exists, the
+state becomes `no_data`. If exactly one latest point exists, its raw value is compared directly with the
+configured comparator and threshold. No rate, delta, average, percentile, histogram coercion, or other
+aggregation is introduced.
+
+If multiple numeric points share the newest timestamp, M5.2 does not choose an arbitrary series. The
+state becomes `error` with `ambiguous_latest_point`; a later rule language may add explicit series or
+aggregation semantics. Non-finite observed values also become `error`. ClickHouse/query failures become
+`error`, never `no_data`.
+
+Configuration changes that affect evaluation reset enabled rules to `pending`; disabling a rule makes
+its state `disabled`. Evaluation snapshots the rule's `updated_at` before querying and refuses to persist
+a stale result if the rule changes while the ClickHouse query is in flight. An older overlapping
+evaluation also cannot overwrite a state already persisted by a newer evaluation timestamp.
+
+## 9. M5.2 worker boundary
+
+Evaluation runs outside HTTP request handlers through:
+
+```powershell
+docker compose exec api /opt/venv/bin/python manage.py evaluate_alerts
+```
+
+For a scoped operational/debug run:
+
+```powershell
+docker compose exec api /opt/venv/bin/python manage.py evaluate_alerts --project-id <project-uuid>
+```
+
+The command is a one-shot worker entrypoint suitable for an external scheduler. M5.2 deliberately does
+not introduce Celery, Dramatiq, a cron container, or a permanent cadence before notification/retry
+requirements are defined. It evaluates all eligible rules, persists current states, and exits non-zero
+when one or more rules end in `error`.
+
+## 10. M5.2 acceptance
+
+M5.2 is green only when:
+
+- every rule has/backfills a current state row and new rules start `pending` or `disabled`;
+- list/detail APIs expose persisted current state without triggering evaluation;
+- evaluator queries are always organization/project scoped from persisted relationships;
+- windows and exact service/environment filters match the rule configuration;
+- comparator boundaries are covered explicitly;
+- no numeric point becomes `no_data`, while dependency/ambiguity/non-finite failures become `error`;
+- equal newest timestamps are never resolved by an invented aggregation or arbitrary row choice;
+- state transition time changes only when status changes;
+- evaluation-affecting configuration changes invalidate prior state;
+- stale in-flight results cannot overwrite state after a concurrent rule change or newer evaluation;
+- a one-shot management command provides the non-request evaluation entrypoint;
+- no alert history, incidents, notifications, scheduler dependency, or ClickHouse schema change is added;
+- focused tests, migration drift checks, and the complete repository release gate pass;
+- documentation remains synchronized.
+
+## 11. Explicitly out of scope for M5.2
+
+- browser Alerts management/state UI (M5.3);
+- notification channels or delivery (M5.4);
+- alert/evaluation history or incidents;
+- periodic scheduler infrastructure;
+- hysteresis, debounce, `for` duration, recovery delays, or silencing;
+- aggregation across multiple simultaneous series;
+- rates, deltas, percentiles, histogram alerting, logs, or trace alert rules;
+- ClickHouse index/projection/materialized-view/TTL changes.
+
+M5.3 must not begin until M5.2 is green, committed, pushed, and `main` is aligned with `origin/main`.

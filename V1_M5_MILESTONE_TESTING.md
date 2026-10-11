@@ -97,3 +97,106 @@ gate, commit, push, and a clean:
 ```
 
 Only then may M5.2 metric evaluation and alert state begin.
+
+## 6. M5.2 automated matrix
+
+### AE-001 — Initial/backfilled state
+
+Existing rules receive a state row during migration. New enabled rules start `pending`; disabled rules
+start `disabled`.
+
+### AE-002 — Tenant-scoped metric query
+
+Evaluator arguments use the rule project's persisted organization/project IDs plus the configured metric,
+window, and exact service/environment filters.
+
+### AE-003 — Comparator boundaries
+
+`gt`, `gte`, `lt`, and `lte` are tested at boundary values without implicit epsilon or coercion.
+
+### AE-004 — No-data honesty
+
+A healthy query with no scalar point sets `no_data`. It must not be reported as `ok`.
+
+### AE-005 — Dependency/error honesty
+
+ClickHouse failures, ambiguous equal-latest timestamps, and non-finite observed values set `error` with a
+bounded code. Exception text is not persisted.
+
+### AE-006 — State transitions
+
+`state_changed_at` changes only when status changes; `evaluated_at` advances on evaluation attempts
+including `no_data` and `error`.
+
+### AE-007 — Configuration invalidation
+
+Changes to metric/window/filter/comparator/threshold reset enabled rules to `pending`. Disabling produces
+`disabled` without querying ClickHouse.
+
+### AE-008 — Stale-write protection
+
+If a rule changes while an evaluation query is in flight, the stale result is skipped and cannot
+overwrite the state produced by the newer configuration. An older overlapping evaluation also cannot
+overwrite a state already persisted for a newer evaluation timestamp.
+
+### AE-009 — Current-state API
+
+Project rule list/detail responses expose only persisted current state and do not trigger ClickHouse
+queries.
+
+### AE-010 — Worker boundary
+
+`manage.py evaluate_alerts` evaluates enabled rules outside HTTP request handlers, supports optional
+project scoping, and exits non-zero when any rule ends in `error`.
+
+### AE-011 — Latest-point query contract
+
+The ClickHouse helper uses typed organization/project/metric/time/filter parameters, numeric points only,
+newest-first selection, and explicitly rejects a tie at the newest timestamp.
+
+### AE-012 — Regression gate
+
+All M1-M5.1 tests plus the normal backend/frontend/schema/build gates remain green.
+
+## 7. Focused M5.2 checks
+
+```powershell
+docker compose exec api /opt/venv/bin/python -m pytest `
+  apps/alerts/tests/test_api.py `
+  apps/alerts/tests/test_evaluation.py -v
+
+docker compose exec api /opt/venv/bin/ruff check apps/alerts apps/telemetry/metrics_query.py
+docker compose exec api /opt/venv/bin/ruff format --check apps/alerts apps/telemetry/metrics_query.py
+docker compose exec api /opt/venv/bin/mypy apps/alerts apps/telemetry/metrics_query.py
+
+docker compose exec api /opt/venv/bin/python manage.py check
+docker compose exec api /opt/venv/bin/python manage.py makemigrations --check --dry-run
+```
+
+Then run the complete release gate:
+
+```powershell
+./scripts/verify.ps1
+```
+
+## 8. Manual M5.2 smoke
+
+Use an existing project/rule and run the one-shot evaluator from the repository stack:
+
+```powershell
+docker compose exec api /opt/venv/bin/python manage.py evaluate_alerts --project-id <project-uuid>
+```
+
+Then read the rule through its existing project API and confirm the nested `state` reflects the persisted
+result. Do not expect the Alerts workspace to render it yet; M5.3 owns the browser UI.
+
+## 9. M5.2 stop condition
+
+M5.2 is complete only after focused evaluator/state tests, migration checks, management-command smoke,
+the full release gate, commit, push, and a clean:
+
+```text
+## main...origin/main
+```
+
+Only then may M5.3 Alerts workspace work begin.

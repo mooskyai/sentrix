@@ -49,7 +49,7 @@ def _writable_project(request: Request, project_id: UUID) -> Project:
 
 def _project_rule(project: Project, alert_rule_id: UUID) -> AlertRule:
     try:
-        return AlertRule.objects.select_related("created_by").get(
+        return AlertRule.objects.select_related("created_by", "evaluation_state").get(
             pk=alert_rule_id,
             project=project,
         )
@@ -62,7 +62,9 @@ class AlertRuleListCreateView(APIView):
 
     def get(self, request: Request, project_id: UUID) -> Response:
         project = _readable_project(request, project_id)
-        rules = AlertRule.objects.filter(project=project).select_related("created_by")
+        rules = AlertRule.objects.filter(project=project).select_related(
+            "created_by", "evaluation_state"
+        )
         return Response(AlertRuleSerializer(rules, many=True).data)
 
     def post(self, request: Request, project_id: UUID) -> Response:

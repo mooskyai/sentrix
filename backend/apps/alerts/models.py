@@ -58,3 +58,33 @@ class AlertRule(models.Model):
 
     def __str__(self) -> str:
         return f"{self.project}:{self.name}"
+
+
+class AlertRuleState(models.Model):
+    class Status(models.TextChoices):
+        PENDING = "pending", "pending"
+        OK = "ok", "ok"
+        FIRING = "firing", "firing"
+        NO_DATA = "no_data", "no data"
+        ERROR = "error", "error"
+        DISABLED = "disabled", "disabled"
+
+    rule = models.OneToOneField(
+        AlertRule,
+        on_delete=models.CASCADE,
+        related_name="evaluation_state",
+        primary_key=True,
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+    evaluated_at = models.DateTimeField(null=True, blank=True)
+    state_changed_at = models.DateTimeField(null=True, blank=True)
+    source_timestamp = models.DateTimeField(null=True, blank=True)
+    error_code = models.CharField(max_length=64, blank=True, default="")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f"{self.rule}:{self.status}"

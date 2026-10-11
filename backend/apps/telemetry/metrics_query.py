@@ -1,10 +1,26 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any, cast
 from uuid import UUID
 
 from .clickhouse_schema import get_clickhouse_client
+
+
+class AmbiguousLatestMetricPoint(Exception):
+    pass
+
+
+@dataclass(frozen=True, slots=True)
+class LatestNumericMetricPoint:
+    timestamp: datetime
+    value: float
+
+
+def _utc_datetime(value: datetime) -> datetime:
+    normalized = value if value.tzinfo is not None else value.replace(tzinfo=UTC)
+    return normalized.astimezone(UTC)
 
 
 def _iso_timestamp(value: Any) -> str:
@@ -131,4 +147,61 @@ def query_numeric_metric_series(
             for row in rows
         ],
         truncated,
+    )
+
+
+def query_latest_numeric_metric_point(
+    *,
+    organization_id: UUID,
+    project_id: UUID,
+    metric_name: str,
+    start: datetime,
+    end: datetime,
+    service_name: str | None = None,
+    environment: str | None = None,
+) -> LatestNumericMetricPoint | None:
+    filters = [
+        "organization_id = {organization_id:UUID}",
+        "project_id = {project_id:UUID}",
+        "metric_name = {metric_name:String}",
+        "timestamp >= {start:DateTime64(9)}",
+        "timestamp < {end:DateTime64(9)}",
+        "number_value IS NOT NULL",
+    ]
+    parameters: dict[str, Any] = {
+        "organization_id": organization_id,
+        "project_id": project_id,
+        "metric_name": metric_name,
+        "start": start,
+        "end": end,
+    }
+    if service_name is not None:
+        filters.append("service_name = {service_name:String}")
+        parameters["service_name"] = service_name
+    if environment is not None:
+        filters.append("environment = {environment:String}")
+        parameters["environment"] = environment
+
+    sql = (
+        "SELECT timestamp, number_value "
+        "FROM sentrix_metrics WHERE " + " AND ".join(filters) + " ORDER BY timestamp DESC LIMIT 2"
+    )
+    client = get_clickhouse_client()
+    try:
+        rows = cast(list[tuple[Any, ...]], client.query(sql, parameters=parameters).result_rows)
+    finally:
+        client.close()
+
+    if not rows:
+        return None
+
+    latest_timestamp = _utc_datetime(cast(datetime, rows[0][0]))
+    if len(rows) > 1 and _utc_datetime(cast(datetime, rows[1][0])) == latest_timestamp:
+        raise AmbiguousLatestMetricPoint(
+            "More than one numeric metric point shares the latest timestamp."
+        )
+
+    return LatestNumericMetricPoint(
+        timestamp=latest_timestamp,
+        value=float(rows[0][1]),
     )

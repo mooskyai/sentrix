@@ -275,7 +275,8 @@ The control-plane UI now has a canonical tenant-aware project workspace route:
 Supported workspace sections are `overview`, `metrics`, `logs`, `traces`, `dashboards`, `alerts`, and
 `settings`. Overview and settings contain real control-plane state. Metrics, Logs, Traces, and
 Dashboards now use project-scoped application/query boundaries backed by real persisted data or
-configuration; Alerts remains an explicit placeholder until its backend behavior exists.
+configuration; Alerts remains an explicit placeholder until M5.3 connects the alert rule/state APIs to
+the browser workspace.
 
 Workspace behavior:
 
@@ -818,3 +819,30 @@ allows at most 50 rules per project.
 M5.1 does not evaluate rules, query ClickHouse during rule creation, show firing state, create incidents,
 or send notifications. The project Alerts route remains an explicit not-connected state until the M5.3
 browser slice. M5.2 will establish the evaluator/state boundary first.
+
+## V1 M5.2 metric evaluation and current alert state
+
+M5.2 adds a current PostgreSQL state record for every alert rule while keeping metric samples in
+ClickHouse. Rule list/detail responses expose one of `pending`, `ok`, `firing`, `no_data`, `error`, or
+`disabled`, plus evaluation/transition timestamps, the source metric timestamp when one uniquely exists,
+and a bounded error code. This is current operational state only; Sentrix does not persist metric values
+or an evaluation-history stream in PostgreSQL.
+
+Evaluation remains outside HTTP request handlers. Run the one-shot evaluator with:
+
+```powershell
+docker compose exec api /opt/venv/bin/python manage.py evaluate_alerts
+```
+
+An optional `--project-id <project-uuid>` scopes a run. The evaluator derives organization/project
+identity from each persisted rule relationship, uses the configured half-open 1h/6h/24h/7d window and
+exact service/environment filters, and reads only scalar `number_value` points. No point is `no_data`;
+ClickHouse failure, a non-finite value, or more than one point sharing the newest timestamp is `error`.
+A unique newest point is compared directly with `gt`, `gte`, `lt`, or `lte` without rate/delta/average
+or histogram semantics.
+
+Evaluation snapshots the rule version before opening ClickHouse and refuses to persist a stale result if
+the rule changes while the query is in flight or a newer evaluation already committed. Evaluation-
+affecting edits reset enabled rules to `pending`; disabling makes the state `disabled`. M5.2 does not add
+notification delivery, incidents,
+history, scheduler infrastructure, or the Alerts browser UI; M5.3 owns the workspace.

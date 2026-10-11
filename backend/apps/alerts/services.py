@@ -1,9 +1,10 @@
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.utils import timezone
 
 from apps.projects.models import Project
 
-from .models import AlertRule
+from .models import AlertRule, AlertRuleState
 
 MAX_PROJECT_ALERT_RULES = 50
 
@@ -14,6 +15,30 @@ class AlertRuleLimitReached(Exception):
 
 class AlertRuleAlreadyExists(Exception):
     pass
+
+
+def _reset_alert_rule_state(rule: AlertRule, status: str) -> None:
+    state, _created = AlertRuleState.objects.get_or_create(
+        rule=rule,
+        defaults={"status": status},
+    )
+    changed = state.status != status
+    state.status = status
+    state.evaluated_at = None
+    state.source_timestamp = None
+    state.error_code = ""
+    if changed:
+        state.state_changed_at = timezone.now()
+    state.save(
+        update_fields=[
+            "status",
+            "evaluated_at",
+            "source_timestamp",
+            "error_code",
+            "state_changed_at",
+            "updated_at",
+        ]
+    )
 
 
 @transaction.atomic
@@ -39,7 +64,7 @@ def create_alert_rule(
     if rules.filter(name=name).exists():
         raise AlertRuleAlreadyExists("An alert rule with this name already exists in the project.")
 
-    return AlertRule.objects.create(
+    rule = AlertRule.objects.create(
         project=locked_project,
         name=name,
         metric_name=metric_name,
@@ -51,6 +76,11 @@ def create_alert_rule(
         enabled=enabled,
         created_by=created_by,
     )
+    AlertRuleState.objects.create(
+        rule=rule,
+        status=AlertRuleState.Status.PENDING if enabled else AlertRuleState.Status.DISABLED,
+    )
+    return rule
 
 
 @transaction.atomic
@@ -79,6 +109,19 @@ def update_alert_rule(
     ):
         raise AlertRuleAlreadyExists("An alert rule with this name already exists in the project.")
 
+    was_enabled = locked_rule.enabled
+    evaluation_config_changed = any(
+        value is not None
+        for value in (
+            metric_name,
+            time_range,
+            service_name,
+            environment,
+            comparator,
+            threshold,
+        )
+    )
+
     update_fields: list[str] = []
     values: tuple[tuple[str, object | None], ...] = (
         ("name", name),
@@ -96,4 +139,12 @@ def update_alert_rule(
             update_fields.append(field_name)
 
     locked_rule.save(update_fields=[*update_fields, "updated_at"])
+
+    enabled_changed = enabled is not None and locked_rule.enabled != was_enabled
+    if not locked_rule.enabled:
+        if enabled_changed or evaluation_config_changed:
+            _reset_alert_rule_state(locked_rule, AlertRuleState.Status.DISABLED)
+    elif enabled_changed or evaluation_config_changed:
+        _reset_alert_rule_state(locked_rule, AlertRuleState.Status.PENDING)
+
     return locked_rule

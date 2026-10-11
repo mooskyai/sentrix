@@ -721,3 +721,33 @@ M5.1 alert configuration must preserve these rules:
   by database transactions/locking plus a database constraint;
 - M5.1 does not claim firing state, alert history, evaluation cadence, incident semantics, or
   notification delivery; those require later M5 slices and their own tests.
+
+## 28. Alert evaluation and current-state rules
+
+M5.2 evaluation must preserve these rules:
+
+- evaluate telemetry outside browser/API request handlers; rule reads and writes must not synchronously
+  execute alert evaluation;
+- derive `organization_id` and `project_id` from the persisted rule/project relationship, never from
+  telemetry attributes, command arguments, or browser query data;
+- keep evaluation windows bounded to the rule's existing 1h/6h/24h/7d choices and pass metric name,
+  timestamps, service, and environment as typed ClickHouse parameters;
+- evaluate only scalar `number_value` points and compare the unique newest raw point directly with the
+  configured `gt`/`gte`/`lt`/`lte` comparator;
+- do not choose an arbitrary row when multiple points share the newest timestamp; record a bounded
+  `ambiguous_latest_point` error until the rule language defines explicit series/aggregation semantics;
+- keep healthy no-data distinct from failures: no scalar point is `no_data`; ClickHouse failure,
+  ambiguity, or non-finite observed values are `error`;
+- persist only current alert state/operational timestamps in PostgreSQL; do not copy raw metric values or
+  create unbounded evaluation history in the control plane;
+- never persist dependency exception text; expose only bounded internal error codes;
+- invalidate current state when evaluation-affecting rule configuration changes, using `pending` for
+  enabled rules and `disabled` for disabled rules;
+- do not hold PostgreSQL transactions/row locks across ClickHouse network I/O; snapshot rule version,
+  query telemetry, then lock only while committing current state;
+- reject stale writes when the rule changed, became disabled, or a newer evaluation already committed
+  while the telemetry query was running;
+- update `state_changed_at` only when status changes; repeated same-status evaluations update the
+  evaluation timestamp without creating a synthetic transition;
+- the M5.2 management command is a one-shot worker boundary, not permission to introduce an implicit
+  scheduler, notification side effects, incidents, or retry framework before those contracts exist.

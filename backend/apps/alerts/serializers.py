@@ -3,11 +3,26 @@ from typing import Any
 
 from rest_framework import serializers
 
-from .models import AlertRule
+from .models import AlertRule, AlertRuleState
+
+
+class AlertRuleStateSerializer(serializers.ModelSerializer[AlertRuleState]):
+    class Meta:
+        model = AlertRuleState
+        fields = (
+            "status",
+            "evaluated_at",
+            "state_changed_at",
+            "source_timestamp",
+            "error_code",
+            "updated_at",
+        )
+        read_only_fields = fields
 
 
 class AlertRuleSerializer(serializers.ModelSerializer[AlertRule]):
     project_id = serializers.UUIDField(read_only=True)
+    state = serializers.SerializerMethodField()
 
     class Meta:
         model = AlertRule
@@ -22,11 +37,19 @@ class AlertRuleSerializer(serializers.ModelSerializer[AlertRule]):
             "comparator",
             "threshold",
             "enabled",
+            "state",
             "created_by",
             "created_at",
             "updated_at",
         )
         read_only_fields = fields
+
+    def get_state(self, rule: AlertRule) -> dict[str, Any] | None:
+        try:
+            state = rule.evaluation_state
+        except AlertRuleState.DoesNotExist:
+            return None
+        return dict(AlertRuleStateSerializer(state).data)
 
 
 class AlertRuleWriteSerializer(serializers.Serializer[Any]):
