@@ -249,6 +249,8 @@ The complete rules are in [CODING_GUIDELINE.md](CODING_GUIDELINE.md). The non-ne
 - [V1_M3_MILESTONE_TESTING.md](V1_M3_MILESTONE_TESTING.md) defines the M3 acceptance and operational closeout gates.
 - [V1_M4_MILESTONE.md](V1_M4_MILESTONE.md) defines logs, trace lookup, correlation, and M4 closeout.
 - [V1_M4_MILESTONE_TESTING.md](V1_M4_MILESTONE_TESTING.md) defines the M4 test and operational verification matrix.
+- [V1_M5_MILESTONE.md](V1_M5_MILESTONE.md) defines project alert rules, evaluation, notifications, and ordered delivery.
+- [V1_M5_MILESTONE_TESTING.md](V1_M5_MILESTONE_TESTING.md) defines M5 alerting acceptance and closeout gates.
 - [ARCHITECTURE.md](ARCHITECTURE.md) defines system boundaries from the control plane through telemetry ingestion.
 
 ## V1 M1 definition of done
@@ -791,3 +793,28 @@ M4 operational verification passed.
 
 After committing/pushing the closeout, `git status -sb` must show `## main...origin/main` before M4 is
 considered complete.
+
+## V1 M5.1 project alert-rule foundation
+
+M5 begins with alert configuration only. The new project-scoped API is:
+
+```text
+GET   /api/v1/projects/{project_id}/alert-rules/
+POST  /api/v1/projects/{project_id}/alert-rules/
+GET   /api/v1/projects/{project_id}/alert-rules/{alert_rule_id}/
+PATCH /api/v1/projects/{project_id}/alert-rules/{alert_rule_id}/
+DELETE /api/v1/projects/{project_id}/alert-rules/{alert_rule_id}/
+```
+
+Any project member may read rules. Owner/admin/editor memberships may create, edit, enable/disable, and
+delete them; viewers remain read-only. Foreign project UUIDs and rule IDs are resolved through the same
+membership-scoped project boundary used elsewhere.
+
+The first rule shape is intentionally narrow and metric-only. It stores a metric name, 1h/6h/24h/7d
+bounded window, optional exact service/environment filters, a comparator (`gt`, `gte`, `lt`, or `lte`),
+a finite numeric threshold, and enabled state. Rule names are unique per project and the V1 control plane
+allows at most 50 rules per project.
+
+M5.1 does not evaluate rules, query ClickHouse during rule creation, show firing state, create incidents,
+or send notifications. The project Alerts route remains an explicit not-connected state until the M5.3
+browser slice. M5.2 will establish the evaluator/state boundary first.

@@ -695,3 +695,29 @@ M4.4 verification must preserve all existing ingestion/query trust boundaries:
   manual restore after every production build;
 - M4.4 is a verification/documentation closeout and must not introduce new telemetry query semantics,
   persistence models, retention policy, or speculative ClickHouse optimization.
+
+## 27. Alert rule control-plane rules
+
+M5.1 alert configuration must preserve these rules:
+
+- alert rules are project-owned PostgreSQL control-plane records; raw telemetry and evaluation samples
+  remain in ClickHouse;
+- resolve the route project through the authenticated user's memberships before any alert rule is read
+  or mutated;
+- viewers may read alert-rule configuration; owner/admin/editor memberships alone may create, update,
+  enable/disable, or delete rules;
+- scope detail mutation by both `project_id` and alert-rule ID so a known foreign rule UUID cannot cross
+  project boundaries;
+- metric name, exact service/environment filters, comparison operator, threshold, and time window are
+  configuration data, never authorization inputs;
+- keep the initial condition grammar explicit and typed: raw latest scalar point, bounded window, exact
+  filters, and `gt`/`gte`/`lt`/`lte`; do not accept arbitrary SQL, expressions, functions, or JSON query
+  programs;
+- reject non-finite thresholds before persistence;
+- rule creation/update must not query ClickHouse merely to validate that a metric currently exists;
+- keep rule collections bounded; M5.1 allows at most 50 rules per project so later evaluation cannot
+  inherit an unbounded fan-out by accident;
+- rule names are unique within a project and concurrency-sensitive create/update checks must be guarded
+  by database transactions/locking plus a database constraint;
+- M5.1 does not claim firing state, alert history, evaluation cadence, incident semantics, or
+  notification delivery; those require later M5 slices and their own tests.

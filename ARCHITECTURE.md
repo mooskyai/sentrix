@@ -339,8 +339,8 @@ backend/apps/
   common/
   organizations/
   projects/
+  alerts/          alert-rule control plane and later evaluation
   dashboards/      future
-  alerts/          future
   integrations/    future
 ```
 
@@ -389,9 +389,11 @@ Metrics explorer and first dashboard panels.
 
 Logs and trace correlation.
 
-### Later
+### V1 M5
 
-Alert evaluation and notification dispatch.
+Alert rules, evaluation, and notification dispatch.
+
+### Later
 
 Service catalog, Kubernetes/infrastructure views, incidents, integrations, usage-based plans, SSO, advanced analytics.
 
@@ -1011,3 +1013,39 @@ M4.4 creates no temporary control-plane record. Its uniquely marked smoke teleme
 telemetry in ClickHouse. The final gate recreates current application containers without deleting
 volumes, validates health/schema, runs all tests/static/build checks, and keeps generated TypeScript
 build-state files out of version control so verification itself does not create repository drift.
+
+## 32. Alert-rule control-plane boundary
+
+V1 M5.1 introduces alert configuration as PostgreSQL control-plane state before any evaluator or
+notification worker is allowed to run:
+
+```text
+Authenticated browser session
+        |
+        v
+membership-scoped project lookup
+        |
+        +--> viewer: read alert rules
+        |
+        `--> owner/admin/editor: create/update/delete
+                         |
+                         v
+                 PostgreSQL AlertRule
+```
+
+An alert rule belongs to exactly one project and stores only configuration: a metric name, one of the
+already-bounded metric windows, optional exact service/environment filters, a comparison operator,
+numeric threshold, enabled state, creator, and timestamps. Raw metric values and evaluation history do
+not belong in PostgreSQL merely because alert configuration does.
+
+M5.1 does not open ClickHouse while rules are created or changed. A metric name in an alert rule is query
+configuration, not tenant authority and not proof that the metric currently exists. Evaluation begins in
+M5.2 and must independently reuse the tenant-scoped telemetry query boundary.
+
+The initial condition language is deliberately narrow: compare the latest raw scalar point in the
+configured bounded window against `gt`, `gte`, `lt`, or `lte`. Rates, deltas, averages, percentiles,
+histogram coercion, arbitrary expressions, and user-provided query languages remain outside M5.1.
+
+The V1 control plane caps a project at 50 alert rules. This is an explicit bounded-evaluation contract,
+not an attempt to predict long-term product limits. Increasing or removing that limit requires an
+evaluation/fan-out decision rather than silently creating an unbounded background workload.
