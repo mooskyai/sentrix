@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { getOrganizations, getProjects } from "../api/resources";
+import { AlertsWorkspace } from "../components/AlertsWorkspace";
 import { DashboardPanels } from "../components/DashboardPanels";
 import { LogsExplorer } from "../components/LogsExplorer";
 import { MetricsExplorer } from "../components/MetricsExplorer";
@@ -39,7 +40,7 @@ const SECTION_COPY: Record<WorkspaceSection, { title: string; description: strin
   },
   alerts: {
     title: "Alerts",
-    description: "Alert evaluation follows queryable telemetry and notification infrastructure.",
+    description: "Manage project alert rules and inspect their persisted current evaluation state.",
   },
   settings: {
     title: "Project settings",
@@ -208,6 +209,12 @@ export function ProjectWorkspacePage() {
         ) : activeSection === "dashboards" ? (
           <DashboardPanels
             key={workspace.project.id}
+            projectId={workspace.project.id}
+            canManage={writable}
+          />
+        ) : activeSection === "alerts" ? (
+          <AlertsWorkspace
+            key={`${workspace.project.id}:${writable ? "manage" : "read"}`}
             projectId={workspace.project.id}
             canManage={writable}
           />

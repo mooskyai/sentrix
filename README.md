@@ -274,9 +274,9 @@ The control-plane UI now has a canonical tenant-aware project workspace route:
 
 Supported workspace sections are `overview`, `metrics`, `logs`, `traces`, `dashboards`, `alerts`, and
 `settings`. Overview and settings contain real control-plane state. Metrics, Logs, Traces, and
-Dashboards now use project-scoped application/query boundaries backed by real persisted data or
-configuration; Alerts remains an explicit placeholder until M5.3 connects the alert rule/state APIs to
-the browser workspace.
+Dashboards and Alerts now use project-scoped application/query boundaries backed by real persisted
+data or control-plane configuration. Alerts reads persisted current evaluation state and never triggers
+evaluation from the browser.
 
 Workspace behavior:
 
@@ -846,3 +846,21 @@ the rule changes while the query is in flight or a newer evaluation already comm
 affecting edits reset enabled rules to `pending`; disabling makes the state `disabled`. M5.2 does not add
 notification delivery, incidents,
 history, scheduler infrastructure, or the Alerts browser UI; M5.3 owns the workspace.
+
+## V1 M5.3 Alerts workspace
+
+The project Alerts route now uses the existing project-scoped alert-rule API. Any project member can
+read rule configuration and persisted current state; owner/admin/editor memberships can create, edit,
+enable/disable, and delete rules. Viewer sessions remain read-only in the UI and Django remains the
+authorization boundary.
+
+The browser exposes the same narrow M5 rule grammar: metric name, 1h/6h/24h/7d window, exact optional
+service/environment filters, `gt`/`gte`/`lt`/`lte`, finite threshold, and enabled state. Rule cards show
+`pending`, `ok`, `firing`, `no_data`, `error`, or `disabled` plus persisted evaluation timestamps,
+source-point timestamp, and bounded error code. The UI does not invent an observed metric value because
+M5.2 deliberately leaves raw telemetry in ClickHouse.
+
+`Refresh state` only re-reads the project rule API. Creating, editing, toggling, deleting, refreshing, or
+opening the Alerts route never runs the evaluator from an HTTP request and never accesses ClickHouse
+directly from the browser. Evaluation cadence remains an external worker/scheduler concern for later M5
+work.

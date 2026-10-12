@@ -1,5 +1,7 @@
 import { api, ensureCsrf } from "./client";
 import type {
+  AlertRule,
+  AlertRuleWriteInput,
   MetricCatalogResponse,
   MetricSeriesResponse,
   Organization,
@@ -143,6 +145,41 @@ export function createProjectDashboardPanel(
 export function deleteProjectDashboardPanel(projectId: string, panelId: string): Promise<void> {
   return api<void>(
     `/projects/${encodeURIComponent(projectId)}/dashboard-panels/${encodeURIComponent(panelId)}/`,
+    { method: "DELETE" },
+  );
+}
+
+export function getProjectAlertRules(projectId: string): Promise<AlertRule[]> {
+  return api<AlertRule[]>(`/projects/${encodeURIComponent(projectId)}/alert-rules/`);
+}
+
+export function createProjectAlertRule(
+  projectId: string,
+  input: AlertRuleWriteInput,
+): Promise<AlertRule> {
+  return api<AlertRule>(`/projects/${encodeURIComponent(projectId)}/alert-rules/`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateProjectAlertRule(
+  projectId: string,
+  alertRuleId: string,
+  input: Partial<AlertRuleWriteInput>,
+): Promise<AlertRule> {
+  return api<AlertRule>(
+    `/projects/${encodeURIComponent(projectId)}/alert-rules/${encodeURIComponent(alertRuleId)}/`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function deleteProjectAlertRule(projectId: string, alertRuleId: string): Promise<void> {
+  return api<void>(
+    `/projects/${encodeURIComponent(projectId)}/alert-rules/${encodeURIComponent(alertRuleId)}/`,
     { method: "DELETE" },
   );
 }

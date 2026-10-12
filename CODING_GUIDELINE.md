@@ -751,3 +751,26 @@ M5.2 evaluation must preserve these rules:
   evaluation timestamp without creating a synthetic transition;
 - the M5.2 management command is a one-shot worker boundary, not permission to introduce an implicit
   scheduler, notification side effects, incidents, or retry framework before those contracts exist.
+
+## 29. Alerts workspace rules
+
+M5.3 browser work must preserve these rules:
+
+- use only the existing project alert-rule list/create/detail/patch/delete API; do not create a frontend
+  telemetry query or duplicate rule endpoint;
+- include `projectId` in every alert-rule React Query key and remount project workspaces when tenant
+  context changes;
+- render only persisted `AlertRuleState`; do not derive firing/OK from browser-side metric queries or
+  fabricate an observed value that M5.2 intentionally does not persist;
+- owners/admins/editors may receive create/edit/enable-disable/delete controls; viewers may read rules
+  and current state only; Django remains authoritative for every mutation;
+- keep the browser rule grammar identical to the backend (`metric_name`, bounded window, exact optional
+  service/environment, comparator, finite threshold, enabled); do not add expression builders, rates,
+  aggregations, or histogram semantics in the UI alone;
+- `Refresh state` may invalidate/re-fetch the alert-rule query only; no browser action may synchronously
+  invoke the evaluator, open ClickHouse, or create an implicit evaluation cadence;
+- show loading, empty, error, read-only, and unavailable-state conditions explicitly; do not report a
+  dependency failure as no-data or healthy state;
+- keep action errors visible and require confirmation before destructive rule deletion;
+- M5.3 adds no notification channel, incident, alert history, scheduler framework, or telemetry schema
+  change.

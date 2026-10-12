@@ -111,6 +111,47 @@ export interface ProjectDashboardPanelCreateInput {
   environment: string;
 }
 
+export type AlertRuleTimeRange = "1h" | "6h" | "24h" | "7d";
+export type AlertRuleComparator = "gt" | "gte" | "lt" | "lte";
+export type AlertRuleStatus = "pending" | "ok" | "firing" | "no_data" | "error" | "disabled";
+
+export interface AlertRuleState {
+  status: AlertRuleStatus;
+  evaluated_at: string | null;
+  state_changed_at: string | null;
+  source_timestamp: string | null;
+  error_code: string;
+  updated_at: string;
+}
+
+export interface AlertRule {
+  id: string;
+  project_id: string;
+  name: string;
+  metric_name: string;
+  time_range: AlertRuleTimeRange;
+  service_name: string;
+  environment: string;
+  comparator: AlertRuleComparator;
+  threshold: number;
+  enabled: boolean;
+  state: AlertRuleState | null;
+  created_by: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AlertRuleWriteInput {
+  name: string;
+  metric_name: string;
+  time_range: AlertRuleTimeRange;
+  service_name: string;
+  environment: string;
+  comparator: AlertRuleComparator;
+  threshold: number;
+  enabled: boolean;
+}
+
 export interface LogSearchRow {
   timestamp: string;
   observed_timestamp: string | null;

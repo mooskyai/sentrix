@@ -196,3 +196,51 @@ M5.2 is green only when:
 - ClickHouse index/projection/materialized-view/TTL changes.
 
 M5.3 must not begin until M5.2 is green, committed, pushed, and `main` is aligned with `origin/main`.
+
+## 12. M5.3 Alerts workspace contract
+
+M5.3 replaces the project Alerts placeholder with a real browser surface backed exclusively by the M5.1
+rule API and M5.2 persisted current state. Any project member can view configured rules and state.
+Owner/admin/editor memberships can create, edit, enable/disable, and delete rules; viewers remain
+read-only.
+
+The create/edit form exposes only the existing typed scalar condition: name, metric name,
+1h/6h/24h/7d window, exact optional service/environment filters, `gt`/`gte`/`lt`/`lte`, finite numeric
+threshold, and enabled state. The UI must not introduce expressions or aggregation semantics the backend
+does not support.
+
+Each rule renders its persisted current status (`pending`, `ok`, `firing`, `no_data`, `error`, or
+`disabled`), evaluation timestamp, transition timestamp, unique source-point timestamp when present, and
+bounded error code. No raw observed metric value or history is shown because neither is persisted in the
+M5.2 control plane.
+
+## 13. M5.3 browser/evaluator separation
+
+The Alerts workspace never evaluates telemetry. `Refresh state` only re-fetches the project alert-rule
+API. Rule CRUD and enable/disable operations use the existing control-plane endpoints and rely on M5.2
+state invalidation (`pending`/`disabled`) until the external evaluator runs again.
+
+The browser therefore never opens ClickHouse, never supplies tenant identity to the evaluator, and never
+creates a hidden scheduling mechanism. Evaluation remains the one-shot worker boundary established in
+M5.2.
+
+## 14. M5.3 acceptance
+
+M5.3 is green only when:
+
+- the Alerts workspace loads rules/current state using a project-scoped query key;
+- viewer access renders rules/state without mutation controls;
+- owner/admin/editor UI can create, edit, enable/disable, and delete through the existing M5 API;
+- typed rule input matches backend rule semantics and rejects obviously invalid finite-threshold input
+  before submission while backend validation remains authoritative;
+- status/timestamps/error code are rendered from persisted state without browser-side metric evaluation;
+- missing state is shown as unavailable rather than fabricated;
+- refresh only re-fetches persisted state and does not trigger evaluation;
+- loading, empty, read-only, API error, mutation error, and delete confirmation behavior are covered;
+- no backend migration, ClickHouse schema change, scheduler, notification channel, incident, or history
+  model is introduced;
+- focused frontend tests and the complete repository release gate pass;
+- README, architecture, coding, milestone, and testing documentation agree with the implementation.
+
+M5.4 notification-channel/dispatch work must not begin until M5.3 is green, committed, pushed, and
+`main` is aligned with `origin/main`.

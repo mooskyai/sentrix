@@ -1093,3 +1093,38 @@ transition.
 The management command `manage.py evaluate_alerts` is a one-shot worker entrypoint. M5.2 intentionally
 does not choose a scheduler/queue framework, create incidents, or dispatch notifications; those decisions
 remain later M5 work.
+
+## 34. Alerts browser boundary
+
+V1 M5.3 connects the project Alerts route to the already-established control-plane API without adding a
+second alert or telemetry path:
+
+```text
+Authenticated browser session
+        |
+        v
+project workspace
+        |
+        v
+project-scoped alert-rule CRUD API
+        |
+        +--> PostgreSQL AlertRule
+        `--> PostgreSQL AlertRuleState (current state)
+
+one-shot evaluator ----> ClickHouse sentrix_metrics
+```
+
+The browser may read rules/current state for any membership. Owner/admin/editor UI may submit the same
+typed M5 rule fields already validated by Django; viewer UI is read-only. Browser controls never derive
+or override organization/project identity and remain usability only—the backend membership/role checks
+continue to authorize every mutation.
+
+M5.3 does not expose an HTTP "evaluate now" operation. `Refresh state` re-fetches persisted state only;
+opening, creating, editing, enabling/disabling, deleting, or refreshing a rule must not query ClickHouse
+from an HTTP request. The browser therefore cannot become an accidental scheduler or bypass the M5.2
+worker boundary.
+
+State rendering is deliberately honest. The UI displays persisted status/timestamps/source timestamp and
+bounded error code, but it does not fabricate an observed value, alert history, incident, or notification
+state that the backend does not store. Project IDs remain part of every React Query key so cached alert
+configuration/state cannot cross workspace tenants.

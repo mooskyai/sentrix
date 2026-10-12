@@ -200,3 +200,89 @@ the full release gate, commit, push, and a clean:
 ```
 
 Only then may M5.3 Alerts workspace work begin.
+
+## 10. M5.3 automated matrix
+
+### AU-001 — Project-scoped state read
+
+The Alerts workspace loads the current project's alert-rule collection and renders persisted current
+state, timestamps, exact filters, comparator, threshold, and enabled state. It does not issue metric
+queries.
+
+### AU-002 — Viewer read-only behavior
+
+Viewer access may read rules/state but receives no create/edit/enable-disable/delete controls.
+
+### AU-003 — Writer create
+
+Owner/admin/editor UI submits the complete typed scalar rule shape to the project-scoped create API.
+
+### AU-004 — Writer edit
+
+Editing a rule loads its current typed condition into the form and PATCHes the existing project/rule
+endpoint. The browser does not synthesize evaluation state after the edit.
+
+### AU-005 — Enable/disable
+
+Enable/disable uses PATCH with only `enabled`; returned/persisted state is re-fetched from the backend.
+
+### AU-006 — Delete confirmation
+
+Deletion requires explicit browser confirmation before calling the project/rule delete endpoint.
+
+### AU-007 — Current-state honesty
+
+`pending`, `ok`, `firing`, `no_data`, `error`, and `disabled` are rendered as persisted. Missing state is
+shown explicitly as unavailable. No raw metric value/history is invented.
+
+### AU-008 — Refresh boundary
+
+`Refresh state` only invalidates/re-fetches the project alert-rule query. No evaluator or telemetry query
+API is invoked by the browser.
+
+### AU-009 — UI failure states
+
+Rule list loading/error/empty states and mutation errors remain distinct and visible.
+
+### AU-010 — Regression gate
+
+All backend M1-M5.2 tests, frontend tests, lint/typecheck/build, migration drift, and ClickHouse schema
+checks remain green.
+
+## 11. Focused M5.3 checks
+
+```powershell
+docker compose exec web npm run lint
+docker compose exec web npm run typecheck
+docker compose exec web npm run test -- --run src/components/AlertsWorkspace.test.tsx
+```
+
+Then run the complete release gate:
+
+```powershell
+./scripts/verify.ps1
+```
+
+## 12. Manual M5.3 browser smoke
+
+Using a writable project session:
+
+1. open the project Alerts workspace and create a scalar threshold rule;
+2. confirm the rule appears with its backend-provided current state;
+3. edit the threshold and confirm the state becomes `pending` until the evaluator runs;
+4. run `manage.py evaluate_alerts --project-id <project-uuid>` outside the browser and use `Refresh state`;
+5. confirm the new persisted state appears without a browser telemetry query;
+6. disable then enable the rule and confirm the backend state changes to `disabled`/`pending`;
+7. delete the rule only after confirmation;
+8. repeat as a viewer and confirm rule/state read succeeds while mutation controls are absent.
+
+## 13. M5.3 stop condition
+
+M5.3 is complete only after focused frontend tests, manual browser CRUD/state smoke, the full release gate,
+commit, push, and a clean:
+
+```text
+## main...origin/main
+```
+
+Only then may M5.4 notification channels and dispatch begin.

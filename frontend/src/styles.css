@@ -1026,3 +1026,157 @@
     @apply grid;
   }
 }
+
+@layer components {
+  .alerts-workspace {
+    @apply grid gap-3;
+  }
+
+  .alerts-toolbar,
+  .alert-editor {
+    @apply rounded-control border border-line bg-canvas-soft p-3;
+  }
+
+  .alerts-toolbar,
+  .alert-editor-header,
+  .alert-rule-header {
+    @apply flex items-start justify-between gap-3;
+  }
+
+  .alerts-toolbar h3,
+  .alert-editor-header h3,
+  .alert-rule-header h3 {
+    @apply mb-1 text-sm font-semibold text-ink;
+  }
+
+  .alerts-toolbar p,
+  .alert-editor-header p,
+  .alert-rule-header p,
+  .alert-state-line,
+  .alert-read-only {
+    @apply mb-0;
+  }
+
+  .alert-editor {
+    @apply grid gap-3;
+  }
+
+  .alert-form {
+    @apply grid items-end gap-2.5;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .alert-form label {
+    @apply grid gap-1.5 font-semibold text-ink-soft;
+    font-size: 0.75rem;
+  }
+
+  .alert-enabled {
+    @apply content-end;
+  }
+
+  .alert-enabled input {
+    @apply size-4 rounded border-line p-0;
+  }
+
+  .alert-form-actions {
+    @apply flex items-center;
+  }
+
+  .alert-rule-list {
+    @apply grid gap-2.5;
+  }
+
+  .alert-rule-card {
+    @apply grid gap-3 rounded-control border border-line bg-canvas-soft p-3.5;
+  }
+
+  .alert-rule-card:hover {
+    @apply border-line-strong;
+  }
+
+  .alert-rule-title {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  .alert-rule-title h3 {
+    @apply m-0;
+  }
+
+  .alert-status {
+    @apply inline-flex rounded-full border px-2 py-0.5 font-bold uppercase;
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+  }
+
+  .alert-status.ok {
+    @apply border-success text-success;
+    background: rgb(103 184 148 / 0.08);
+  }
+
+  .alert-status.firing,
+  .alert-status.error {
+    @apply border-danger text-danger;
+    background: rgb(223 125 136 / 0.08);
+  }
+
+  .alert-status.no_data,
+  .alert-status.pending,
+  .alert-status.unavailable {
+    @apply border-amber text-amber;
+    background: rgb(213 168 94 / 0.08);
+  }
+
+  .alert-status.disabled {
+    @apply border-line-strong text-ink-muted;
+    background: var(--color-panel-raised);
+  }
+
+  .alert-condition {
+    @apply flex flex-wrap items-center gap-2 rounded-control border border-line bg-panel px-2.5 py-2 text-ink-soft;
+    font-size: 0.8125rem;
+  }
+
+  .alert-rule-query,
+  .alert-rule-actions {
+    @apply flex flex-wrap items-center gap-1.5;
+  }
+
+  .alert-rule-actions {
+    @apply justify-end;
+  }
+
+  .alert-state-meta {
+    @apply m-0 grid grid-cols-4 gap-2;
+  }
+
+  .alert-state-meta div {
+    @apply min-w-0 rounded-control border border-line bg-panel p-2.5;
+  }
+
+  .alert-state-meta dt {
+    @apply mb-0.5 font-bold uppercase text-ink-muted;
+    font-size: 0.625rem;
+    letter-spacing: 0.05em;
+  }
+
+  .alert-state-meta dd {
+    @apply m-0 text-ink-soft;
+    font-size: 0.6875rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 850px) {
+  .alerts-toolbar,
+  .alert-editor-header,
+  .alert-rule-header,
+  .alert-form,
+  .alert-state-meta {
+    @apply grid grid-cols-1;
+  }
+
+  .alert-rule-actions {
+    @apply justify-start;
+  }
+}
