@@ -244,3 +244,61 @@ M5.3 is green only when:
 
 M5.4 notification-channel/dispatch work must not begin until M5.3 is green, committed, pushed, and
 `main` is aligned with `origin/main`.
+
+## 15. M5.4 notification-channel contract
+
+M5.4 introduces project-scoped webhook channels plus durable delivery state. Any project member may read
+channel metadata and delivery status. Owner/admin/editor memberships may create, patch, enable/disable,
+and delete channels. V1 supports webhook channels only and caps each project at ten channels.
+
+The full endpoint URL is accepted only on write and is not returned by list/detail responses. Channel
+creation returns one HMAC signing secret derived from the deployment secret and channel identity; later
+reads never reveal it. Webhook destinations must satisfy the configured server egress hostname allowlist,
+userinfo/fragments are rejected, redirects are not followed, and HTTP is allowed only when an explicit
+operator/debug setting enables it.
+
+## 16. M5.4 transition and delivery semantics
+
+An alert evaluation may enqueue notification work only after its current-state write is accepted. For
+every enabled channel in the same project:
+
+```text
+non-firing -> firing   => firing delivery
+firing -> ok           => recovered delivery
+```
+
+Repeated firing, repeated ok, firing -> no_data, firing -> error, rule configuration invalidation, and
+rule disable do not synthesize recovery notifications. Payloads snapshot project/rule condition metadata
+and transition timestamps but never copy the observed numeric sample into PostgreSQL.
+
+The one-shot `dispatch_notifications` command claims due rows with a bounded lease, performs external
+HTTP after the transaction is released, and finalizes only the matching lease. At most three attempts are
+allowed. Network/timeouts, HTTP 408/425/429, and 5xx are retryable with fixed backoff; redirects and other
+3xx/4xx are terminal. Disabled channels cancel pending rows. Response bodies and exception strings are
+never persisted.
+
+## 17. M5.4 acceptance
+
+M5.4 is green only when:
+
+- channel list/detail/create/patch/delete are membership/project scoped and viewer mutations are denied;
+- foreign project/channel UUIDs remain non-discoverable;
+- duplicate names and the ten-channel cap are enforced transactionally with a database constraint;
+- endpoint read APIs redact the full URL and the signing secret appears only on create;
+- egress validation rejects unapproved hosts, URL credentials/fragments, and disallowed HTTP;
+- firing and direct recovery transitions enqueue exactly once per enabled same-project channel;
+- same-state/no-data/error/configuration/disable paths do not fabricate notification events;
+- delivery payloads contain no observed metric value;
+- dispatcher success persists delivered state and a valid HMAC signature contract;
+- retryable failures back off and stop after three attempts, while terminal HTTP/egress failures do not
+  loop;
+- lease expiry/reclaim and stale completion cannot intentionally double-finalize one row;
+- HTTP request handlers and the evaluator never perform webhook network I/O;
+- no scheduler framework, incident model, provider-specific adapter, or ClickHouse schema change is
+  introduced;
+- focused tests, migration drift checks, Compose validation, and the complete repository release gate
+  pass;
+- README, architecture, coding, milestone, and testing documentation agree with implementation.
+
+M5.5 operational closeout must not begin until M5.4 is green, committed, pushed, and `main` is aligned
+with `origin/main`.

@@ -864,3 +864,50 @@ M5.2 deliberately leaves raw telemetry in ClickHouse.
 opening the Alerts route never runs the evaluator from an HTTP request and never accesses ClickHouse
 directly from the browser. Evaluation cadence remains an external worker/scheduler concern for later M5
 work.
+
+## V1 M5.4 notification channels and dispatch
+
+M5.4 adds project-scoped webhook notification channels and a durable delivery queue in PostgreSQL. Any
+project member may read channel metadata and recent delivery state. Owner/admin/editor memberships may
+create, update, enable/disable, and delete channels through:
+
+```text
+GET    /api/v1/projects/{project_id}/notification-channels/
+POST   /api/v1/projects/{project_id}/notification-channels/
+GET    /api/v1/projects/{project_id}/notification-channels/{channel_id}/
+PATCH  /api/v1/projects/{project_id}/notification-channels/{channel_id}/
+DELETE /api/v1/projects/{project_id}/notification-channels/{channel_id}/
+GET    /api/v1/projects/{project_id}/notification-deliveries/?limit=100
+```
+
+Webhook endpoints are treated as sensitive configuration. Read responses expose only a redacted
+`endpoint_display`; the full URL is never returned after write. Creation returns a derived HMAC signing
+secret once. The API never returns that secret again, and outbound requests use `X-Sentrix-Timestamp`
+and `X-Sentrix-Signature: sha256=<hex>` over `<timestamp>.<canonical-json-body>`. Losing the signing
+secret requires recreating the channel. Production deployments must set a strong `DJANGO_SECRET_KEY`.
+
+Outbound webhook egress is deny-by-default when `DJANGO_DEBUG=false`: configure exact permitted
+hostnames with `NOTIFICATION_WEBHOOK_ALLOWED_HOSTS`. HTTP is disabled outside debug unless
+`NOTIFICATION_WEBHOOK_ALLOW_HTTP=true` is set deliberately. Redirects are not followed. Endpoint
+userinfo/fragments are rejected, response bodies and exception text are never persisted, and only bounded
+error codes/status codes are stored.
+
+Alert evaluation still performs no network delivery. A persisted state transition queues one delivery
+per enabled project channel only for `non-firing -> firing` and direct `firing -> ok` recovery. Repeated
+same-state evaluations, `firing -> no_data`, `firing -> error`, rule edits, and disable operations do not
+invent recovery notifications. Delivery payloads snapshot rule configuration and state timestamps but do
+not copy the observed metric value into PostgreSQL.
+
+Dispatch runs outside HTTP requests with:
+
+```powershell
+docker compose exec api /opt/venv/bin/python manage.py dispatch_notifications
+```
+
+Use `--project-id <project-uuid>` to scope an operational run and `--limit <1..1000>` to bound work.
+Delivery claims use a short PostgreSQL lease so overlapping workers do not normally double-send; expired
+claims are recoverable. Each delivery receives at most three attempts with bounded backoff. Network/
+timeout failures, HTTP 408/425/429, and 5xx responses are retryable; redirects and other 3xx/4xx results
+are terminal. Disabled channels cancel still-pending deliveries. M5.4 intentionally adds no permanent
+scheduler, Celery/Dramatiq dependency, incidents, email/Slack-specific adapters, or ClickHouse schema
+change.

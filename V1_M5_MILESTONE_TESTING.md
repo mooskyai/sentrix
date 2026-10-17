@@ -286,3 +286,102 @@ commit, push, and a clean:
 ```
 
 Only then may M5.4 notification channels and dispatch begin.
+
+## 14. M5.4 automated matrix
+
+### AN-001 — Channel tenancy/RBAC
+
+Project members may read local channel metadata and delivery rows. Viewer mutations are `403`; unknown or
+foreign project/channel IDs remain non-discoverable.
+
+### AN-002 — Secret and endpoint exposure
+
+Creation returns a signing secret once. List/detail omit both the secret and full endpoint URL and expose
+only a redacted endpoint display value.
+
+### AN-003 — Egress policy
+
+Reject endpoints outside `NOTIFICATION_WEBHOOK_ALLOWED_HOSTS`, URL userinfo/fragments, and HTTP when the
+operator setting does not allow it. Dispatcher re-checks the current egress policy before sending.
+
+### AN-004 — Bounded channel collection
+
+Channel names are unique within a project and at most ten channels are allowed, guarded by project
+locking plus a database uniqueness constraint.
+
+### AN-005 — Transition enqueue semantics
+
+A non-firing -> firing transition queues one row per enabled same-project channel. Direct firing -> ok
+queues recovery. Repeated same-state evaluations and firing -> no_data/error do not queue duplicates or
+invent recovery.
+
+### AN-006 — Payload separation
+
+Delivery payloads contain project/rule condition metadata and state timestamps but never the observed
+metric value or arbitrary ClickHouse rows.
+
+### AN-007 — Signed delivery
+
+Successful dispatch sends canonical JSON with delivery/event/timestamp headers and an HMAC SHA-256
+signature that the receiver can verify with the one-time channel secret.
+
+### AN-008 — Retry contract
+
+Network/timeouts, HTTP 408/425/429, and 5xx retry with bounded backoff and at most three attempts.
+Redirects, other 3xx/4xx responses, and disallowed endpoints become terminal without repeated retries.
+
+### AN-009 — Claim lease
+
+Overlapping workers claim delivery rows through PostgreSQL leasing without holding database locks across
+network I/O. Expired leases are reclaimable and stale completion cannot overwrite a newer claim.
+
+### AN-010 — Regression gate
+
+M1-M5.3 backend/frontend tests, migration checks, ClickHouse schema checks, Compose validation, and the
+normal full release gate remain green.
+
+## 15. Focused M5.4 checks
+
+```powershell
+docker compose exec api /opt/venv/bin/python -m pytest apps/alerts/tests/test_notifications.py -v
+
+docker compose exec api /opt/venv/bin/ruff check apps/alerts
+docker compose exec api /opt/venv/bin/ruff format --check apps/alerts
+docker compose exec api /opt/venv/bin/mypy apps/alerts
+
+docker compose exec api /opt/venv/bin/python manage.py check
+docker compose exec api /opt/venv/bin/python manage.py makemigrations --check --dry-run
+docker compose config
+```
+
+Then run:
+
+```powershell
+./scripts/verify.ps1
+```
+
+## 16. Manual M5.4 smoke
+
+Using an owner/admin/editor session or authenticated API client:
+
+1. configure `NOTIFICATION_WEBHOOK_ALLOWED_HOSTS` for a disposable receiver and recreate the API service;
+2. create one webhook channel and copy the returned signing secret immediately;
+3. confirm later channel reads expose only the redacted endpoint display and never the secret/full URL;
+4. create/enable a rule whose next real or controlled evaluation enters `firing`;
+5. run `manage.py evaluate_alerts --project-id <project-uuid>` and confirm one pending firing delivery;
+6. run `manage.py dispatch_notifications --project-id <project-uuid>` and verify receiver body/signature;
+7. evaluate the same firing state again and confirm no duplicate delivery;
+8. drive the rule directly to `ok`, dispatch again, and verify one recovery event;
+9. exercise one retryable receiver failure and confirm retry state/backoff without response-body leakage;
+10. disable/delete disposable configuration and remove any smoke-only records/receiver state.
+
+## 17. M5.4 stop condition
+
+M5.4 is complete only after focused notification tests, migration/egress/worker smoke, the full release
+gate, commit, push, and a clean:
+
+```text
+## main...origin/main
+```
+
+Only then may M5.5 operational verification and M5 closeout begin.

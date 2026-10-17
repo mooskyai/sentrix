@@ -1128,3 +1128,45 @@ State rendering is deliberately honest. The UI displays persisted status/timesta
 bounded error code, but it does not fabricate an observed value, alert history, incident, or notification
 state that the backend does not store. Project IDs remain part of every React Query key so cached alert
 configuration/state cannot cross workspace tenants.
+
+## 35. Alert notification boundary
+
+V1 M5.4 keeps alert evaluation, notification queuing, and external delivery as three separate concerns:
+
+```text
+ClickHouse scalar metric
+        |
+        v
+one-shot alert evaluator
+        |
+        | PostgreSQL transaction: persist state transition
+        v
+AlertRuleState + AlertNotificationDelivery
+        |
+        | separate one-shot dispatcher
+        v
+allowed webhook endpoint
+```
+
+Only a committed state transition may create delivery work. Enabled project channels receive `firing`
+when a rule enters firing from a non-firing state and `recovered` only on a direct `firing -> ok`
+transition. Evaluation does not wait on external HTTP, and API/browser requests never dispatch a
+notification.
+
+`NotificationChannel` and `AlertNotificationDelivery` are control-plane/operational PostgreSQL records.
+Delivery payloads contain rule configuration and transition timestamps only; the raw observed metric
+value stays in ClickHouse. Delivery rows are retry state, not an incident timeline or generalized alert
+history.
+
+Webhook delivery has an explicit egress boundary. The full endpoint URL is write-only through the API,
+read responses return only a redacted display value, and production egress requires an exact hostname in
+`NOTIFICATION_WEBHOOK_ALLOWED_HOSTS`. Redirects are disabled. A channel signing secret is deterministically
+derived from the deployment `DJANGO_SECRET_KEY` plus channel UUID, returned only on channel creation,
+and never stored as plaintext in PostgreSQL. Rotating the deployment secret therefore rotates effective
+webhook signatures; V1 operators should coordinate such rotation with receivers.
+
+The dispatcher uses PostgreSQL claim leases rather than holding row locks across network I/O. A claimed
+delivery becomes `sending`, carries a lease token/expiry, and is finalized only by the holder of that
+lease. Expired leases can be reclaimed. Retries are bounded to three attempts with fixed backoff; only
+network/timeouts, HTTP 408/425/429, and 5xx are retryable. HTTP redirects and other client errors are
+terminal. No queue framework is introduced until workload justifies one.

@@ -774,3 +774,38 @@ M5.3 browser work must preserve these rules:
 - keep action errors visible and require confirmation before destructive rule deletion;
 - M5.3 adds no notification channel, incident, alert history, scheduler framework, or telemetry schema
   change.
+
+## 30. Alert notification and webhook rules
+
+M5.4 notification work must preserve these rules:
+
+- notification channels and delivery retry state are PostgreSQL control-plane/operational records; raw
+  telemetry values remain in ClickHouse;
+- resolve every browser/API channel request through authenticated project membership before reading or
+  mutating channel rows; viewers read only, owner/admin/editor roles write;
+- scope channel detail operations by both project and channel UUID so a known foreign channel ID cannot
+  cross tenants;
+- keep the initial channel type webhook-only and collections bounded to ten channels per project;
+- treat endpoint URLs as sensitive write-only configuration: never return the full URL from read APIs,
+  logs, command output, or delivery error state;
+- require outbound hosts to pass the server egress allowlist, reject URL userinfo/fragments, disable
+  redirects, and allow plaintext HTTP only through an explicit debug/operator setting;
+- return the webhook signing secret only in the create response; do not persist or expose a plaintext
+  copy through list/detail/delivery APIs;
+- sign the exact canonical JSON body with the channel secret and a timestamp header; never include the
+  deployment `DJANGO_SECRET_KEY` itself in payloads or headers;
+- enqueue delivery rows only inside the committed alert-state transition transaction and only for
+  non-firing -> firing or direct firing -> ok recovery; repeated firing/ok evaluations and error/no-data
+  transitions must not create duplicate or invented notifications;
+- keep external HTTP outside evaluation/API database transactions; the one-shot dispatcher owns network
+  delivery;
+- use a bounded lease when claiming deliveries so concurrent workers do not intentionally send the same
+  row, and reject stale completion from a superseded lease;
+- cap each delivery at three attempts with explicit backoff; retry only network/timeouts, HTTP 408/425/429,
+  and 5xx, while redirects/other 3xx/4xx and disallowed endpoints fail terminally;
+- never persist response bodies or exception strings; store only bounded error codes and numeric response
+  status;
+- disabling a channel prevents new transition rows and cancels still-pending work when encountered by the
+  dispatcher; an already in-flight attempt may complete;
+- M5.4 does not introduce a permanent scheduler, Celery/Dramatiq, incidents, arbitrary notification
+  templates, email/Slack-specific integrations, or ClickHouse schema changes.

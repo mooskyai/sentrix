@@ -66,6 +66,9 @@ services:
       CLICKHOUSE_DATABASE: ${CLICKHOUSE_DATABASE:-sentrix}
       CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
+      NOTIFICATION_WEBHOOK_ALLOWED_HOSTS: ${NOTIFICATION_WEBHOOK_ALLOWED_HOSTS:-localhost,127.0.0.1,host.docker.internal}
+      NOTIFICATION_WEBHOOK_ALLOW_HTTP: ${NOTIFICATION_WEBHOOK_ALLOW_HTTP:-true}
+      NOTIFICATION_WEBHOOK_TIMEOUT_SECONDS: ${NOTIFICATION_WEBHOOK_TIMEOUT_SECONDS:-5}
     command: >
       sh -c "/opt/venv/bin/python manage.py migrate --noinput &&
              /opt/venv/bin/python manage.py runserver 0.0.0.0:8000"

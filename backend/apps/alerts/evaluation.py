@@ -14,6 +14,7 @@ from apps.telemetry.metrics_query import (
 )
 
 from .models import AlertRule, AlertRuleState
+from .notifications import queue_alert_transition_deliveries
 
 TIME_RANGE_DELTAS: dict[str, timedelta] = {
     AlertRule.TimeRange.ONE_HOUR.value: timedelta(hours=1),
@@ -107,7 +108,8 @@ def _persist_result(
             error_code=state.error_code,
         )
 
-    changed = state.status != status
+    previous_status = state.status
+    changed = previous_status != status
     state.status = status
     state.evaluated_at = evaluated_at
     state.source_timestamp = source_timestamp
@@ -124,6 +126,14 @@ def _persist_result(
             "updated_at",
         ]
     )
+    if changed:
+        queue_alert_transition_deliveries(
+            rule=locked_rule,
+            previous_status=previous_status,
+            next_status=state.status,
+            evaluated_at=evaluated_at,
+            source_timestamp=source_timestamp,
+        )
     return AlertEvaluationResult(
         rule_id=locked_rule.id,
         status=state.status,
