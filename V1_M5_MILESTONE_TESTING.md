@@ -385,3 +385,82 @@ gate, commit, push, and a clean:
 ```
 
 Only then may M5.5 operational verification and M5 closeout begin.
+
+## 18. M5.5 operational matrix
+
+### AO-001 — Isolated temporary control plane
+
+Create a disposable project inside a writable organization and a one-time `telemetry:write` project key
+through the normal session APIs. Verification must not reuse an existing project's rules/channels or
+print/persist the raw key.
+
+### AO-002 — Real OTLP firing persistence
+
+Send a unique scalar value through `/v1/metrics`, authenticate with the temporary project key, and prove
+the newest value is durably present in ClickHouse using credential-derived organization/project scope.
+
+### AO-003 — Real firing evaluation
+
+Create one exact-filter `gt` rule, run `manage.py evaluate_alerts --project-id <temporary-project>`, and
+require persisted state `firing` plus exactly one pending firing delivery.
+
+### AO-004 — Signed dispatch and deduplication
+
+Dispatch through the real one-shot worker to a loopback receiver, verify the exact Sentrix HMAC plus
+delivery/event/project/rule identity, then evaluate the same firing point again and require no second
+delivery.
+
+### AO-005 — Real recovery
+
+Export a newer scalar point below the threshold with the same metric identity, evaluate again, require
+direct `firing -> ok`, dispatch exactly one recovery event, and verify its signature/identity.
+
+### AO-006 — Delivery-state API
+
+After firing and recovery dispatch, require exactly two delivery rows for the temporary project, both
+`delivered`, both with one attempt and HTTP 204. Channel list reads must omit full endpoint and signing
+secret fields.
+
+### AO-007 — Tenant isolation
+
+Create a disposable organization/project with no membership for the browser session. Alert-rule list/
+detail and notification-channel list/detail routes for that real foreign project must return `404`.
+
+### AO-008 — Browser acceptance
+
+Open the real project Alerts route for the temporary project and confirm the operational rule is visible
+with final persisted state `ok`. Browser confirmation does not trigger evaluation or delivery.
+
+### AO-009 — Cleanup and regression gate
+
+Delete the temporary local project, foreign fixture, and receiver state, preserve persistent volumes, and
+run the full repository release gate. Unique smoke metric rows may remain as normal ClickHouse telemetry.
+
+## 19. M5.5 final command
+
+Run from the repository root on the Windows/PowerShell acceptance environment:
+
+```powershell
+./scripts/verify-m5.ps1
+```
+
+`SENTRIX_BROWSER_USERNAME` may provide the browser username. If the session has multiple writable
+organizations, set `SENTRIX_M5_ORGANIZATION_SLUG` or select the organization slug when prompted. The
+browser password is always requested securely. The verifier itself creates the temporary project API key
+and never prints it.
+
+`-SkipComposeRecreate` and `-SkipReleaseGate` are debugging-only switches. Final M5 acceptance must run
+without them and end with:
+
+```text
+M5 operational verification passed.
+```
+
+## 20. M5 stop condition
+
+M5 is complete only after the operational matrix above, real Alerts browser confirmation, temporary
+control-plane cleanup, the complete release gate, closeout commit/push, and a clean:
+
+```text
+## main...origin/main
+```

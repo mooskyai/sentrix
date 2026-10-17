@@ -1170,3 +1170,55 @@ delivery becomes `sending`, carries a lease token/expiry, and is finalized only 
 lease. Expired leases can be reclaimed. Retries are bounded to three attempts with fixed backoff; only
 network/timeouts, HTTP 408/425/429, and 5xx are retryable. HTTP redirects and other client errors are
 terminal. No queue framework is introduced until workload justifies one.
+
+## 36. M5 operational closeout boundary
+
+M5.5 verifies the complete alerting path without adding another production data or scheduling path:
+
+```text
+normal browser session
+      |
+      | writable organization membership
+      v
+temporary Project + project API key
+      |                         |
+      | session control plane   | authenticated OTLP/HTTP
+      |                         v
+      |                  sentrix_metrics
+      |                         |
+      |                         v
+      |                 one-shot evaluator
+      |                         |
+      v                         v
+AlertRule + NotificationChannel + AlertRuleState
+                          |
+                          v
+              AlertNotificationDelivery
+                          |
+                          | one-shot dispatcher
+                          v
+             loopback webhook receiver
+```
+
+The temporary project keeps the closeout isolated from an operator's existing rules, channels, pending
+deliveries, and evaluation state. Its telemetry key is created through the existing session-authenticated
+control plane and then crosses the machine-authentication boundary only through `/v1/metrics`; the raw
+secret is never printed or written to disk. Diagnostic ClickHouse verification derives both tenant IDs
+from that credential and uses the unique metric/service/environment dimensions rather than an unscoped
+scan.
+
+The receiver is a disposable stdlib HTTP server bound to loopback inside the API container. It is not a
+new service or notification adapter. Operational verification checks the exact canonical-body HMAC,
+delivery/event headers, firing deduplication, direct recovery, and the persisted delivery status through
+the same APIs used by the application.
+
+Tenant isolation is re-proved with a temporary organization/project that has no membership for the
+browser session; alert-rule and notification-channel routes must return the same `404` behavior as any
+other foreign project. The first-party Alerts browser confirmation independently uses the session user's
+membership in the temporary local project.
+
+M5.5 deletes temporary PostgreSQL control-plane records and receiver state after acceptance. Unique raw
+smoke telemetry remains in ClickHouse as normal telemetry. Compose recreation preserves persistent
+volumes, and the final operational script delegates all static/test/build/schema checks to the normal
+release gate. M5.5 introduces no scheduler, incident model, new notification provider, alert history,
+ClickHouse schema/index/TTL change, or browser-side evaluation path.

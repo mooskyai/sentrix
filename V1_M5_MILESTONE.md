@@ -302,3 +302,48 @@ M5.4 is green only when:
 
 M5.5 operational closeout must not begin until M5.4 is green, committed, pushed, and `main` is aligned
 with `origin/main`.
+
+## 18. M5.5 operational verification contract
+
+M5.5 closes alerting by proving the existing M2-M5.4 boundaries together. The verifier creates one
+disposable project through a writable browser session, creates a temporary telemetry credential through
+the existing project API, and sends uniquely named real OTLP scalar points through `/v1/metrics`. The
+credential-derived organization/project row is verified in ClickHouse before alert evaluation proceeds.
+
+The temporary project owns one scalar threshold rule and one loopback webhook channel. The first real
+metric value must drive `pending -> firing`, queue exactly one firing delivery, dispatch one HTTP 204
+webhook with a verifiable Sentrix HMAC, and remain deduplicated on a repeated firing evaluation. A later
+real OTLP point below the threshold must drive direct `firing -> ok`, queue exactly one recovery delivery,
+and dispatch one correctly signed recovery webhook.
+
+Operational verification must use the public/session APIs for temporary control-plane configuration and
+the existing one-shot evaluator/dispatcher for background work. It may use direct ClickHouse reads only
+as tenant-scoped durability diagnostics after deriving both tenant IDs from the temporary project key.
+It must not insert raw telemetry directly, invoke private alert helpers to synthesize transitions, or
+turn the browser into an evaluator/dispatcher.
+
+A disposable foreign organization/project with no browser membership must return `404` from alert-rule
+and notification-channel routes. The real Alerts workspace must then show the local temporary rule and
+its final persisted `ok` state before cleanup. Temporary PostgreSQL records/receiver files are removed;
+unique raw smoke telemetry may remain as ordinary ClickHouse data.
+
+## 19. M5 completion acceptance
+
+V1 M5 is complete only when:
+
+- M5.1-M5.4 focused tests and contracts remain green;
+- a clean Compose recreation preserves volumes and passes health/ClickHouse schema checks;
+- a temporary project/key sends a real tenant-scoped OTLP firing point and later recovery point;
+- the real evaluator persists `firing`, repeated firing queues no duplicate, and recovery persists `ok`;
+- the real dispatcher sends exactly one firing and one recovery webhook with valid HMAC/delivery/event
+  identity and both rows finish delivered;
+- notification channel reads remain redacted during the operational flow;
+- an actual foreign project is non-discoverable through both alert and notification routes;
+- the real Alerts browser surface is confirmed against the temporary rule/current state;
+- temporary control-plane and receiver state is removed without deleting persistent volumes;
+- the complete repository release gate passes after operational cleanup;
+- README, architecture, coding, milestone, and testing documentation describe the final M5 behavior;
+- the closeout is committed, pushed, and `git status -sb` shows `## main...origin/main`.
+
+M5.5 adds no permanent scheduler, incident model, alert history, notification provider integration,
+ClickHouse schema/index/TTL change, or new alert-query semantics. Those remain later work.

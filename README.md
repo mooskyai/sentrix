@@ -911,3 +911,49 @@ timeout failures, HTTP 408/425/429, and 5xx responses are retryable; redirects a
 are terminal. Disabled channels cancel still-pending deliveries. M5.4 intentionally adds no permanent
 scheduler, Celery/Dramatiq dependency, incidents, email/Slack-specific adapters, or ClickHouse schema
 change.
+
+## V1 M5.5 operational verification and closeout
+
+M5 closes with one production-shaped alerting verification command:
+
+```powershell
+./scripts/verify-m5.ps1
+```
+
+The verifier rebuilds and force-recreates the current Compose stack without deleting persistent volumes,
+checks web/API readiness and ClickHouse schema, authenticates a normal browser session, and creates one
+disposable project inside a writable organization. It creates a temporary project telemetry credential
+through the normal control-plane API; the raw `sentrix_pk_...` secret stays only in process memory and is
+piped to the OTLP helper over stdin.
+
+The helper sends a uniquely named scalar metric through the public `/v1/metrics` endpoint and proves the
+credential-derived organization/project row in ClickHouse. The temporary project then receives one alert
+rule and one loopback webhook channel. A real firing value drives `pending -> firing`, the one-shot
+evaluator queues one delivery, and the one-shot dispatcher sends a signed webhook to a disposable
+receiver running inside the API container. A repeated firing evaluation must create no second delivery.
+A second real OTLP point below the threshold then drives direct `firing -> ok` recovery and produces one
+signed recovery webhook.
+
+The operational script also creates a disposable project in an organization the browser user does not
+belong to and confirms alert-rule/channel routes return `404`, verifies channel reads do not expose the
+full endpoint or signing secret, checks the exact HMAC/delivery/event headers received by the loopback
+receiver, and confirms both delivery rows finish `delivered` after one HTTP 204 attempt. Before cleanup it
+prints the real Alerts workspace URL and requires a human confirmation that the temporary rule is visible
+with final state `ok`.
+
+Temporary PostgreSQL control-plane records and receiver files are removed even on failure. The uniquely
+named raw metric rows remain ordinary ClickHouse telemetry, matching the earlier operational milestones.
+After browser confirmation and cleanup the script runs the complete `scripts/verify.ps1` release gate.
+`-SkipComposeRecreate` and `-SkipReleaseGate` are debugging conveniences only and are not valid for final
+M5 acceptance.
+
+`SENTRIX_BROWSER_USERNAME` may supply the session username. `SENTRIX_M5_ORGANIZATION_SLUG` may select a
+writable organization when the user belongs to more than one; otherwise the script prompts. The browser
+password is always read with a secure prompt. A successful final run ends with:
+
+```text
+M5 operational verification passed.
+```
+
+After committing and pushing the closeout, `git status -sb` must show `## main...origin/main` before V1
+M5 is considered complete.

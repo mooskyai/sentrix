@@ -809,3 +809,34 @@ M5.4 notification work must preserve these rules:
   dispatcher; an already in-flight attempt may complete;
 - M5.4 does not introduce a permanent scheduler, Celery/Dramatiq, incidents, arbitrary notification
   templates, email/Slack-specific integrations, or ClickHouse schema changes.
+
+## 31. M5 operational closeout rules
+
+M5.5 operational verification must preserve the production trust boundaries established by M2-M5.4:
+
+- use a disposable project for the final alerting smoke so verification cannot evaluate or dispatch an
+  operator's existing rules, channels, or pending deliveries;
+- create the temporary project and telemetry credential through the normal session-authenticated control
+  plane; keep the one-time project secret in process memory/stdin only and never print or persist it;
+- send smoke values through the public authenticated `/v1/metrics` OTLP/HTTP route; never insert
+  verification rows directly into ClickHouse;
+- derive organization/project identity for diagnostic ClickHouse reads by authenticating the temporary
+  project key, and scope every diagnostic by both IDs plus unique metric/service/environment dimensions;
+- use the real one-shot evaluator and dispatcher commands rather than importing private helpers to fake
+  firing, recovery, queueing, or delivery completion;
+- bind the disposable webhook receiver to loopback inside the API container so final acceptance does not
+  depend on host Python, a public webhook service, or relaxed production egress policy;
+- verify the exact HMAC over `<timestamp>.<canonical-json-body>`, delivery/event headers, payload project
+  and rule identity, and absence of an observed metric value in delivery state;
+- prove repeated firing creates no duplicate delivery and direct `firing -> ok` creates exactly one
+  recovery delivery;
+- create an actual foreign project fixture with no session membership and require `404` for its alert and
+  notification routes; random UUID-only checks are not a substitute for tenant-isolation acceptance;
+- require the real Alerts workspace to show the temporary rule/current state before cleanup;
+- remove temporary PostgreSQL control-plane records and receiver files in success and failure paths;
+  uniquely named smoke telemetry may remain as ordinary ClickHouse data;
+- Compose recreation must preserve persistent volumes, and final acceptance must run the complete
+  repository release gate after operational cleanup;
+- M5.5 is verification/documentation closeout only: do not add scheduler infrastructure, incidents,
+  alert history, provider-specific notification adapters, new alert semantics, or telemetry schema
+  optimization under the guise of verification.
