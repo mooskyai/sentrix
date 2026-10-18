@@ -1,5 +1,7 @@
 # Sentrix Architecture
 
+> **Documentation ownership:** This file describes system boundaries and implementation decisions. The repository documentation map is in [`README.md`](README.md); new work must follow [`AGENTS.md`](AGENTS.md), update the relevant architecture/data/API/security references, and record each accepted slice in [`ProjectImplementation.md`](ProjectImplementation.md).
+
 ## 1. System goal
 
 Sentrix is designed as a multi-tenant observability product covering metrics, logs, traces, dashboards, monitors, incidents, infrastructure, and integrations.
@@ -393,9 +395,13 @@ Logs and trace correlation.
 
 Alert rules, evaluation, and notification dispatch.
 
+### V1 M6
+
+Service catalog, infrastructure/Kubernetes telemetry views, and observed service relationships.
+
 ### Later
 
-Service catalog, Kubernetes/infrastructure views, incidents, integrations, usage-based plans, SSO, advanced analytics.
+Incidents, integrations, usage-based plans, SSO, SLOs, and advanced analytics.
 
 This sequence preserves a stable tenancy/security core while adding independently scalable telemetry capabilities.
 
@@ -1222,3 +1228,50 @@ smoke telemetry remains in ClickHouse as normal telemetry. Compose recreation pr
 volumes, and the final operational script delegates all static/test/build/schema checks to the normal
 release gate. M5.5 introduces no scheduler, incident model, new notification provider, alert history,
 ClickHouse schema/index/TTL change, or browser-side evaluation path.
+
+## 37. M6 service and infrastructure discovery boundary
+
+V1 M6 adds derived read models over existing telemetry; it does not change the ingestion trust boundary:
+
+```text
+Authenticated browser session
+        |
+        v
+membership-scoped Project
+        |
+        | authorized organization_id + project_id + bounded window
+        v
+M6 query layer
+   |            |             |
+   v            v             v
+metrics        logs          spans
+   |            |             |
+   +------ service catalog ---+
+                |
+                +--> infrastructure/resource observations
+                `--> observed parent/child service edges
+```
+
+Service and infrastructure names are telemetry values, never authorization inputs. Every M6 query resolves
+the Django project first and applies both organization/project predicates before aggregating ClickHouse
+rows. Dependency failure is an error state rather than an empty-discovery response.
+
+The initial catalog identity is the exact `(service_name, environment)` pair already present in all three
+telemetry schemas. This intentionally avoids introducing a new persisted service registry while M6 learns
+the actual product/query needs. `service.namespace`, instance IDs, host names, and Kubernetes names remain
+resource dimensions until a later contract explicitly changes service identity semantics.
+
+Infrastructure discovery reads selected OpenTelemetry resource attributes already stored on telemetry
+rows. It is observational and time bounded. Sentrix does not contact the Kubernetes API, infer object
+existence after the observation window, or join independently observed names into a containment graph
+without same-resource evidence.
+
+The V1 service map is an observed span relationship view. A cross-service edge requires an actual child
+span whose `parent_span_id` resolves to a stored parent span in the same authorized tenant/project and
+trace. Same-service parentage, missing parents, span links, naming similarity, and cross-project IDs do not
+create edges. The response is bounded and ephemeral; no graph database or topology persistence is added.
+
+M6 may add purpose-built bounded query APIs and browser surfaces, but it must not move raw telemetry,
+discovered inventory, or topology edges into PostgreSQL merely for convenience. ClickHouse projections,
+materialized views, indexes, and TTL changes remain measurement-driven optimizations rather than planning
+assumptions.

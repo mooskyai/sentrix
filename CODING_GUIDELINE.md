@@ -840,3 +840,36 @@ M5.5 operational verification must preserve the production trust boundaries esta
 - M5.5 is verification/documentation closeout only: do not add scheduler infrastructure, incidents,
   alert history, provider-specific notification adapters, new alert semantics, or telemetry schema
   optimization under the guise of verification.
+
+## 32. Service catalog and infrastructure-observability rules
+
+V1 M6 derived telemetry views must preserve these rules:
+
+- resolve the route project through the authenticated membership-scoped queryset before opening
+  ClickHouse; service names, environments, resource attributes, trace IDs, and URL slugs never authorize
+  access;
+- scope every service/infrastructure/map query by both authorized `organization_id` and `project_id` plus
+  a bounded half-open time window;
+- keep the initial service identity exactly `(service_name, environment)` and exclude empty service names;
+  do not silently introduce namespace/instance/Kubernetes dimensions into identity in only one layer;
+- discover services from real metrics/logs/spans and merge only identical service identities; do not
+  persist a PostgreSQL service inventory merely to cache discovery;
+- use typed ClickHouse parameters for all caller-controlled timestamps, service/resource filters, trace
+  identifiers, and other dynamic values; never accept arbitrary SQL or expression fragments;
+- bound catalog/detail/resource/map result sizes and expose truncation instead of implying completeness;
+- treat ClickHouse failure as dependency failure, never as healthy empty discovery;
+- show absent services/resources as not observed in the selected window rather than automatically down,
+  deleted, unhealthy, or misconfigured;
+- read host/Kubernetes identity only from recognized stored OpenTelemetry resource attributes and never
+  require cluster credentials or Kubernetes API access for V1 M6;
+- display infrastructure containment only when the relevant attributes were co-observed on supporting
+  telemetry; do not join unrelated names merely because they occur in one tenant;
+- create service-map edges only from real parent/child span joins inside the same tenant/project/trace;
+  missing parents, same-service parentage, span links, and naming similarity do not create dependencies;
+- label the V1 map as observed span relationships, not guaranteed network topology, critical path, or
+  Kubernetes service routing;
+- do not add a graph database, discovered-service PostgreSQL model, background topology builder,
+  ClickHouse projection/materialized view/index, or new collector protocol unless measured behavior in a
+  later slice justifies that change;
+- operational M6 acceptance must use real authenticated OTLP telemetry and actual foreign-project
+  fixtures, then run the complete repository release gate before closeout.

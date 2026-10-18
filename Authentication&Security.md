@@ -1,0 +1,66 @@
+# Sentrix — Authentication, Authorization and Security
+
+**Status:** V1 M1–M5 implemented boundaries. This document describes current controls and known constraints; it is not an external security certification.
+
+## 1. Trust boundaries
+
+```text
+Browser -> Django session cookie + CSRF -> membership-scoped control-plane/API
+Collector/SDK -> project Bearer key + telemetry:write -> OTLP/HTTP sink
+Django authorized telemetry query -> typed tenant predicates -> ClickHouse
+Alert evaluator -> PostgreSQL state transition -> durable delivery -> egress-policy webhook
+```
+
+Browser session and machine key are distinct, never interchangeable.
+
+## 2. Session authentication
+
+- Login at `POST /api/v1/auth/login/` after `GET /api/v1/auth/csrf/`; Django password hashing and session cookies.
+- REST framework defaults to `SessionAuthentication` and authenticated permissions for domain APIs.
+- State-changing browser requests carry `X-CSRFToken`; logout invalidates session; session cookie is HttpOnly with Lax SameSite.
+- Production (`DJANGO_DEBUG=false`) sets secure session and CSRF cookies. Host/origin/CSRF allowlists must be configured for actual deployment topology.
+- Public self-registration, OAuth/OIDC/SAML, MFA, and password-reset UI are **not part of implemented M1–M5**.
+
+## 3. Tenant membership and RBAC
+
+Every project belongs to an organization; membership role is `owner`, `admin`, `editor`, or `viewer`. Organization creation grants creator owner membership. Django resolves projects from `projects_for_user(user)` first; children load with both project and resource UUID. Known foreign UUID, name, or trace ID cannot bypass membership checks. Viewers may read permitted telemetry/rules/state but cannot change credential/panel/rule/channel config. Organization updates require owner/admin.
+
+Write-control hiding in React is convenience, not authorization. Every new endpoint needs tests for anonymous, viewer, writable, unknown and **real foreign** project.
+
+## 4. Project machine API keys
+
+- `ProjectApiKey` stores a unique public prefix plus Django-hashed secret, JSON scopes, optional expiry/revocation and last-used timestamp.
+- Raw key is returned only during project credential creation, never from list/detail APIs or query caches. Revoke or recreate if lost.
+- OTLP endpoints require `Authorization: Bearer sentrix_pk_...` and scope `telemetry:write`; invalid/revoked/expired keys fail generically.
+- The verified database relationship, not caller IDs or OTel attributes, supplies `organization_id` + `project_id` for ClickHouse writes.
+- Never place secrets in a command argument, repository, screenshot, log, URL query, or persisted developer diagnostic.
+
+## 5. Telemetry security
+
+- `POST /v1/metrics|logs|traces`: authenticated before protobuf decoding; only `application/x-protobuf`, identity/gzip, bounded decompressed bytes.
+- Query APIs resolve authorized project before creating ClickHouse client. Each read uses both tenant UUIDs with typed params and server-enforced limits.
+- Unknown/foreign projects yield nondisclosing 404; ClickHouse outages yield 503. No raw tenant-wide query available to browser.
+- Trace IDs and metric/log attributes are **data**, never authority or executable query instructions.
+
+## 6. Webhook egress and signing
+
+- Channel endpoints are write-only, list/detail return redacted host/scheme display. Creation returns one signing secret derived via HMAC from deployment `DJANGO_SECRET_KEY` and channel UUID; plaintext secret is not stored as a channel column.
+- Production host allowlist defaults **empty** in Django settings, HTTP disabled unless explicitly configured. Compose defaults are **local-development overrides**, not production-ready.
+- Reject URL userinfo, fragments, query strings, unapproved hostname, disallowed scheme. Redirects are blocked.
+- Payload is canonical JSON; `X-Sentrix-Timestamp` + `.` + body signed with `X-Sentrix-Signature: sha256=<hex>`. Receivers should validate timestamp tolerance, match correct signing secret, compare signatures in constant time, and deduplicate `X-Sentrix-Delivery`.
+- Outbound HTTP occurs only in one-shot dispatcher after row claim; at most 3 attempts with 1m/5m retry intervals, bounded leases and status codes. No arbitrary response body/error string persistence.
+- **Residual consideration:** exact hostname allowlisting alone is not full DNS/IP SSRF pinning; deploy network-layer egress controls and review DNS/rebinding exposure before accepting public/untrusted destinations. Derived-secret rotation follows `DJANGO_SECRET_KEY` rotation.
+
+## 7. Sensitive state and operating rules
+
+Minimize privilege for Postgres/ClickHouse credentials; use HTTPS outside local development; store production secrets in a secret manager; protect backups and logs; rotate API keys/signing keys according to defined process; do not treat locally open Compose ports as production hardening. Do not use `down -v` for regular cleanup. Report suspected tenant-crossing or credential disclosure as a release blocker.
+
+## 8. Security regression checklist
+
+Anonymous denial; real foreign project 404 before DB query; read-only viewer mutation 403; one-time secret redaction; expired/revoked key denial; gzip/body size errors; parameterized data-plane filters; scoped delivery; HMAC correctness; retry/lease/stale completion; webhook allowlist and 3xx deny. Update this file alongside security-sensitive changes and link tests in `Testing&QA.md`.
+
+## 8. M6-specific tenant and inference threat model (planned)
+
+Service names, environments, span IDs and OTel resource attributes are **untrusted observation fields**, not authorization credentials. Future discovery, resource and graph queries must authorize the project via a browser session and membership first; only server-derived project/organization IDs may scope ClickHouse. Every nested lookup/join must constrain both IDs **and trace identity** where applicable. A foreign existing project and a random project ID must be indistinguishable `404`s before any ClickHouse access.
+
+Keep M6 list/detail queries bounded and typed. Do not leak metadata from neighboring tenants via counts, completions, suggestions, graph edges, absent-resource error differences or shared cache keys. Resource tags can contain sensitive infrastructure strings: return only fields required for the implemented view and never reinterpret arbitrary attributes as secrets or service ownership. Do not infer security posture, service health, operational readiness, Kubernetes API reachability or network topology from incomplete telemetry. No additional Kubernetes credential/storage trust boundary is approved for M6.

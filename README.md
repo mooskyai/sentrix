@@ -1,5 +1,9 @@
 # Sentrix
 
+## Project documentation
+
+Sentrix keeps a **V1-to-current documentation set** synchronized with each development slice. Start with [`PRD.md`](PRD.md) for product scope, [`DESIGN.md`](DESIGN.md) for UI patterns, [`ARCHITECTURE.md`](ARCHITECTURE.md) for system boundaries, [`DATABASE.md`](DATABASE.md) for persistence, [`API.md`](API.md) for contracts, and [`AGENTS.md`](AGENTS.md) for mandatory contributor/documentation rules. See [`ProjectImplementation.md`](ProjectImplementation.md) for status, [`Setup.md`](Setup.md) for onboarding, [`FeatureDevelopment.md`](FeatureDevelopment.md) for implementation workflow, [`Authentication&Security.md`](Authentication&Security.md) for security, [`Integrations.md`](Integrations.md) for external protocols, [`Testing&QA.md`](Testing&QA.md) for test gates, and [`Debugging.md`](Debugging.md) for diagnosis. `README.md` is the canonical Readme; do not create a case-only duplicate on Windows. Existing `V1_M*_MILESTONE*.md` files remain the detailed slice/acceptance record.
+
 **Sentrix** is a multi-tenant observability and monitoring platform for metrics, logs, traces, dashboards, alerts, and infrastructure visibility. This starter establishes the production-minded foundation using **Python 3.14, Django 6.1.x, React 19.3, PostgreSQL, Redis, and ClickHouse**.
 
 The repository intentionally starts with the **control plane**. It establishes authentication, organizations, projects, tenant scoping, RBAC boundaries, health checks, local infrastructure, testing conventions, and a React application shell before metrics, logs, and traces are introduced.
@@ -957,3 +961,35 @@ M5 operational verification passed.
 
 After committing and pushing the closeout, `git status -sb` must show `## main...origin/main` before V1
 M5 is considered complete.
+
+## Next: V1 M6 service catalog and infrastructure observability
+
+With V1 M5 alerting complete, the next milestone turns existing OTLP metrics, logs, and spans into
+project-scoped service and infrastructure views. M6 remains telemetry-derived: it does not introduce a
+manual service inventory or copy discovered services/resources into PostgreSQL.
+
+The ordered plan is:
+
+1. M6.1 — tenant-safe service catalog query foundation across metrics, logs, and spans;
+2. M6.2 — Services list/detail workspace with bounded multi-signal correlation;
+3. M6.3 — host and Kubernetes resource discovery from preserved OpenTelemetry resource attributes;
+4. M6.4 — bounded observed service map from real cross-service span parent/child relationships;
+5. M6.5 — real OTLP operational verification, tenant-isolation proof, browser acceptance, and closeout.
+
+The initial service identity is the exact `(service_name, environment)` pair already promoted by the
+telemetry schemas. Discovery is time bounded (24-hour default, seven-day maximum) and descriptive: a
+service or resource missing from the selected window is "not observed", not automatically down, deleted,
+or unhealthy. M6 does not invent SLOs, ownership, Kubernetes inventory, or dependencies without telemetry
+evidence.
+
+Infrastructure discovery reads supported semantic-convention keys such as `host.name`,
+`k8s.cluster.name`, `k8s.namespace.name`, workload names, `k8s.pod.name`, and `k8s.container.name` from
+existing resource attributes. It does not contact the Kubernetes API or require cluster credentials.
+
+The service map is likewise evidence based. V1 M6.4 may create an edge only when a stored child span can
+be joined to its real parent span inside the same authorized project/trace and the service identities
+differ. The UI will label those edges as observed span relationships rather than guaranteed network or
+Kubernetes topology.
+
+The detailed contract and acceptance matrix live in `V1_M6_MILESTONE.md` and
+`V1_M6_MILESTONE_TESTING.md`. M6.1 implementation begins only from the clean M5 closeout baseline.

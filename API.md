@@ -1,0 +1,99 @@
+# Sentrix — HTTP and Worker API Reference
+
+**Authority:** `backend/config/urls.py` and app `urls.py`, serializers and views. **Implemented V1 M1–M5 only**; no `/services` or Kubernetes endpoint yet. Trailing slashes are significant for the control-plane routes; public OTLP paths have **no trailing slash**.
+
+## 1. Authentication modes
+
+| Boundary | Authentication | Allowed principal |
+| --- | --- | --- |
+| `/api/v1/health/*` | public | anonymous |
+| `/api/v1/auth/csrf/`, `/login/` | public bootstrap + CSRF-protected login | browser |
+| `/api/v1/*` domain and telemetry read APIs | Django session cookie; state changes require CSRF | logged-in member |
+| `/v1/{metrics,logs,traces}` | `Authorization: Bearer sentrix_pk_...`, `telemetry:write` | machine credential, **not session** |
+
+## 2. System and authentication endpoints
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/api/v1/health/live/` | liveness |
+| GET | `/api/v1/health/ready/` | PostgreSQL/Redis/ClickHouse readiness; 503 on unavailable dependencies |
+| GET | `/api/v1/auth/csrf/` | obtain `csrfToken`/cookie |
+| POST | `/api/v1/auth/login/` | username/password to session; login needs CSRF header |
+| POST | `/api/v1/auth/logout/` | end session; 204 |
+| GET | `/api/v1/auth/me/` | current user |
+
+## 3. Organization, project, key, dashboard endpoints
+
+| Methods | Path | Rules |
+| --- | --- | --- |
+| GET, POST | `/api/v1/organizations/` | list member orgs / create org + ownership |
+| GET, PATCH | `/api/v1/organizations/{organization_id}/` | membership scoped; owners/admins update |
+| GET, POST | `/api/v1/projects/` | list member projects / create with writable org membership |
+| GET, PATCH, DELETE | `/api/v1/projects/{project_id}/` | project membership and role checks |
+| GET, POST | `/api/v1/projects/{project_id}/api-keys/` | writable project roles; raw key only in create response |
+| DELETE | `/api/v1/projects/{project_id}/api-keys/{api_key_id}/` | revoke project key |
+| GET, POST | `/api/v1/projects/{project_id}/dashboard-panels/` | project members read, writers create, max 6 |
+| DELETE | `/api/v1/projects/{project_id}/dashboard-panels/{panel_id}/` | writers delete |
+
+## 4. Telemetry ingestion
+
+```text
+POST /v1/metrics
+POST /v1/logs
+POST /v1/traces
+Authorization: Bearer sentrix_pk_<public-prefix>_<secret>
+Content-Type: application/x-protobuf
+Content-Encoding: identity | gzip
+```
+
+Only binary protobuf is supported. Project identity comes from a verified key, not from the request body. Non-empty data is acknowledged with HTTP 200 **only after** ClickHouse persistence. Typical failures: 400 malformed, 401 missing/invalid/revoked/expired key, 403 scope failure, 413 oversized, 415 unsupported encoding/type, 503 durable sink unavailable. `OTLP_MAX_REQUEST_BYTES` defaults to 64 MiB after decompression.
+
+## 5. Session-authenticated telemetry reads
+
+| GET route suffix after `/api/v1/projects/{project_id}` | Query contract |
+| --- | --- |
+| `/metrics/catalog/` | optional RFC3339 `start`, `end`, `limit<=500`; defaults 1h; max 7d |
+| `/metrics/series/` | required `metric_name`; optional `start`, `end`, `limit<=5000`, exact `service_name`, `environment`; scalar points only |
+| `/logs/search/` | bounded window; optional exact service/env, min severity 0–24, body substring, exact nonzero 32-hex trace ID; limit<=1000 |
+| `/traces/{trace_id}/` | exact nonzero 32-hex trace ID, bounded `start/end`, `limit<=1000`; raw spans/parentage |
+
+Queries use half-open `[start,end)` UTC RFC3339 windows; default last hour, maximum 7 days. Missing data yields healthy empty results; dependency failure returns **503**, not empty. Responses include bounded data and truncation where supported. Do not pass SQL fragments, caller-chosen org_id, or arbitrary unbounded filters.
+
+## 6. Alerts and webhooks
+
+| Methods | Route suffix after `/api/v1/projects/{project_id}` | Notes |
+| --- | --- | --- |
+| GET, POST | `/alert-rules/` | read member, write owner/admin/editor; max 50 |
+| GET, PATCH, DELETE | `/alert-rules/{alert_rule_id}/` | exact project+rule scope |
+| GET, POST | `/notification-channels/` | webhook channels; max 10; create returns signing secret once |
+| GET, PATCH, DELETE | `/notification-channels/{channel_id}/` | endpoint returned redacted; never returns secret |
+| GET | `/notification-deliveries/?limit=100` | bounded delivery status, max 500 |
+
+Alert rule input: `name`, `metric_name`, `time_range` (`1h/6h/24h/7d`), optional exact `service_name`/`environment`, `comparator` (`gt/gte/lt/lte`), finite `threshold`, `enabled`. Read responses include current state: `pending/ok/firing/no_data/error/disabled` and bounded timestamps/code; **never raw sampled value**.
+
+Channel input: `name`, `endpoint_url`, `enabled`. URL is write-only; list/detail return only `endpoint_display` with scheme/hostname and redaction. New signing secret is returned on create only. Delivery event type: `firing` or `recovered`; state: `pending/sending/retry/delivered/failed/cancelled`.
+
+Webhook receiver must verify HMAC-SHA256 with the one-time channel signing secret over ASCII `X-Sentrix-Timestamp` + `.` + **exact received canonical JSON body**, comparing to `X-Sentrix-Signature: sha256=<hex>` using constant-time comparison. Metadata headers include `X-Sentrix-Delivery` and `X-Sentrix-Event: alert.firing|alert.recovered`.
+
+## 7. One-shot operational commands (not HTTP routes)
+
+```powershell
+docker compose exec -T api /opt/venv/bin/python manage.py evaluate_alerts --project-id <project-uuid>
+docker compose exec -T api /opt/venv/bin/python manage.py dispatch_notifications --project-id <project-uuid>
+```
+
+The browser never evaluates metrics or dispatches notifications. The evaluator selects unique latest scalar points, writes current state, queues real transitions in the same transaction; the dispatcher claims due delivery rows and performs network I/O outside the transaction. **There is no built-in schedule**. See `Integrations.md`.
+
+## 8. Error and versioning conventions
+
+- `/api/v1/` is the current application prefix, `/v1/` is the independent OTLP wire protocol prefix.
+- Foreign/unknown project or child resource: nondisclosing 404; invalid input: 400; insufficient role/scope: 403; auth error: 401/403 depending on authentication class; unavailable telemetry: 503.
+- For exact field shapes, the serializers and endpoint tests are authoritative. When adding a route, update this document and `Authentication&Security.md` alongside tests.
+
+## M6 interface work to design, not yet implemented
+
+No service-catalog, host/Kubernetes inventory, or service-map API is present at the M5 baseline; do not call a guessed route or document its response as stable. M6.1 must first specify and test service catalog and detail contracts against existing ClickHouse data; M6.3 and M6.4 add only supported resource and evidence-backed relationship queries.
+
+Each proposed session API must (1) authenticate a real user, (2) resolve project membership before creating a ClickHouse client, (3) take the organization/project scope from that authorized project, (4) validate a timezone-aware half-open time window (24h default, <=7 days), exact filters and limits, and (5) distinguish valid empty results from dependency failure (`503`). Ensure stable pagination/truncation contracts and backward-compatible field changes when the endpoint is implemented. Querying a foreign existing project must return the same `404` as an unknown project **without opening ClickHouse**. Never expose raw OTLP project credentials via these APIs.
+
+Route names and response field schemas remain **TBD until the M6.1 code and tests establish them**. The authoritative future acceptance matrix is `V1_M6_MILESTONE_TESTING.md`.
