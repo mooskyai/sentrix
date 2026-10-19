@@ -1,5 +1,15 @@
 # Sentrix — Testing and Quality Assurance
 
+## V1 M6.1 provisional quality gate
+
+Run `docker compose exec -T api /opt/venv/bin/python -m pytest apps/telemetry/tests/test_service_catalog_api.py -v`,
+then Ruff check/format, mypy, Django system/migration checks, and `./scripts/verify.ps1`. Tests must
+cover real foreign membership denied before ClickHouse, typed tenant predicates in every signal
+subquery, the half-open 24h-default/7d-max window, empty-service and empty-environment behavior,
+multi-signal merge, 500+1 truncation, generic `503` with closed client, and actual project-key OTLP
+persistence across metrics/logs/spans for distinct tenants. Do not report M6.1 completed before the
+full user environment and operational gates pass.
+
 **Acceptance environment:** Windows 11 + PowerShell 7 + Compose services. Source of truth for detailed milestone matrices: `V1_MILESTONE_TESTING.md`, `V1_M2_MILESTONE_TESTING.md` through `V1_M5_MILESTONE_TESTING.md`.
 
 ## 1. Release gates

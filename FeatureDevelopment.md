@@ -1,5 +1,13 @@
 # Sentrix — Feature Development Playbook
 
+## V1 M6.1 implementation slice
+
+Introduce the service query helper and Django read view in `apps.telemetry`, register the
+project-scoped catalog route, and add focused tests including a live three-signal OTLP test. Keep
+service-name and environment strictly as observed. No frontend Services screen in M6.1; that is M6.2.
+Review the entire handbook, update affected references in the same patch, and wait for focused/full
+green checks and a clean pushed commit before starting M6.2.
+
 **Audience:** developers and coding agents implementing scoped V1+ slices. Core coding constraints: `CODING_GUIDELINE.md`; enduring rules: `AGENTS.md`.
 
 ## 1. Slice lifecycle

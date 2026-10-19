@@ -1,5 +1,15 @@
 # Sentrix Architecture
 
+## M6.1 observed service catalog boundary (pending acceptance)
+
+`GET /api/v1/projects/{project_id}/services/catalog/` resolves a Django-session membership-scoped
+project **before** accessing ClickHouse. One typed/parameterized aggregate query scans
+`sentrix_metrics` and `sentrix_logs` by `timestamp`, and `sentrix_spans` by `start_time`, always with
+both trusted organization/project UUIDs, a half-open UTC window, and nonempty `service_name`.
+The query groups by the exact `(service_name, environment)` pair; no environment is fabricated.
+PostgreSQL remains the control plane; no service model, migration, asynchronous discovery process,
+ClickHouse index, or schema change is introduced in M6.1. Dependency failure is `503`, not empty.
+
 > **Documentation ownership:** This file describes system boundaries and implementation decisions. The repository documentation map is in [`README.md`](README.md); new work must follow [`AGENTS.md`](AGENTS.md), update the relevant architecture/data/API/security references, and record each accepted slice in [`ProjectImplementation.md`](ProjectImplementation.md).
 
 ## 1. System goal

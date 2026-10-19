@@ -354,3 +354,12 @@ closeout commit/push, and a clean:
 ```text
 ## main...origin/main
 ```
+
+## M6.1 implementation-specific test file and commands
+
+`backend/apps/telemetry/tests/test_service_catalog_api.py` tests the SC-001–SC-010 contracts, with
+a live OTLP `@pytest.mark.integration` test for same-name metrics/logs/traces across two distinct
+authenticated project keys. Run: `docker compose exec -T api /opt/venv/bin/python -m pytest
+apps/telemetry/tests/test_service_catalog_api.py -v`, then `./scripts/verify.ps1`.
+Before acceptance require runtime SQL against the current ClickHouse schema, a real foreign-project
+`404` without a ClickHouse read, no schema/migration drift, and clean commit/push.

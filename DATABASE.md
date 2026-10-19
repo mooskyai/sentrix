@@ -1,5 +1,13 @@
 # Sentrix — Data Models and Persistence
 
+## M6.1 service-catalog storage contract
+
+No new tables or schema migrations. The API aggregates exact `service_name`/`environment` values across
+`sentrix_metrics` and `sentrix_logs` using their `timestamp` columns and `sentrix_spans` using its
+`start_time` column. The SQL groups in ClickHouse, scopes **each** branch to trusted
+`organization_id`/`project_id` with typed UUID/time parameters, and returns counts/min/max observed
+times within the half-open window. PostgreSQL stores no derived service catalog entries.
+
 **Authority:** `backend/apps/**/models.py`, Django migrations, and `backend/apps/telemetry/clickhouse_schema.py` at the actual repository SHA. This is a curated V1 M1–M5 index, not a replacement for schema code.
 
 ## 1. Data ownership

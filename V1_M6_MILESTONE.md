@@ -309,3 +309,13 @@ V1 M6 is complete only when:
 M6 intentionally does not include incidents, SLOs, Kubernetes API polling, cluster credentials,
 automatic ownership/team assignment, arbitrary analytics/query languages, usage billing, SSO, or
 speculative ClickHouse optimization. Those require separate later contracts.
+
+## M6.1 implementation checkpoint — pending acceptance
+
+First API: `GET /api/v1/projects/{project_id}/services/catalog/` (session only).
+Code: `backend/apps/telemetry/service_catalog.py`, `service_catalog_views.py`, `query_urls.py`.
+Query is a three-signal ClickHouse aggregate scoped to trusted tenant UUIDs and a half-open window;
+identity is exact `(service_name, environment)` and empty service names are excluded. Default limit 100,
+maximum 500, explicit `truncated`. No persistence/schema/UI changes.
+The presence of this implementation patch alone does not close M6.1; run the test matrix and release
+gate on the Windows/Docker acceptance host, then commit/push and check clean main.

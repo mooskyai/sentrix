@@ -1,8 +1,8 @@
 # Sentrix — Project Implementation Register
 
 **Canonical repository:** `https://github.com/mooskyai/sentrix`
-**Last independently confirmed clean/pushed SHA:** `d43947aded9757a9b0ad00ecaf74b243a49830a7` (`chore(operations): complete M5 verification`).
-**Current documentation initiative:** add V1-wide reference documentation. The earlier M6 planning patch was supplied, but no user terminal evidence in this discussion confirms it was applied/committed; treat M6 as **planned** until Git says otherwise.
+**Last independently confirmed clean/pushed SHA:** `39bb7f7ff99fc42fc5b55fb5b4f7030bcbf8380f` (`docs: establish V1 M1-M6 project documentation foundation`).
+**Current slice:** M6.1 service catalog API and tests drafted against `39bb7f7`; acceptance, commit and push pending. M6.2–M6.5 remain planned.
 
 ## 1. Milestone implementation status
 
@@ -13,7 +13,7 @@
 | V1 M3 | bounded scalar metrics queries, Metrics explorer, dashboard panels, real metric smoke | Implemented | `V1_M3_MILESTONE*.md`, `scripts/verify-m3.ps1` |
 | V1 M4 | bounded log search, Logs explorer, exact trace lookup/navigation, operational smoke | Implemented | `V1_M4_MILESTONE*.md`, `scripts/verify-m4.ps1` |
 | V1 M5 | metric rules/current evaluation state, Alerts workspace, signed webhook channels/delivery, real OTLP + browser smoke | **Complete / pushed** | `V1_M5_MILESTONE*.md`, `scripts/verify-m5.ps1`; `d43947a` |
-| V1 M6 | service catalog, detail, host/K8s resource discovery, observed service relationships, operational closeout | **Proposed; not implemented** | planning patch; `V1_M6_MILESTONE*.md` only once applied |
+| V1 M6 | service catalog, detail, host/K8s resource discovery, observed service relationships, operational closeout | **M6.1 in progress; M6.2–M6.5 planned** | `V1_M6_MILESTONE*.md`, M6.1 code/tests awaiting gate |
 
 ## 2. Verified M5 closing evidence
 
@@ -62,3 +62,18 @@ The M6 documents define the next five ordered slices but **do not** introduce pr
 | M6.5 | End-to-end operational proof, docs and closeout | **Planned** | Real OTLP, tenant isolation, browser acceptance, full release gate |
 
 Once the V1 M6 planning patch is applied, `V1_M6_MILESTONE.md` and `V1_M6_MILESTONE_TESTING.md` become the detailed roadmap and test matrix. This is a *documentation* checkpoint until a user-verified commit confirms otherwise. The first technical implementation slice begins only after the documentation baseline is committed, pushed and clean.
+
+## V1 M6.1 — service catalog foundation (awaiting verification)
+
+Baseline: `39bb7f7ff99fc42fc5b55fb5b4f7030bcbf8380f`, confirmed clean/pushed.
+Implementation patch: session-authenticated, tenant-first bounded catalog query across existing OTLP
+metrics/logs/spans with typed ClickHouse parameters, exact identity merge and explicit truncation.
+No models, schema changes, background scheduler, or UI. Focused tests include mocked ClickHouse and
+real multi-tenant OTLP ingestion. **Checks not yet executed on the user's acceptance host.** Before
+closing: targeted pytest/Ruff/mypy, real ClickHouse verification, full `verify.ps1`, review staged
+docs and code, commit/push and confirm clean main. M6.2 remains blocked until then.
+
+Docs reviewed: PRD (scope already agreed), DESIGN (no UI), ARCHITECTURE (updated), DATABASE (updated),
+API (updated), AGENTS (rules preserved), README (updated), this register (updated), Setup (no new env),
+FeatureDevelopment (updated), Authentication&Security (updated), Integrations (unchanged OTLP),
+Testing&QA (updated), Debugging (no new operational procedure).

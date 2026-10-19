@@ -1,5 +1,14 @@
 # Sentrix
 
+## V1 M6.1 service catalog (implementation under acceptance)
+
+The first M6 read boundary is `GET /api/v1/projects/{project_id}/services/catalog/`, a
+session-authenticated, membership-scoped summary of observed `(service_name, environment)` pairs across
+ClickHouse metrics, logs, and spans. Queries default to the last 24 hours (maximum seven days) and cap
+results at 500 identities with explicit `truncated` status. This is **not** a service health registry or
+Kubernetes inventory. See `API.md` and `V1_M6_MILESTONE_TESTING.md`. M6.1 remains pending local runtime
+verification, commit, and push; M6.2–M6.5 remain planned.
+
 ## Project documentation
 
 Sentrix keeps a **V1-to-current documentation set** synchronized with each development slice. Start with [`PRD.md`](PRD.md) for product scope, [`DESIGN.md`](DESIGN.md) for UI patterns, [`ARCHITECTURE.md`](ARCHITECTURE.md) for system boundaries, [`DATABASE.md`](DATABASE.md) for persistence, [`API.md`](API.md) for contracts, and [`AGENTS.md`](AGENTS.md) for mandatory contributor/documentation rules. See [`ProjectImplementation.md`](ProjectImplementation.md) for status, [`Setup.md`](Setup.md) for onboarding, [`FeatureDevelopment.md`](FeatureDevelopment.md) for implementation workflow, [`Authentication&Security.md`](Authentication&Security.md) for security, [`Integrations.md`](Integrations.md) for external protocols, [`Testing&QA.md`](Testing&QA.md) for test gates, and [`Debugging.md`](Debugging.md) for diagnosis. `README.md` is the canonical Readme; do not create a case-only duplicate on Windows. Existing `V1_M*_MILESTONE*.md` files remain the detailed slice/acceptance record.
@@ -992,4 +1001,4 @@ differ. The UI will label those edges as observed span relationships rather than
 Kubernetes topology.
 
 The detailed contract and acceptance matrix live in `V1_M6_MILESTONE.md` and
-`V1_M6_MILESTONE_TESTING.md`. M6.1 implementation begins only from the clean M5 closeout baseline.
+`V1_M6_MILESTONE_TESTING.md`. M6.1 implementation is based on clean documentation commit `39bb7f7`; acceptance is pending.

@@ -1,5 +1,14 @@
 # Sentrix — Authentication, Authorization and Security
 
+## M6.1 catalog read boundary
+
+Session authentication and Django project membership precede ClickHouse client creation. A route UUID,
+service name, environment string, and any OTLP resource attribute are untrusted identifiers, not tenant
+authority. Every participating signal query must use the authorized project's own organization and
+project UUIDs. Foreign and nonexistent projects are nondisclosing `404` responses. Queries are time/
+cardinality bounded; invalid parameters are `400`; ClickHouse outages are generic `503` without
+credentials, raw SQL, or exception strings in responses. No catalog write roles or machine-key reads.
+
 **Status:** V1 M1–M5 implemented boundaries. This document describes current controls and known constraints; it is not an external security certification.
 
 ## 1. Trust boundaries

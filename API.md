@@ -1,5 +1,20 @@
 # Sentrix — HTTP and Worker API Reference
 
+## M6.1 proposed implementation: service catalog (not yet accepted)
+
+`GET /api/v1/projects/{project_id}/services/catalog/?start=RFC3339&end=RFC3339&limit=100`
+uses **browser session authentication** and authorizes the route project before telemetry access.
+`start` and `end` are optional timezone-aware UTC-normalized, half-open `[start,end)` boundaries;
+default is 24 hours, maximum is seven days; `limit` defaults to 100 and must be 1–500.
+
+Response fields: `project_id`, UTC `start`, UTC `end`, `limit`, boolean `truncated`, and `services`.
+Each service has exact `service_name` and `environment` (which may be empty), UTC `first_seen` and
+`last_seen`, `metric_points`, `log_records`, `span_records`, and `signals` (subset of
+`["metrics", "logs", "traces"]`). Counts describe stored rows in the requested window,
+**not** service health or lifetime volume. Empty service names are excluded. Foreign/unknown project
+returns `404` before ClickHouse; malformed window/limit returns `400`; dependency unavailable returns
+`503`. No write or machine-key access. Contract awaits M6.1 runtime acceptance.
+
 **Authority:** `backend/config/urls.py` and app `urls.py`, serializers and views. **Implemented V1 M1–M5 only**; no `/services` or Kubernetes endpoint yet. Trailing slashes are significant for the control-plane routes; public OTLP paths have **no trailing slash**.
 
 ## 1. Authentication modes
