@@ -78,3 +78,12 @@ These are **six milestones within product Version 1**, not claims that six separ
 ### M6 product acceptance contract (planned)
 
 Users should discover services from a bounded time window of their **own project's** telemetry, investigate a selected service using the existing signals, and view host/Kubernetes labels only when present in actual OTel resource attributes. A service map may connect two services only when an observed parent and child span in the same authorized trace establish the relationship. No automatically inferred health, uptime, dependency, resource existence, or ownership; no Kubernetes API access, SLOs, incident system or background synchronization in M6. Each capability requires a clear no-data, truncated, and dependency-unavailable outcome.
+
+## M6.2 observed Services workspace (implementation awaiting acceptance)
+
+Authorized project members can browse services actually represented by bounded OTLP metrics/logs/spans,
+select exact service/environment identity (including empty environment), see first/last observation
+and per-signal point counts, and navigate to existing project explorers. No user-maintained inventory,
+health indicator, ownership/SLO metadata or automatic prefiltered cross-signal drilldown is promised.
+The screen must explicitly distinguish not-observed from down/deleted, truncated catalog and query
+failure. Release requires the M6.2 browser and test gates.

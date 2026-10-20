@@ -1,8 +1,16 @@
 # Sentrix — Project Implementation Register
 
+## M6.2 correction staging (not accepted yet)
+
+The first M6.2 patch was applied cleanly at the M6.1 `2c1b5a2` baseline. An additional M6.2
+patch stages a tenant-authorized detail API, bounded metric/error-log/trace references, and React
+query/UI/test integration. Earlier notes describing only an aggregate detail panel apply to the
+initial candidate, not this correction. Do not mark M6.2 implemented or proceed to M6.3 until
+focused tests, the complete release gate, browser acceptance, commit, push, and clean main are proven.
+
 **Canonical repository:** `https://github.com/mooskyai/sentrix`
-**Last independently confirmed clean/pushed SHA:** `39bb7f7ff99fc42fc5b55fb5b4f7030bcbf8380f` (`docs: establish V1 M1-M6 project documentation foundation`).
-**Current slice:** M6.1 service catalog API and tests drafted against `39bb7f7`; acceptance, commit and push pending. M6.2–M6.5 remain planned.
+**Last independently confirmed clean/pushed SHA:** `2c1b5a2c18d1929b37ff0a55796eaceb41070592` (`feat(services): add tenant-scoped service catalog foundation`).
+**Current slice:** M6.1 complete/pushed; M6.2 Services workspace implementation prepared against `2c1b5a2` and **awaiting user test/browser acceptance**. M6.3–M6.5 remain planned.
 
 ## 1. Milestone implementation status
 
@@ -13,7 +21,7 @@
 | V1 M3 | bounded scalar metrics queries, Metrics explorer, dashboard panels, real metric smoke | Implemented | `V1_M3_MILESTONE*.md`, `scripts/verify-m3.ps1` |
 | V1 M4 | bounded log search, Logs explorer, exact trace lookup/navigation, operational smoke | Implemented | `V1_M4_MILESTONE*.md`, `scripts/verify-m4.ps1` |
 | V1 M5 | metric rules/current evaluation state, Alerts workspace, signed webhook channels/delivery, real OTLP + browser smoke | **Complete / pushed** | `V1_M5_MILESTONE*.md`, `scripts/verify-m5.ps1`; `d43947a` |
-| V1 M6 | service catalog, detail, host/K8s resource discovery, observed service relationships, operational closeout | **M6.1 in progress; M6.2–M6.5 planned** | `V1_M6_MILESTONE*.md`, M6.1 code/tests awaiting gate |
+| V1 M6 | service catalog, detail, host/K8s resource discovery, observed service relationships, operational closeout | **M6.1 delivered; M6.2 awaiting acceptance** | `2c1b5a2`, `V1_M6_MILESTONE*.md` |
 
 ## 2. Verified M5 closing evidence
 
@@ -47,33 +55,57 @@ Next slice: <gated next step>
 
 ## 5. Current next action
 
-Establish these 14-document references without overwriting existing `README.md` or `ARCHITECTURE.md`; validate the patch on the exact local tree and against any outstanding M6 planning patch. Following accepted documentation commit, begin **M6 planning acceptance** if not yet applied; only then M6.1 implementation. Never assume M6 APIs or UI already exist.
+Complete M6.2 frontend and real-browser acceptance against `2c1b5a2`: focused React tests, full release gate, Services page tenant switching and accurate empty/truncated states. Only then commit/push and begin M6.3.
 
-## 6. V1 M6 detailed implementation ledger — planned
+## 6. V1 M6 detailed implementation ledger — live
 
-The M6 documents define the next five ordered slices but **do not** introduce production code. Update this ledger only with real completed evidence; planned work stays planned until applied and verified.
+The M6 plan is delivered one accepted slice at a time. M6.1 is committed; M6.2 is under implementation and remains unaccepted until the full gate and browser smoke. Future slices remain planned.
 
 | Slice | Deliverable | Current status | Must prove before commit |
 | --- | --- | --- | --- |
-| M6.1 | Authorization-first, bounded multi-signal service catalog API | **Planned** | Real two-tenant ClickHouse isolation and honest empty/error semantics |
-| M6.2 | Services list/detail browser and correlation links | **Planned** | Real browser project switching, window/filter/query keys and no synthesized stats |
+| M6.1 | Authorization-first, bounded multi-signal service catalog API | **Completed/pushed** `2c1b5a2` | 15 focused tests, 150 backend and 35 frontend full gate; real OTLP tenant isolation |
+| M6.2 | Services list/detail browser and correlation links | **Pending acceptance** | Real browser project switching, window/query keys and no synthesized stats |
 | M6.3 | Host/Kubernetes attribute-based resource views | **Planned** | Exact attribute evidence and partial/missing-attribute behavior |
 | M6.4 | Cross-service observed parent/child span relationships | **Planned** | Positive matched parent/child joins and no false edge cases |
 | M6.5 | End-to-end operational proof, docs and closeout | **Planned** | Real OTLP, tenant isolation, browser acceptance, full release gate |
 
-Once the V1 M6 planning patch is applied, `V1_M6_MILESTONE.md` and `V1_M6_MILESTONE_TESTING.md` become the detailed roadmap and test matrix. This is a *documentation* checkpoint until a user-verified commit confirms otherwise. The first technical implementation slice begins only after the documentation baseline is committed, pushed and clean.
+The planning docs were committed in `39bb7f7`; the first implementation slice M6.1 was accepted and pushed as `2c1b5a2`. All further slices require the same test, documentation, commit and clean-branch gates.
 
-## V1 M6.1 — service catalog foundation (awaiting verification)
+## V1 M6.1 — service catalog foundation (accepted and pushed)
 
 Baseline: `39bb7f7ff99fc42fc5b55fb5b4f7030bcbf8380f`, confirmed clean/pushed.
 Implementation patch: session-authenticated, tenant-first bounded catalog query across existing OTLP
 metrics/logs/spans with typed ClickHouse parameters, exact identity merge and explicit truncation.
 No models, schema changes, background scheduler, or UI. Focused tests include mocked ClickHouse and
-real multi-tenant OTLP ingestion. **Checks not yet executed on the user's acceptance host.** Before
-closing: targeted pytest/Ruff/mypy, real ClickHouse verification, full `verify.ps1`, review staged
-docs and code, commit/push and confirm clean main. M6.2 remains blocked until then.
+real multi-tenant OTLP ingestion. **Accepted:** 15 focused tests, 150 backend and 35 frontend tests,
+Ruff/mypy/Django/ClickHouse checks and frontend production build green on the Windows/Docker host.
+Committed/pushed at `2c1b5a2`, clean `main`. M6.2 can proceed.
 
 Docs reviewed: PRD (scope already agreed), DESIGN (no UI), ARCHITECTURE (updated), DATABASE (updated),
 API (updated), AGENTS (rules preserved), README (updated), this register (updated), Setup (no new env),
 FeatureDevelopment (updated), Authentication&Security (updated), Integrations (unchanged OTLP),
 Testing&QA (updated), Debugging (no new operational procedure).
+
+## V1 M6.2 — Services workspace (implementation awaiting acceptance)
+
+Baseline `2c1b5a2c18d1929b37ff0a55796eaceb41070592`, pushed clean by the user.
+M6.2 proposes an authenticated browser Services workspace and exact service/environment detail read
+from the already verified M6.1 aggregate catalog. The UI shows bounded counts and observed first/last
+UTC timestamps; it does **not** introduce a separate detail query endpoint, metric-name summary,
+recent error log references, or trace-ID discovery. Explorer links retain the project and explicitly
+require the operator to apply supported filters/trace IDs at their destination.
+
+Frontend React Query keys include immutable project UUID, window bounds, and catalog limit. Project
+navigation remounts Services for tenant isolation; selected identities are mere URL query parameters,
+not authorization credentials. Empty environment is displayed explicitly; absence of observations
+is not a claim of deletion/down status. Truncated catalogs are not treated as complete.
+
+**Acceptance pending:** focused ServicesWorkspace tests, frontend lint/typecheck/build, full
+`scripts/verify.ps1`, real browser smoke with observed telemetry/project switching, staged doc review,
+commit/push/clean main. No source/backend schema or ingestion changes are proposed.
+
+Docs reviewed: PRD (unchanged requirements), DESIGN (updated), ARCHITECTURE (updated), DATABASE
+(no schema change), API (updated client consumption), AGENTS (standing rules unchanged), README
+(updated), ProjectImplementation (updated), Setup (no new setup), FeatureDevelopment (updated),
+Authentication&Security (unchanged authorization), Integrations (unchanged OTLP/webhook), Testing&QA
+(updated), Debugging (no new failure family). M6.3 remains blocked until M6.2 acceptance and push.

@@ -1,5 +1,14 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability Test and Acceptance Plan
 
+## M6.2 detail test addition (verification pending)
+
+SD-003 now requires API tests for exact tenant/project/service/environment/time scoping,
+including empty environment, bounded metric-name/error-log/trace-reference responses and independent
+truncation flags. SD-005 requires browser trace-ID navigation retaining the current project/window,
+and SD-006 requires separate detail loading, empty, dependency-error and truncated states. The
+complete regression gate, actual OTLP data and foreign-project proof remain mandatory before
+commit/push. Existing historical checkpoint notes describe the initial M6.2 candidate only.
+
 ## 1. Gate philosophy
 
 M6 derives higher-level views from telemetry, so the primary risk is turning descriptive attributes into
@@ -363,3 +372,17 @@ authenticated project keys. Run: `docker compose exec -T api /opt/venv/bin/pytho
 apps/telemetry/tests/test_service_catalog_api.py -v`, then `./scripts/verify.ps1`.
 Before acceptance require runtime SQL against the current ClickHouse schema, a real foreign-project
 `404` without a ClickHouse read, no schema/migration drift, and clean commit/push.
+
+## M6.1 accepted evidence and M6.2 verification checkpoint
+
+M6.1: 15 focused tests, real three-signal OTLP/tenant-isolation test, 150 total backend tests,
+35 frontend tests and the complete release gate passed before commit `2c1b5a2` and clean push.
+
+M6.2 candidate focused coverage must verify: an exact service/environment can be selected,
+including an explicitly empty environment; the backend's window/cap/truncation fields are preserved;
+empty, failed and truncated catalogs produce different messages; changes in project UUID must not
+reuse another project's data; links into Metrics/Logs/Traces preserve project URL and disclose that
+they are **not** prefiltered; no health, ownership, SLO or dependencies are manufactured.
+
+Frontend test pass plus full `./scripts/verify.ps1` and a manual real-data browser visit with project
+switching are mandatory acceptance. This document must not mark M6.2 delivered based on the patch alone.

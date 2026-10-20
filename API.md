@@ -1,6 +1,21 @@
 # Sentrix — HTTP and Worker API Reference
 
-## M6.1 proposed implementation: service catalog (not yet accepted)
+## M6.2 service-detail API (staged; unverified)
+
+`GET /api/v1/projects/{project_id}/services/detail/?service_name=...&environment=...&start=RFC3339&end=RFC3339`
+uses an authenticated browser session and resolves project membership before ClickHouse reads.
+Both exact identity fields are required; `environment=` explicitly represents an empty environment.
+`start`/`end` default to the previous 24h, accept timezone-aware RFC3339, and cap at 7d;
+results use `[start,end)` in UTC. Invalid input is `400`, unknown/foreign project is `404`,
+and query failure is `503`. The response includes `project_id`, `service_name`, `environment`,
+`start`, `end`, and `metric_names` (max 50 `{name,point_count}`), `error_logs` (max 20
+`{timestamp,severity_number,severity_text,body,trace_id}` with body clipped to 512 Unicode
+characters and severity >=17), `trace_references` (max 50 `{trace_id,last_seen,span_records}`),
+plus per-list `truncated` flags. No inferred service status or persistent inventory.
+All queries use typed tenant UUIDs, exact string attributes, and timestamps.
+This supersedes any earlier M6.2 notes that state no detail route exists.
+
+## M6.1 implemented service catalog (accepted `2c1b5a2`)
 
 `GET /api/v1/projects/{project_id}/services/catalog/?start=RFC3339&end=RFC3339&limit=100`
 uses **browser session authentication** and authorizes the route project before telemetry access.
@@ -13,9 +28,9 @@ Each service has exact `service_name` and `environment` (which may be empty), UT
 `["metrics", "logs", "traces"]`). Counts describe stored rows in the requested window,
 **not** service health or lifetime volume. Empty service names are excluded. Foreign/unknown project
 returns `404` before ClickHouse; malformed window/limit returns `400`; dependency unavailable returns
-`503`. No write or machine-key access. Contract awaits M6.1 runtime acceptance.
+`503`. No write or machine-key access. M6.1 runtime acceptance passed.
 
-**Authority:** `backend/config/urls.py` and app `urls.py`, serializers and views. **Implemented V1 M1–M5 only**; no `/services` or Kubernetes endpoint yet. Trailing slashes are significant for the control-plane routes; public OTLP paths have **no trailing slash**.
+**Authority:** `backend/config/urls.py` and app `urls.py`, serializers and views. **Implemented V1 M1–M5 and M6.1 service catalog**; no infrastructure/Kubernetes endpoint yet. Trailing slashes are significant for the control-plane routes; public OTLP paths have **no trailing slash**.
 
 ## 1. Authentication modes
 
@@ -112,3 +127,12 @@ No service-catalog, host/Kubernetes inventory, or service-map API is present at 
 Each proposed session API must (1) authenticate a real user, (2) resolve project membership before creating a ClickHouse client, (3) take the organization/project scope from that authorized project, (4) validate a timezone-aware half-open time window (24h default, <=7 days), exact filters and limits, and (5) distinguish valid empty results from dependency failure (`503`). Ensure stable pagination/truncation contracts and backward-compatible field changes when the endpoint is implemented. Querying a foreign existing project must return the same `404` as an unknown project **without opening ClickHouse**. Never expose raw OTLP project credentials via these APIs.
 
 Route names and response field schemas remain **TBD until the M6.1 code and tests establish them**. The authoritative future acceptance matrix is `V1_M6_MILESTONE_TESTING.md`.
+
+## M6.2 browser catalog consumption (candidate; acceptance pending)
+
+The frontend calls the existing M6.1 endpoint `GET /api/v1/projects/{project_id}/services/catalog/`
+with `start`, `end` and `limit=500`; it reads `services`, `truncated`, UTC window bounds, and exact
+identity/observation fields. There is no new service-detail HTTP endpoint in this slice: the
+selected detail reuses the catalog aggregate and its completeness/truncation semantics.
+Selected service and environment are browser query parameters only. The client does **not** claim
+to prefilter the existing Metrics/Logs/Traces APIs when following explorer navigation links.

@@ -8,6 +8,7 @@ import { DashboardPanels } from "../components/DashboardPanels";
 import { LogsExplorer } from "../components/LogsExplorer";
 import { MetricsExplorer } from "../components/MetricsExplorer";
 import { ProjectApiKeysPanel } from "../components/ProjectApiKeysPanel";
+import { ServicesWorkspace } from "../components/ServicesWorkspace";
 import { TraceExplorer } from "../components/TraceExplorer";
 import {
   canWriteProjects,
@@ -21,6 +22,10 @@ const SECTION_COPY: Record<WorkspaceSection, { title: string; description: strin
   overview: {
     title: "Project workspace",
     description: "Tenant and project context are established and ready for telemetry features.",
+  },
+  services: {
+    title: "Services",
+    description: "Discover services observed through project-scoped OpenTelemetry signals.",
   },
   metrics: {
     title: "Metrics",
@@ -192,6 +197,14 @@ export function ProjectWorkspacePage() {
               <small>Authorization remains enforced by Django.</small>
             </div>
           </div>
+        ) : activeSection === "services" ? (
+          <ServicesWorkspace
+            key={workspace.project.id}
+            projectId={workspace.project.id}
+            metricsPath={workspacePath(workspace.organization.slug, workspace.project.slug, "metrics")}
+            logsPath={workspacePath(workspace.organization.slug, workspace.project.slug, "logs")}
+            tracesPath={workspacePath(workspace.organization.slug, workspace.project.slug, "traces")}
+          />
         ) : activeSection === "metrics" ? (
           <MetricsExplorer
             key={workspace.project.id}

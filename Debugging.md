@@ -78,3 +78,12 @@ Scope ClickHouse diagnostics by authenticated project identity + bounded timesta
 M6 query code is not yet implemented. When it exists, debug missing services with exact observed `(service_name, environment)`, project UUID authorized through session membership, `start/end` UTC window, and signal-specific timestamps. Inspect ClickHouse with **both** tenant IDs; never use unscoped exploratory SQL as verification. An unobserved service within the interval is not automatically down. A `503` means dependency failure, not no service.
 
 For infrastructure, check which exact OpenTelemetry semantic convention keys were present on *the same supporting resource/telemetry row* before claiming a host/cluster/workload/pod association. For dependency edges, confirm actual child `parent_span_id`, parent `span_id`, matching `trace_id`, project and differing service identities; span links or nearby timestamps do not prove parentage. Keep sensitive resource attributes and project keys out of logs and bug reports. Update this troubleshooting section with verified failure signatures when M6.1–M6.5 are implemented.
+
+## M6.2 Services workspace troubleshooting (candidate)
+
+If Services shows no entries, check the chosen 1h/6h/24h/7d UTC range and verify this project's
+real OTLP ingestion. An empty response is not proof that a service is deleted/down. A visible
+`Telemetry query service is unavailable.` error means the Django catalog query could not reach its
+ClickHouse dependency: inspect API logs and readiness without printing raw telemetry or credentials.
+A truncated result is partial; narrow the observation window rather than guessing missing services.
+When switching projects, verify that the browser makes a new query for the *new* immutable project ID.

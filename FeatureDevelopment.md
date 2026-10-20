@@ -81,3 +81,12 @@ Review the **entire 14-file set** in `AGENTS.md` for every development change. U
 | M6.5 | Real OTLP/UI closeout | `Setup.md`, `Testing&QA.md`, `README.md`, milestone testing, implementation ledger |
 
 This table is the minimum review routing, not an exemption for the other handbook documents. Check all fourteen at every slice. A planned design is not executable behavior; do not add fake inventory/health values or a second telemetry store. Continue code → targeted tests → full gate + necessary real smoke → docs and security review → commit → push → clean branch, one slice at a time. See `V1_M6_MILESTONE.md`.
+
+## V1 M6.2 Services workspace development slice
+
+Use M6.1 aggregate types in `frontend/src/types.ts` and `getServiceCatalog` in the shared API client.
+Register `services` in the project workspace route/section map and sidebar, and remount on project
+changes. Query keys must include project UUID, exact UTC start/end and limit. Detail is a selected
+catalog row (not an independently queried service entity). Accept empty environment as legitimate.
+Use explicit failure/empty/truncation UI and disclosure that existing explorer links do not prefilter.
+Ship component/browser tests, then the complete repository release gate before commit.

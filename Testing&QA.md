@@ -1,5 +1,14 @@
 # Sentrix — Testing and Quality Assurance
 
+## M6.2 detail correction gate (pending execution)
+
+Run `backend/apps/telemetry/tests/test_service_detail_api.py` with Django/pytest, the focused
+`ServicesWorkspace.test.tsx` Vitest suite, frontend lint/typecheck/build, and `scripts/verify.ps1`.
+Assert foreign project `404` before ClickHouse, exact empty environment, typed tenant/window
+predicates, per-signal truncation, genuine empty results vs `503`, and trace navigation.
+A manual real-OTLP browser check with project switching remains mandatory. No new acceptance
+count is claimed until those commands run on the Windows/Docker acceptance host.
+
 ## V1 M6.1 provisional quality gate
 
 Run `docker compose exec -T api /opt/venv/bin/python -m pytest apps/telemetry/tests/test_service_catalog_api.py -v`,
@@ -84,3 +93,21 @@ When accepted, M6 must include real OTLP evidence for observed services/resource
 | M6.5 | Real OTLP integration → services/resources/relationships → browser; full gate | cleanup safety, no synthetic telemetry, real foreign-project non-discovery |
 
 The detailed cases are in `V1_M6_MILESTONE_TESTING.md`; none are satisfied merely by adding documentation. Do not report test counts or a `verify-m6.ps1` execution until the actual program, command and results exist. M5's 135 backend / 35 frontend tests remain *historical evidence* from M5, not M6 acceptance. Continue testing each milestone only after its dependencies are verified, committed, pushed and the worktree is clean.
+
+## M6.2 browser acceptance matrix (implementation pending)
+
+1. Services sidebar link resolves within the authorized project URL; the same project UUID is passed
+   through the catalog query API and React Query key.
+2. The selected 1h/6h/24h/7d UTC window is passed as actual `start`/`end` with `limit=500`.
+3. List/detail render exact service/environment, telemetry signal counts, and first/last observations.
+4. Empty results mean *not observed*; server error remains a visible error; truncated results warn
+   that missing rows cannot be interpreted as absent services.
+5. Selected service URL is not tenant authorization; project changes query the new UUID and may not
+   retain the previous project's catalog as current detail.
+6. Explorer links retain project context, explicitly disclose that filters are **not** applied, and
+   rely on existing Django tenant authorization.
+7. No synthetic health, ownership, SLO, deployment, trace ID or service dependency appears.
+
+Focused run: `npm run test -- ServicesWorkspace.test.tsx`, `npm run lint`,
+`npm run typecheck`, `npm run build` in `frontend/` or the Compose `web` container. Finish with
+`./scripts/verify.ps1` and a live Services browser smoke before commit/push.

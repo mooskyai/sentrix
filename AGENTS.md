@@ -1,6 +1,6 @@
 # Sentrix — repository contributor and agent instructions
 
-> **Scope:** Entire repository. Treat this file as the standing contract for humans and coding agents. Current implemented product: V1 M1–M5; subsequent M6 service/infrastructure work is **planned**, not implemented by this documentation slice. Always inspect the latest Git state before deciding a milestone is present.
+> **Scope:** Entire repository. Treat this file as the standing contract for humans and coding agents. Current implemented product: V1 M1–M5 and M6.1; M6.2 is pending acceptance and M6.3–M6.5 are planned. Always inspect the latest Git state before deciding a milestone is present.
 
 ## Repository authority and workflow
 

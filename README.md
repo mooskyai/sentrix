@@ -1,13 +1,31 @@
 # Sentrix
 
-## V1 M6.1 service catalog (implementation under acceptance)
+## M6.2 service-detail completion (correction staged; acceptance pending)
+
+The Services workspace additionally queries `/api/v1/projects/{project_id}/services/detail/`
+for an exact service and environment, including empty environment, and selected UTC window.
+It shows bounded metric names, error-log references (severity 17+), and observed trace IDs.
+Trace-ID links include the current project and window. The general Metrics/Logs links remain
+unfiltered; apply exact filters in their explorer forms. This is not a health assessment.
+The add-on requires focused/backend/frontend tests, live browser proof, and `scripts/verify.ps1`
+before M6.2 can be committed, pushed, or declared complete.
+
+## V1 M6.1 service catalog (verified, pushed)
 
 The first M6 read boundary is `GET /api/v1/projects/{project_id}/services/catalog/`, a
 session-authenticated, membership-scoped summary of observed `(service_name, environment)` pairs across
 ClickHouse metrics, logs, and spans. Queries default to the last 24 hours (maximum seven days) and cap
 results at 500 identities with explicit `truncated` status. This is **not** a service health registry or
-Kubernetes inventory. See `API.md` and `V1_M6_MILESTONE_TESTING.md`. M6.1 remains pending local runtime
-verification, commit, and push; M6.2–M6.5 remain planned.
+Kubernetes inventory. M6.1 passed the release gate and was committed as `2c1b5a2`.
+
+## V1 M6.2 Services workspace (candidate; acceptance pending)
+
+The project Services section lists actual observed identities in the selected 1h, 6h, 24h, or 7d
+window. Inspect shows exact service/environment, per-signal counts, and first/last UTC observations
+from the existing bounded M6.1 catalog. It is not a durable inventory, health score or SLO.
+Errors, healthy empty windows, and truncated results are distinct. Explorer links preserve the project
+but do not prefill filters: apply exact service/environment filters in Metrics or Logs and a known
+trace ID in Traces. M6.2 needs browser and release-gate acceptance before it is considered shipped.
 
 ## Project documentation
 
@@ -1001,4 +1019,4 @@ differ. The UI will label those edges as observed span relationships rather than
 Kubernetes topology.
 
 The detailed contract and acceptance matrix live in `V1_M6_MILESTONE.md` and
-`V1_M6_MILESTONE_TESTING.md`. M6.1 implementation is based on clean documentation commit `39bb7f7`; acceptance is pending.
+`V1_M6_MILESTONE_TESTING.md`. M6.1 was verified and pushed at `2c1b5a2`; M6.2 awaits acceptance.

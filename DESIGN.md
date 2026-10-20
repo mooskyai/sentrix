@@ -69,3 +69,15 @@ For every UI change update this file, the relevant PRD workflow, API contract, c
 | M6.5 | Browser confirmation of fresh real OTLP smoke signals | Verify actual values/relationships, not placeholder sample cards |
 
 Tenant changes must invalidate M6 React Query keys, remount project-scoped detail views, and navigate only through the authorized workspace. Query controls require a bounded UTC time window, deterministic selection, meaningful accessible labels, capped result state, and explicit `503`/retry feedback. Do not introduce speculative Kubernetes status badges, critical-path calculations, or service ownership fields as though they are data-plane facts. See `V1_M6_MILESTONE.md` for staged rollout.
+
+## V1 M6.2 Services screen — implementation awaiting acceptance
+
+The Services project section uses the existing sidebar and project switcher. A 1h/6h/24h/7d selector
+and refresh anchor control a bounded M6.1 aggregate query. The screen displays the server-reported
+catalog window, service name, exact environment (including empty), signals, counts, and last observed
+UTC time. An Inspect action selects a service and displays first/last observations and signal counts.
+
+The URL selection contains only the service name/environment; Django still authorizes all data reads.
+Loading, healthy empty, error, truncation and selected-but-not-returned states must be distinct.
+Links to the existing explorers preserve project context and are labelled as **not prefiltered**.
+Never color-code counts as health or derive ownership, SLOs, deployments or dependencies.

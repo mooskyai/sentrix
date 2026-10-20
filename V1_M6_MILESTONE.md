@@ -1,5 +1,14 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability
 
+## M6.2 correction (staged, not yet accepted)
+
+This extension adds a separate exact-identity Services detail API for bounded metric names,
+recent error logs, and trace IDs. It supplements the catalog counts in the original M6.2
+candidate, which had no distinct detail query. Errors, truncation and healthy empty results are
+shown separately. Existing Metrics/Logs navigation is not automatically prefiltered; observed
+trace-ID links carry a project-scoped route and the selected time window. Finish M6.2 verification
+and push before entering M6.3. Historical acceptance notes remain unchanged.
+
 ## 1. Goal
 
 V1 M6 turns the telemetry already accepted and queried by Sentrix into a project-scoped service and
@@ -310,12 +319,28 @@ M6 intentionally does not include incidents, SLOs, Kubernetes API polling, clust
 automatic ownership/team assignment, arbitrary analytics/query languages, usage billing, SSO, or
 speculative ClickHouse optimization. Those require separate later contracts.
 
-## M6.1 implementation checkpoint — pending acceptance
+## M6.1 implementation checkpoint — completed/pushed as `2c1b5a2`
 
 First API: `GET /api/v1/projects/{project_id}/services/catalog/` (session only).
 Code: `backend/apps/telemetry/service_catalog.py`, `service_catalog_views.py`, `query_urls.py`.
 Query is a three-signal ClickHouse aggregate scoped to trusted tenant UUIDs and a half-open window;
 identity is exact `(service_name, environment)` and empty service names are excluded. Default limit 100,
 maximum 500, explicit `truncated`. No persistence/schema/UI changes.
-The presence of this implementation patch alone does not close M6.1; run the test matrix and release
-gate on the Windows/Docker acceptance host, then commit/push and check clean main.
+M6.1 passed 15 focused tests plus the complete 150-backend/35-frontend release gate, then was
+committed and pushed with clean `main` at `2c1b5a2`. M6.2 may begin from that baseline.
+
+## M6.1 verified baseline and M6.2 implementation checkpoint
+
+M6.1 closed on `2c1b5a2c18d1929b37ff0a55796eaceb41070592` with 15 focused service catalog tests,
+150 total backend/35 frontend tests, all Ruff/mypy/Django/ClickHouse/frontend gates green and a clean
+pushed `main`. This supersedes the historical "pending acceptance" notes above.
+
+The M6.2 candidate creates a project Services section and selected service-detail panel backed by
+M6.1 **aggregated records only**. It intentionally does not implement the optional separate detail
+HTTP endpoint or recent metric-name, error-log and trace-ID lists. Metric/log/span record counts are
+from the backend's bounded query. Links navigate to existing project explorers but do not silently
+inject unsupported service filters. The UI shows selected UTC windows, explicit empty environment,
+observed first/last times, healthy-empty/error/truncation states, and no inferred health/ownership.
+
+M6.2 is not complete until frontend tests, full release gate and real browser tenant-switch smoke
+are confirmed, then the slice is committed/pushed clean. M6.3 remains gated.

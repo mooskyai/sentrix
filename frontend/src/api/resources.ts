@@ -234,3 +234,27 @@ export function getTrace(
     `/projects/${encodeURIComponent(projectId)}/traces/${encodeURIComponent(traceId)}/?${params}`,
   );
 }
+
+export function getServiceCatalog(
+  projectId: string,
+  query: { start: string; end: string; limit: number },
+): Promise<import("../types").ServiceCatalogResponse> {
+  const params = metricQueryString({ start: query.start, end: query.end, limit: query.limit });
+  return api<import("../types").ServiceCatalogResponse>(
+    `/projects/${encodeURIComponent(projectId)}/services/catalog/?${params}`,
+  );
+}
+
+export function getServiceDetail(
+  projectId: string,
+  query: { start: string; end: string; service_name: string; environment: string },
+): Promise<import("../types").ServiceDetailResponse> {
+  // Preserve the explicit empty environment: metricQueryString omits empty strings.
+  const params = new URLSearchParams({
+    start: query.start, end: query.end,
+    service_name: query.service_name, environment: query.environment,
+  });
+  return api<import("../types").ServiceDetailResponse>(
+    `/projects/${encodeURIComponent(projectId)}/services/detail/?${params.toString()}`,
+  );
+}

@@ -222,3 +222,57 @@ export interface TraceDetailResponse {
   spans: TraceSpan[];
   truncated: boolean;
 }
+
+export interface ObservedService {
+  service_name: string;
+  environment: string;
+  first_seen: string;
+  last_seen: string;
+  metric_points: number;
+  log_records: number;
+  span_records: number;
+  signals: Array<"metrics" | "logs" | "traces">;
+}
+
+export interface ServiceCatalogResponse {
+  project_id: string;
+  start: string;
+  end: string;
+  limit: number;
+  truncated: boolean;
+  services: ObservedService[];
+}
+export interface ServiceMetricName {
+  name: string;
+  point_count: number;
+}
+
+export interface ServiceErrorLog {
+  timestamp: string;
+  severity_number: number;
+  severity_text: string;
+  body: string;
+  trace_id: string | null;
+}
+
+export interface ServiceTraceReference {
+  trace_id: string;
+  last_seen: string;
+  span_records: number;
+}
+
+export interface ServiceDetailResponse {
+  project_id: string;
+  service_name: string;
+  environment: string;
+  start: string;
+  end: string;
+  metric_names: ServiceMetricName[];
+  error_logs: ServiceErrorLog[];
+  trace_references: ServiceTraceReference[];
+  truncated: {
+    metric_names: boolean;
+    error_logs: boolean;
+    trace_references: boolean;
+  };
+}

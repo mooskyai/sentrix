@@ -1,6 +1,15 @@
 # Sentrix Architecture
 
-## M6.1 observed service catalog boundary (pending acceptance)
+## M6.2 telemetry-reference boundary (additional staged slice)
+
+The Services detail view calls a separate, membership-authorized Django API. Three bounded
+ClickHouse reads return names of metrics, recent error logs, and trace IDs, filtered by the exact
+selected `(service_name, environment)` and trusted project/org UUIDs. The browser caches detail by
+project UUID, start/end and service/environment. No schema change, new inventory table, background
+polling, inferred health, or client-side filtering of broad cross-service query results.
+This addendum supersedes the earlier M6.2 candidate paragraph describing catalog-only detail.
+
+## M6.1 observed service catalog boundary (verified)
 
 `GET /api/v1/projects/{project_id}/services/catalog/` resolves a Django-session membership-scoped
 project **before** accessing ClickHouse. One typed/parameterized aggregate query scans
@@ -9,6 +18,15 @@ both trusted organization/project UUIDs, a half-open UTC window, and nonempty `s
 The query groups by the exact `(service_name, environment)` pair; no environment is fabricated.
 PostgreSQL remains the control plane; no service model, migration, asynchronous discovery process,
 ClickHouse index, or schema change is introduced in M6.1. Dependency failure is `503`, not empty.
+
+## M6.2 frontend read boundary (candidate; acceptance pending)
+
+`ServicesWorkspace` consumes only the existing session-authenticated catalog through the common API
+client; selected detail is the already-returned bounded aggregate, not a new server identity. React
+Query keys include immutable project UUID, UTC window and result cap, and workspace navigation remounts
+on project change. Selection in URL query parameters is untrusted display context; it never grants
+project access. Existing explorer links preserve project context without claiming a pre-applied filter.
+No new Django route, ClickHouse schema, PostgreSQL service model, or worker is introduced by this slice.
 
 > **Documentation ownership:** This file describes system boundaries and implementation decisions. The repository documentation map is in [`README.md`](README.md); new work must follow [`AGENTS.md`](AGENTS.md), update the relevant architecture/data/API/security references, and record each accepted slice in [`ProjectImplementation.md`](ProjectImplementation.md).
 

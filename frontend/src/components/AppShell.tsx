@@ -11,6 +11,7 @@ interface AppShellProps extends PropsWithChildren {
 
 const SECTION_LABELS = {
   overview: "Overview",
+  services: "Services",
   metrics: "Metrics",
   logs: "Logs",
   traces: "Traces",
@@ -51,6 +52,7 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
               <NavLink className="nav-item" end to="/">
                 Overview
               </NavLink>
+              <span className="nav-item disabled">Services</span>
               <span className="nav-item disabled">Metrics</span>
               <span className="nav-item disabled">Logs</span>
               <span className="nav-item disabled">Traces</span>
