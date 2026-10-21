@@ -70,7 +70,7 @@ For every UI change update this file, the relevant PRD workflow, API contract, c
 
 Tenant changes must invalidate M6 React Query keys, remount project-scoped detail views, and navigate only through the authorized workspace. Query controls require a bounded UTC time window, deterministic selection, meaningful accessible labels, capped result state, and explicit `503`/retry feedback. Do not introduce speculative Kubernetes status badges, critical-path calculations, or service ownership fields as though they are data-plane facts. See `V1_M6_MILESTONE.md` for staged rollout.
 
-## V1 M6.2 Services screen — implementation awaiting acceptance
+## V1 M6.2 Services screen — code pushed; browser acceptance pending
 
 The Services project section uses the existing sidebar and project switcher. A 1h/6h/24h/7d selector
 and refresh anchor control a bounded M6.1 aggregate query. The screen displays the server-reported

@@ -71,19 +71,19 @@ Do not mark a slice delivered from documentation alone. Require targeted tests, 
 | V1 M3 | Raw scalar metrics and configured project dashboard panels | **Implemented** | Query correctness, real metric and browser checks |
 | V1 M4 | Log investigation and exact log-to-trace correlation | **Implemented** | Correlated OTLP signals and real navigation |
 | V1 M5 | Metric alert evaluation, persisted states and signed webhook delivery | **Implemented** | Firing, deduplication, recovery and delivery closeout |
-| V1 M6 | Service discovery, detail, infrastructure attributes and observed span relationships | **Planned** | Each M6 slice plus final real OTLP/browser closeout |
+| V1 M6 | Service discovery, detail, infrastructure attributes and observed span relationships | **M6.1 accepted; M6.2 code pushed/browser gate open** | `2c1b5a2`, `a0e7881`; M6.3–M6.5 planned |
 
-These are **six milestones within product Version 1**, not claims that six separately released product versions exist. Current user-visible capabilities end at M5. For M6 scope and test evidence requirements see `V1_M6_MILESTONE.md` and `V1_M6_MILESTONE_TESTING.md`.
+These are **six milestones within product Version 1**, not claims that six separately released product versions exist. M6.1 and M6.2 service UI/API code exists; M6.3–M6.5 are not implemented. For acceptance see `V1_M6_MILESTONE.md` and `V1_M6_MILESTONE_TESTING.md`.
 
 ### M6 product acceptance contract (planned)
 
 Users should discover services from a bounded time window of their **own project's** telemetry, investigate a selected service using the existing signals, and view host/Kubernetes labels only when present in actual OTel resource attributes. A service map may connect two services only when an observed parent and child span in the same authorized trace establish the relationship. No automatically inferred health, uptime, dependency, resource existence, or ownership; no Kubernetes API access, SLOs, incident system or background synchronization in M6. Each capability requires a clear no-data, truncated, and dependency-unavailable outcome.
 
-## M6.2 observed Services workspace (implementation awaiting acceptance)
+## M6.2 observed Services workspace (code pushed; browser acceptance pending)
 
-Authorized project members can browse services actually represented by bounded OTLP metrics/logs/spans,
-select exact service/environment identity (including empty environment), see first/last observation
-and per-signal point counts, and navigate to existing project explorers. No user-maintained inventory,
-health indicator, ownership/SLO metadata or automatic prefiltered cross-signal drilldown is promised.
-The screen must explicitly distinguish not-observed from down/deleted, truncated catalog and query
-failure. Release requires the M6.2 browser and test gates.
+Authorized project members browse services from bounded OTLP metrics/logs/spans, selecting
+exact service/environment identity (including empty environment), first/last observation,
+per-signal counts and bounded metric-name, error-log and trace-ID references from an actual
+backend detail API. Generic Metrics/Logs links are not automatically filtered. No inventory,
+health, ownership, SLO or inferred dependency is promised. Automated test/release gates
+passed; the final operator browser walkthrough remains to be recorded.

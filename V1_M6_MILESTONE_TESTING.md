@@ -1,5 +1,15 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability Test and Acceptance Plan
 
+## M6.2 automated verification completed; browser evidence still required
+
+The seeder and M6.2 implementation are pushed at `4b34f3c` and `a0e7881`.
+On 2026-10-21 the complete Windows/Docker gate passed: 170 backend tests, 44
+frontend tests, Ruff/mypy, Django checks, ClickHouse schema, TypeScript and Vite build.
+The seeder's six focused tests passed and two demo projects were populated through OTLP.
+The manual browser smoke is **not yet reported**, and synthetic data is not proof of
+real external exporter behavior or a separate foreign-user denial. Use
+`M6_2_BROWSER_ACCEPTANCE.md` for the exact remaining checks.
+
 ## M6.2 synthetic browser fixture (not an acceptance substitute)
 
 Optional `manage.py seed_demo --username YOUR_LOGIN` (documented in `DEMO_SEEDING.md`)
@@ -10,14 +20,13 @@ list/detail, project switching, empty-environment handling and trace links. It d
 **not** replace foreign-user isolation or real external exporter proof; M6.2 browser
 acceptance and M6.3 gating requirements above remain in force.
 
-## M6.2 detail test addition (verification pending)
+## M6.2 detail test addition (implemented and automatically verified)
 
-SD-003 now requires API tests for exact tenant/project/service/environment/time scoping,
-including empty environment, bounded metric-name/error-log/trace-reference responses and independent
-truncation flags. SD-005 requires browser trace-ID navigation retaining the current project/window,
-and SD-006 requires separate detail loading, empty, dependency-error and truncated states. The
-complete regression gate, actual OTLP data and foreign-project proof remain mandatory before
-commit/push. Existing historical checkpoint notes describe the initial M6.2 candidate only.
+SD-003 exact tenant/project/service/environment/time API tests, independent truncation,
+healthy empty results and dependency `503` pass in the current backend suite. SD-005
+trace-ID links and SD-006 detail states are covered by automated React tests. Manual
+browser confirmation remains outstanding. The original candidate predates the
+separate service-detail API and is no longer the implementation contract.
 
 ## 1. Gate philosophy
 
@@ -388,11 +397,10 @@ Before acceptance require runtime SQL against the current ClickHouse schema, a r
 M6.1: 15 focused tests, real three-signal OTLP/tenant-isolation test, 150 total backend tests,
 35 frontend tests and the complete release gate passed before commit `2c1b5a2` and clean push.
 
-M6.2 candidate focused coverage must verify: an exact service/environment can be selected,
-including an explicitly empty environment; the backend's window/cap/truncation fields are preserved;
-empty, failed and truncated catalogs produce different messages; changes in project UUID must not
-reuse another project's data; links into Metrics/Logs/Traces preserve project URL and disclose that
-they are **not** prefiltered; no health, ownership, SLO or dependencies are manufactured.
-
-Frontend test pass plus full `./scripts/verify.ps1` and a manual real-data browser visit with project
-switching are mandatory acceptance. This document must not mark M6.2 delivered based on the patch alone.
+M6.2 code/push evidence: `a0e7881`; synthetic fixture code/push: `4b34f3c`.
+170 backend tests and 44 frontend tests passed with the full Windows/Docker gate.
+The dedicated service-detail API now provides bounded metric names/error logs/trace IDs
+on top of M6.1 catalog aggregates; generic Metrics/Logs explorer links remain unfiltered.
+A live browser walkthrough including project switching is still mandatory, and synthetic
+fixture data alone is not external-OTLP production-like acceptance. Record its outcome
+before declaring M6.2 fully accepted or entering M6.3.

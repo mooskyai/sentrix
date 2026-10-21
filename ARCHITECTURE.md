@@ -10,7 +10,7 @@ Each key is deleted after ingest; demo webhook delivery is disabled. No new sche
 background worker, new collection protocol or infrastructure discovery is introduced.
 This development fixture is not evidence that M6.3–M6.5 are implemented.
 
-## M6.2 telemetry-reference boundary (additional staged slice)
+## M6.2 telemetry-reference boundary (implemented; browser smoke pending)
 
 The Services detail view calls a separate, membership-authorized Django API. Three bounded
 ClickHouse reads return names of metrics, recent error logs, and trace IDs, filtered by the exact
@@ -29,14 +29,15 @@ The query groups by the exact `(service_name, environment)` pair; no environment
 PostgreSQL remains the control plane; no service model, migration, asynchronous discovery process,
 ClickHouse index, or schema change is introduced in M6.1. Dependency failure is `503`, not empty.
 
-## M6.2 frontend read boundary (candidate; acceptance pending)
+## M6.2 frontend read boundary (implemented)
 
-`ServicesWorkspace` consumes only the existing session-authenticated catalog through the common API
-client; selected detail is the already-returned bounded aggregate, not a new server identity. React
-Query keys include immutable project UUID, UTC window and result cap, and workspace navigation remounts
-on project change. Selection in URL query parameters is untrusted display context; it never grants
-project access. Existing explorer links preserve project context without claiming a pre-applied filter.
-No new Django route, ClickHouse schema, PostgreSQL service model, or worker is introduced by this slice.
+`ServicesWorkspace` consumes the session-authenticated catalog and a separate, bounded
+membership-authorized service-detail endpoint through the common API client. React Query keys
+include project UUID, UTC window and exact selected service/environment. Project navigation
+remounts workspace state. URL selection cannot grant tenant access. Generic Metrics/Logs
+explorer links preserve project context without a pre-applied filter; trace-reference links
+include observed trace IDs and the selected UTC window. No persistence, schema or worker
+change is introduced. A manual browser acceptance report remains outstanding.
 
 > **Documentation ownership:** This file describes system boundaries and implementation decisions. The repository documentation map is in [`README.md`](README.md); new work must follow [`AGENTS.md`](AGENTS.md), update the relevant architecture/data/API/security references, and record each accepted slice in [`ProjectImplementation.md`](ProjectImplementation.md).
 

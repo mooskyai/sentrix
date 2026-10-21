@@ -1,13 +1,14 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability
 
-## M6.2 correction (staged, not yet accepted)
+## M6.2 implementation checkpoint (pushed; manual browser acceptance open)
 
-This extension adds a separate exact-identity Services detail API for bounded metric names,
-recent error logs, and trace IDs. It supplements the catalog counts in the original M6.2
-candidate, which had no distinct detail query. Errors, truncation and healthy empty results are
-shown separately. Existing Metrics/Logs navigation is not automatically prefiltered; observed
-trace-ID links carry a project-scoped route and the selected time window. Finish M6.2 verification
-and push before entering M6.3. Historical acceptance notes remain unchanged.
+M6.2 code was pushed at `a0e7881`, with demo seeder at `4b34f3c`. The separate
+membership-authorized Services detail API returns bounded metric names, recent errors
+and observed trace IDs for exact service/environment and UTC window. The frontend handles
+loading, valid empty results, errors and truncation and retains context on trace links.
+General Metrics/Logs links remain unfiltered. The full release gate passed: 170 backend,
+44 frontend, clean Ruff/mypy/Django/ClickHouse/TypeScript/build checks. Manual browser
+acceptance is outstanding; see `M6_2_BROWSER_ACCEPTANCE.md`. M6.3 is blocked until then.
 
 ## 1. Goal
 
@@ -335,12 +336,10 @@ M6.1 closed on `2c1b5a2c18d1929b37ff0a55796eaceb41070592` with 15 focused servic
 150 total backend/35 frontend tests, all Ruff/mypy/Django/ClickHouse/frontend gates green and a clean
 pushed `main`. This supersedes the historical "pending acceptance" notes above.
 
-The M6.2 candidate creates a project Services section and selected service-detail panel backed by
-M6.1 **aggregated records only**. It intentionally does not implement the optional separate detail
-HTTP endpoint or recent metric-name, error-log and trace-ID lists. Metric/log/span record counts are
-from the backend's bounded query. Links navigate to existing project explorers but do not silently
-inject unsupported service filters. The UI shows selected UTC windows, explicit empty environment,
-observed first/last times, healthy-empty/error/truncation states, and no inferred health/ownership.
-
-M6.2 is not complete until frontend tests, full release gate and real browser tenant-switch smoke
-are confirmed, then the slice is committed/pushed clean. M6.3 remains gated.
+The M6.2 Services workspace is implemented at `a0e7881` and retrieves catalog counts
+plus a **separate** authenticated service-detail API with bounded metric names, error logs
+and trace-ID references. Links to Metrics/Logs do not silently prefilter; observed trace
+links preserve project and window. There are no invented health or ownership assertions.
+The optional demo fixture was pushed in `4b34f3c`. Both current code and full tests are
+automatically verified on Windows/Docker (170 backend / 44 frontend) but the final manual
+browser/project-switch walkthrough is not reported. M6.3 remains gated until it is.

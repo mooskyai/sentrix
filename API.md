@@ -1,6 +1,6 @@
 # Sentrix — HTTP and Worker API Reference
 
-## M6.2 service-detail API (staged; unverified)
+## M6.2 service-detail API (implemented/pushed at `a0e7881`)
 
 `GET /api/v1/projects/{project_id}/services/detail/?service_name=...&environment=...&start=RFC3339&end=RFC3339`
 uses an authenticated browser session and resolves project membership before ClickHouse reads.
@@ -128,11 +128,11 @@ Each proposed session API must (1) authenticate a real user, (2) resolve project
 
 Route names and response field schemas remain **TBD until the M6.1 code and tests establish them**. The authoritative future acceptance matrix is `V1_M6_MILESTONE_TESTING.md`.
 
-## M6.2 browser catalog consumption (candidate; acceptance pending)
+## M6.2 browser catalog and detail consumption (implemented)
 
-The frontend calls the existing M6.1 endpoint `GET /api/v1/projects/{project_id}/services/catalog/`
-with `start`, `end` and `limit=500`; it reads `services`, `truncated`, UTC window bounds, and exact
-identity/observation fields. There is no new service-detail HTTP endpoint in this slice: the
-selected detail reuses the catalog aggregate and its completeness/truncation semantics.
-Selected service and environment are browser query parameters only. The client does **not** claim
-to prefilter the existing Metrics/Logs/Traces APIs when following explorer navigation links.
+The frontend calls `GET /api/v1/projects/{project_id}/services/catalog/` with bounded
+`start`, `end` and `limit=500`, then calls the distinct `services/detail/` endpoint
+for the selected exact service/environment pair. Selection query parameters grant no
+project access; every Django read authorizes membership. Metrics/Logs explorer links
+are not prefiltered. Observed trace-ID links preserve the project and window.
+This implementation has passed automated tests, not yet recorded manual browser acceptance.

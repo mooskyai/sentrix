@@ -1,6 +1,12 @@
 # Sentrix demo seeder (V1 M1–M6.2)
 
-This is an **opt-in synthetic dataset for local development and browser walkthroughs**. It is not real customer telemetry, a production readiness test, or proof of M6.2 manual browser acceptance. M6.3 infrastructure discovery, M6.4 service map and M6.5 closeout are **not implemented** in the accepted `a0e7881` baseline. The trace parentage is present as raw telemetry, not as a service-map UI.
+This is an **opt-in synthetic dataset for local development and browser walkthroughs**.
+Implementation is pushed at `4b34f3c`; `manage.py seed_demo --username admin` completed on
+the acceptance host and six focused plus 170 total backend tests and 44 frontend tests
+passed with the full release gate. It is not customer telemetry, production readiness,
+or proof of manual M6.2 browser acceptance. M6.3 infrastructure discovery, M6.4 service
+map and M6.5 closeout are not implemented. Raw trace parentage is not a service-map UI.
+See `M6_2_BROWSER_ACCEPTANCE.md` for browser steps and remaining evidence.
 
 ## Requirements and command (PowerShell / Docker Compose)
 

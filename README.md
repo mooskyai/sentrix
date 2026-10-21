@@ -14,15 +14,18 @@ organizations and project-scoped OTLP telemetry, never prints credentials, and d
 send webhooks. See [DEMO_SEEDING.md](DEMO_SEEDING.md) for full coverage, safe rerun behavior,
 and limitations. **Synthetic records are not real-data operational acceptance.**
 
-## M6.2 service-detail completion (correction staged; acceptance pending)
+## M6.2 service-detail workspace (implemented/pushed; browser acceptance pending)
 
-The Services workspace additionally queries `/api/v1/projects/{project_id}/services/detail/`
-for an exact service and environment, including empty environment, and selected UTC window.
-It shows bounded metric names, error-log references (severity 17+), and observed trace IDs.
-Trace-ID links include the current project and window. The general Metrics/Logs links remain
-unfiltered; apply exact filters in their explorer forms. This is not a health assessment.
-The add-on requires focused/backend/frontend tests, live browser proof, and `scripts/verify.ps1`
-before M6.2 can be committed, pushed, or declared complete.
+The Services workspace reads the observed service catalog and the separate
+`/api/v1/projects/{project_id}/services/detail/` endpoint for exact service and environment,
+including an empty environment, within a bounded UTC window. Detail lists actual bounded
+metric names, recent error logs (severity 17+) and observed trace IDs. Trace references
+carry project and time-window context; generic Metrics and Logs links do not prefilter.
+No inferred health, ownership, SLO or resource inventory is presented.
+The source was committed/pushed at `a0e7881`, and the demo seeder at `4b34f3c`.
+The complete release gate passed (170 backend / 44 frontend tests) on Windows/Docker.
+**Manual browser acceptance is still unreported.** Use `M6_2_BROWSER_ACCEPTANCE.md`
+with `DEMO_SEEDING.md` before declaring M6.2 accepted or starting M6.3.
 
 ## V1 M6.1 service catalog (verified, pushed)
 
@@ -32,14 +35,14 @@ ClickHouse metrics, logs, and spans. Queries default to the last 24 hours (maxim
 results at 500 identities with explicit `truncated` status. This is **not** a service health registry or
 Kubernetes inventory. M6.1 passed the release gate and was committed as `2c1b5a2`.
 
-## V1 M6.2 Services workspace (candidate; acceptance pending)
+## V1 M6.2 Services workspace
 
-The project Services section lists actual observed identities in the selected 1h, 6h, 24h, or 7d
-window. Inspect shows exact service/environment, per-signal counts, and first/last UTC observations
-from the existing bounded M6.1 catalog. It is not a durable inventory, health score or SLO.
-Errors, healthy empty windows, and truncated results are distinct. Explorer links preserve the project
-but do not prefill filters: apply exact service/environment filters in Metrics or Logs and a known
-trace ID in Traces. M6.2 needs browser and release-gate acceptance before it is considered shipped.
+The project Services section lists exact observed `(service_name, environment)` identities in
+the selected 1h, 6h, 24h or 7d window. Inspect shows observed signal counts, first/last UTC
+timestamps and separately fetched, capped metric/error-log/trace references. It distinguishes
+empty, error and truncated results. It is not an inventory, service health or SLO view.
+Project-specific explorer links preserve context; Metrics/Logs remain unfiltered until the
+operator applies supported controls. Browser acceptance has not yet been reported.
 
 ## Project documentation
 
@@ -1033,4 +1036,5 @@ differ. The UI will label those edges as observed span relationships rather than
 Kubernetes topology.
 
 The detailed contract and acceptance matrix live in `V1_M6_MILESTONE.md` and
-`V1_M6_MILESTONE_TESTING.md`. M6.1 was verified and pushed at `2c1b5a2`; M6.2 awaits acceptance.
+`V1_M6_MILESTONE_TESTING.md`. M6.1 was accepted at `2c1b5a2`; M6.2 code was
+pushed at `a0e7881` and its demo fixture at `4b34f3c`. Browser acceptance remains open.

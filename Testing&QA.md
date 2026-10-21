@@ -1,24 +1,20 @@
 # Sentrix — Testing and Quality Assurance
 
-## Opt-in demo seeding tests (pending host verification)
+## Verified M6.2/seeder automated gate (Windows/Docker, 2026-10-21)
 
-Use `manage.py seed_demo --username YOUR_LOGIN` to create synthetic local M1–M6.2 fixtures
-through the existing OTLP/HTTP protobuf boundary (see `DEMO_SEEDING.md`). Focused checks:
-`docker compose exec -T api /opt/venv/bin/python -m pytest apps/telemetry/tests/test_seed_demo.py -v`,
-then `./scripts/verify.ps1`. Test seeded project boundaries, service/environment variants,
-correlated log/trace IDs, alert evaluation and disabled webhook behavior. Demo telemetry
-is not a real operational smoke or production acceptance. Record actual results, not estimates.
+The seeder completed for existing user `admin`, and its six focused tests passed. The
+complete `scripts/verify.ps1` gate then passed: 170 backend tests, 44 frontend tests,
+Ruff lint/format (101 source files), mypy (101 files), Django system/migration checks,
+ClickHouse schema, ESLint, TypeScript, production Vite build and `git diff --check`.
+Pytest reported one warning, no failures. Source commit `a0e7881` and demo seeder
+commit `4b34f3c` are both pushed to `main` with the reported checkout clean.
 
-## M6.2 detail correction gate (pending execution)
+Remaining manual proof is described in `M6_2_BROWSER_ACCEPTANCE.md`: real browser
+Services catalog/detail, trace-link navigation, tenant/project switching and UI states.
+Synthetic data is suitable for a browser walkthrough but does not replace an external
+OTLP exporter or a foreign-user authorization test. M6.3 is not yet unblocked.
 
-Run `backend/apps/telemetry/tests/test_service_detail_api.py` with Django/pytest, the focused
-`ServicesWorkspace.test.tsx` Vitest suite, frontend lint/typecheck/build, and `scripts/verify.ps1`.
-Assert foreign project `404` before ClickHouse, exact empty environment, typed tenant/window
-predicates, per-signal truncation, genuine empty results vs `503`, and trace navigation.
-A manual real-OTLP browser check with project switching remains mandatory. No new acceptance
-count is claimed until those commands run on the Windows/Docker acceptance host.
-
-## V1 M6.1 provisional quality gate
+## V1 M6.1 historical quality gate
 
 Run `docker compose exec -T api /opt/venv/bin/python -m pytest apps/telemetry/tests/test_service_catalog_api.py -v`,
 then Ruff check/format, mypy, Django system/migration checks, and `./scripts/verify.ps1`. Tests must
@@ -103,7 +99,7 @@ When accepted, M6 must include real OTLP evidence for observed services/resource
 
 The detailed cases are in `V1_M6_MILESTONE_TESTING.md`; none are satisfied merely by adding documentation. Do not report test counts or a `verify-m6.ps1` execution until the actual program, command and results exist. M5's 135 backend / 35 frontend tests remain *historical evidence* from M5, not M6 acceptance. Continue testing each milestone only after its dependencies are verified, committed, pushed and the worktree is clean.
 
-## M6.2 browser acceptance matrix (implementation pending)
+## M6.2 browser acceptance matrix (manual evidence pending; code tested)
 
 1. Services sidebar link resolves within the authorized project URL; the same project UUID is passed
    through the catalog query API and React Query key.
