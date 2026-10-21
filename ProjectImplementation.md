@@ -130,3 +130,23 @@ signals to real ClickHouse. No new schema, model, migration or worker is introdu
 `M6_2_BROWSER_ACCEPTANCE.md`, including project switching and correlation links.
 The two seeded organizations are accessible to the same user and are *not* proof of
 foreign-user authorization. Do not mark M6.2 fully accepted or begin M6.3 beforehand.
+
+### Pre-M6.3 UI refinement — flat workspace surfaces
+
+The shared project-section container no longer carries panel chrome. Service
+detail inside the right-hand drawer likewise avoids an extra bordered card;
+Overview facts and genuinely independent alerts/data groups remain separated.
+This UI-only change follows the global-header/drawers patches and adds a page
+layout regression test. It requires frontend gates, full release gate, manual
+browser acceptance, commit and push before starting M6.3.
+
+The next presentation-only correction flattens per-page control bars, data tables
+and related-item groupings, keeping only meaningful status affordances and real
+focus/row borders. It is unverified and uncommitted until frontend/full host gates,
+browser acceptance and the clean push. M6.3 remains on hold.
+
+The follow-up card-hierarchy correction restores one content surface for
+Services/Metrics/Logs/Traces/Settings while leaving Overview/Dashboards/Alerts
+item cards as siblings. Toolbars, plots and tables inside a content card do
+not get another border. This UI-only revision needs browser inspection, full
+release gate, commit and push before M6.3.

@@ -90,3 +90,22 @@ The URL selection contains only the service name/environment; Django still autho
 Loading, healthy empty, error, truncation and selected-but-not-returned states must be distinct.
 Links to the existing explorers preserve project context and are labelled as **not prefiltered**.
 Never color-code counts as health or derive ownership, SLOs, deployments or dependencies.
+
+### Pre-M6.3 flat workspace layout
+
+The common `workspace-section` is an unbordered layout region. Do not add an
+outer card around every Services/Metrics/Logs/Traces/Dashboards/Alerts/Settings
+screen. Keep separate fact/alert panels only for meaningful content groups.
+The Services inspection drawer contains flat detail content, not a second card.
+
+Keep one clear page title and flat control bars/table surfaces. Use border-bottom
+separators for overview facts, metric statistics and discrete alert/dashboard
+items rather than nesting complete panels inside other panels.
+
+### Pre-M6.3 card hierarchy correction
+
+Use one content card for each data-heavy explorer (Services, Metrics, Logs,
+Traces, Settings). Overview, Dashboards and Alerts instead render their
+individual fact/data cards as siblings, without a shared enclosing card.
+Toolbar rows, tables, plots and metric statistics inside a content card
+remain visually flat. Do not remove all cards; avoid nested cards.

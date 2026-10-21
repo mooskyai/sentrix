@@ -57,6 +57,9 @@ describe("ServicesWorkspace", () => {
   it("renders observed identities, exact environment, UTC window and signal counts", async () => {
     renderServices();
     expect(await screen.findByText("checkout")).toBeInTheDocument();
+    const toolbar = screen.getByText("Observed service catalog").closest(".services-toolbar");
+    expect(toolbar).not.toHaveClass("border");
+    expect(toolbar).not.toHaveClass("bg-canvas-soft");
     expect(screen.getByText("worker")).toBeInTheDocument();
     expect(screen.getByText("(empty)")).toBeInTheDocument();
     expect(screen.getByText("metrics, logs, traces")).toBeInTheDocument();
@@ -69,7 +72,9 @@ describe("ServicesWorkspace", () => {
   it("shows detail for exact service/environment without fabricating health", async () => {
     renderServices();
     fireEvent.click(await screen.findByRole("button", { name: "Inspect checkout, environment production" }));
-    expect(await screen.findByRole("region", { name: "Service detail" })).toBeInTheDocument();
+    const detail = await screen.findByRole("region", { name: "Service detail" });
+    expect(detail).toBeInTheDocument();
+    expect(detail).not.toHaveClass("alert-rule-card");
     expect(screen.getByRole("dialog", { name: "Service: checkout" })).toBeInTheDocument();
     expect(screen.getByText("First observed:", { exact: false })).toBeInTheDocument();
     expect(screen.getByText(/not health, ownership, SLO/i)).toBeInTheDocument();

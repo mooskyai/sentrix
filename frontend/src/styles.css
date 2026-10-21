@@ -1198,7 +1198,9 @@
   .list-item { @apply py-1.5; }
   .topbar { @apply flex-wrap gap-3 px-4 py-2 lg:px-5; }
   .topbar-context, .topbar-account { @apply flex flex-wrap items-center gap-2.5; }
-  .topbar-context label { @apply grid gap-0.5 font-semibold text-ink-muted; font-size: .6875rem; }
+  .topbar-context { margin-left: auto; }
+  .topbar-account { margin-left: 0; }
+  .topbar-context label { @apply block; }
   .topbar-context select { min-width: 158px; max-width: 245px; height: 32px; }
   .topbar-context select:disabled { opacity: .55; }
   .detail-drawer-layer { @apply fixed inset-0; z-index: 100; }
@@ -1212,15 +1214,94 @@
   .detail-drawer-content dt { @apply font-bold uppercase text-ink-muted; font-size: .6875rem; }
   .detail-drawer-content dd { @apply m-0 text-ink-soft; overflow-wrap: anywhere; }
   .detail-drawer-content .metric-summary { @apply grid-cols-2; }
-  .service-detail { min-width: 0; }
+  .workspace-section { min-width: 0; min-height: 0; }
+  .service-detail { @apply grid gap-2; min-width: 0; }
   .service-detail li { overflow-wrap: anywhere; }
 }
 @media (max-width: 850px) {
   .topbar { @apply items-start; }
-  .topbar-context { @apply w-full; }
+  .topbar-context { @apply w-full justify-end; }
+  .topbar-account { margin-left: auto; }
 }
 @media (max-width: 600px) {
   .detail-drawer { width: 100%; }
   .topbar-context label { flex: 1 1 140px; }
   .topbar-context select { min-width: 0; width: 100%; }
+}
+
+/* Pre-M6.3 refinement: cards are useful, but cards inside cards are not. */
+@layer components {
+  .workspace-heading h1 { font-size: 1.375rem; }
+  .workspace-heading { @apply mb-3; }
+  .workspace-section { min-width: 0; min-height: 0; }
+  .workspace-section > h2 { @apply mb-3; }
+
+  /* One content card for data-heavy explorer pages. */
+  .workspace-section--surface {
+    @apply rounded-panel border border-line bg-panel p-3 shadow-panel;
+  }
+
+  /* Pages consisting of sibling cards should not receive another outer card. */
+  .workspace-section--collection {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  /* Toolbar, filters and tables share the surrounding surface. */
+  .workspace-section :is(
+    .services-toolbar, .metrics-controls, .metric-filter-form,
+    .logs-controls, .log-filter-form, .trace-controls,
+    .alerts-toolbar, .alert-editor, .dashboard-toolbar,
+    .metric-dashboard-action
+  ) {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
+  .workspace-section :is(.services-workspace, .logs-explorer, .trace-explorer,
+    .metrics-explorer, .alerts-workspace, .dashboard-panels) { gap: .75rem; }
+  .workspace-section :is(.services-toolbar, .metric-table-header) h3 { margin-bottom: .25rem; }
+  .workspace-section .service-window { margin: 0; }
+  .workspace-section .metric-table-wrap { border: 0; border-radius: 0; }
+  .workspace-section .metric-table { background: transparent; }
+  .workspace-section .metric-table th { background: var(--color-panel-raised); }
+
+  /* Keep meaningful sibling cards (Overview facts, alert rules, dashboard panels).
+     Flatten only secondary boxes that would be nested inside one of those cards. */
+  .workspace-section--surface :is(.metric-stat, .trace-stat,
+    .api-key-panel, .metric-plot),
+  .workspace-section--collection .dashboard-panel :is(.metric-stat, .metric-plot),
+  .workspace-section--collection .alert-rule-card .alert-state-meta > div {
+    border: 0;
+    border-bottom: 1px solid var(--color-line);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: .5rem 0;
+  }
+  .workspace-section--surface .metric-plot,
+  .workspace-section--collection .dashboard-panel .metric-plot {
+    border-bottom: 0;
+    padding: 0;
+  }
+  .workspace-section--surface .api-key-panel { padding: 0; }
+
+  /* Helper panels from explorer components must not reintroduce nested chrome. */
+  .workspace-section--surface .panel {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
+  .workspace-section--collection .dashboard-panel:hover,
+  .workspace-section--collection .alert-rule-card:hover,
+  .workspace-section--collection .workspace-card:hover {
+    border-color: var(--color-line-strong);
+  }
 }

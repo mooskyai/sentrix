@@ -1048,3 +1048,19 @@ Kubernetes topology.
 The detailed contract and acceptance matrix live in `V1_M6_MILESTONE.md` and
 `V1_M6_MILESTONE_TESTING.md`. M6.1 was accepted at `2c1b5a2`; M6.2 code was
 pushed at `a0e7881` and its demo fixture at `4b34f3c`. Browser acceptance remains open.
+
+### Flat project workspace presentation (pre-M6.3 UI refinement)
+
+Project pages render directly on the shared content surface instead of nesting
+all explorer content inside another bordered panel. Distinct fact cards, charts,
+tables and alerts remain where useful; Service inspection is also flat inside
+its right-side drawer. See `UI_DENSITY_AND_DRAWERS.md` for browser acceptance.
+
+The pre-M6.3 data-first layout refinement further removes borders from control bars
+and table wrappers, with whitespace/rules instead of nested cards. It keeps one
+page title and the shared header selectors; see `UI_DENSITY_AND_DRAWERS.md`.
+
+The pre-M6.3 UI design uses single-level cards: a single surface for data-heavy
+explorers, or separate sibling cards for Overview, Dashboards and Alerts.
+Controls, tables and summaries never add another card inside that surface.
+See `UI_DENSITY_AND_DRAWERS.md`.

@@ -92,7 +92,7 @@ export function ServicesWorkspace({
 
   return (
     <div className="services-workspace grid gap-3" aria-label="Observed services">
-      <div className="services-toolbar flex flex-wrap items-start justify-between gap-3 rounded-control border border-line bg-canvas-soft p-3">
+      <div className="services-toolbar flex flex-wrap items-end justify-between gap-2">
         <div>
           <h3>Observed service catalog</h3>
           <p className="muted">
@@ -197,7 +197,7 @@ export function ServicesWorkspace({
           ) : null}
           {selected ? (
             <DetailDrawer title={`Service: ${selected.service_name}`} onClose={() => setSearchParams({})}>
-            <section className="service-detail alert-rule-card" aria-label="Service detail">
+            <section className="service-detail" aria-label="Service detail">
               <div className="service-detail-heading flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h3>{selected.service_name}</h3>

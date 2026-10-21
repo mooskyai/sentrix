@@ -125,3 +125,23 @@ The detailed cases are in `V1_M6_MILESTONE_TESTING.md`; none are satisfied merel
 Focused run: `npm run test -- ServicesWorkspace.test.tsx`, `npm run lint`,
 `npm run typecheck`, `npm run build` in `frontend/` or the Compose `web` container. Finish with
 `./scripts/verify.ps1` and a live Services browser smoke before commit/push.
+
+### Pre-M6.3 flat layout acceptance
+
+`ProjectWorkspacePage.test.tsx` checks for an unbordered shared layout without
+removing the Overview's four independent data cards. The Services detail test
+ensures the drawer's detail body is not another alert-style card. Browser-check
+all project sections for redundant enclosing borders, clipping and spacing,
+including small viewports. Finish with `scripts/verify.ps1` before commit.
+
+Follow-up visual regression: `ServicesWorkspace.test.tsx` rejects boxed toolbar
+classes; `ProjectWorkspacePage.test.tsx` continues to require an unbordered
+workspace container. Browser-check absence of nested cards and duplicate route
+titles across all eight project pages; rerun full frontend/release gates.
+
+UI hierarchy correction: `ProjectWorkspacePage.test.tsx` checks one
+Services content surface and sibling Overview fact cards without an outer
+card. Browser-check Services, Metrics, Logs, Traces, Settings, Overview,
+Dashboards and Alerts to ensure cards are visible but never nested.
+Run lint, TypeScript, Vitest, build and full `scripts/verify.ps1`; manual
+browser sign-off and a clean commit/push are still required.

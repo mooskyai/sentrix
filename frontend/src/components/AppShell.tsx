@@ -129,7 +129,6 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
         <header className="topbar">
           <div className="topbar-context" aria-label="Global workspace selection">
             <label>
-              <span>Organization</span>
               <select
                 aria-label="Organization"
                 value={organization?.id ?? ""}
@@ -141,7 +140,6 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
               </select>
             </label>
             <label>
-              <span>Project</span>
               <select
                 aria-label="Project"
                 value={project?.id ?? ""}

@@ -50,6 +50,8 @@ describe("AppShell", () => {
     expect(screen.getByRole("link", { name: "Services" })).toHaveAttribute("href", "/orgs/acme/projects/api/services");
     fireEvent.change(screen.getByLabelText("Organization"), { target: { value: "org-b" } });
     expect(screen.getByLabelText("Project")).toHaveValue("");
+    expect(screen.queryByText("Organization")).not.toBeInTheDocument();
+    expect(screen.queryByText("Project")).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Metrics" })).not.toBeInTheDocument();
     expect(screen.queryByRole("option", { name: "API" })).not.toBeInTheDocument();
   });

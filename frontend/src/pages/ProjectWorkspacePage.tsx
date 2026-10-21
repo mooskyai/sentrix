@@ -108,8 +108,7 @@ export function ProjectWorkspacePage() {
     <>
       <div className="page-heading workspace-heading">
         <div>
-          <p className="eyebrow">{workspace.organization.name}</p>
-          <h1>{workspace.project.name}</h1>
+          <h1>{activeSection === "overview" ? workspace.project.name : copy.title}</h1>
           <p className="muted">{copy.description}</p>
         </div>
         <span className={`role-badge ${writable ? "write" : "read-only"}`}>
@@ -117,9 +116,15 @@ export function ProjectWorkspacePage() {
         </span>
       </div>
 
-      <section className="panel workspace-section">
-        <p className="eyebrow">{activeSection}</p>
-        <h2>{copy.title}</h2>
+      <section
+        className={`workspace-section ${
+          activeSection === "overview" || activeSection === "dashboards" || activeSection === "alerts"
+            ? "workspace-section--collection"
+            : "workspace-section--surface"
+        }`}
+        aria-label="Project workspace content"
+      >
+        {activeSection === "overview" ? <h2>{copy.title}</h2> : null}
         {activeSection === "overview" ? (
           <div className="workspace-grid">
             <div className="workspace-card">
