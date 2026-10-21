@@ -1,5 +1,15 @@
 # Sentrix Architecture
 
+## Local synthetic demo data flow (opt-in, not production)
+
+The `seed_demo` Django command creates two reserved PostgreSQL demo organizations,
+projects, dashboard panels and alert configuration for an existing user. It posts
+protobuf to `/v1/metrics`, `/v1/logs`, `/v1/traces` through temporary project keys,
+so the existing authenticated ingest and ClickHouse sink own all telemetry writes.
+Each key is deleted after ingest; demo webhook delivery is disabled. No new schema,
+background worker, new collection protocol or infrastructure discovery is introduced.
+This development fixture is not evidence that M6.3–M6.5 are implemented.
+
 ## M6.2 telemetry-reference boundary (additional staged slice)
 
 The Services detail view calls a separate, membership-authorized Django API. Three bounded

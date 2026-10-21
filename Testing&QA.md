@@ -1,5 +1,14 @@
 # Sentrix — Testing and Quality Assurance
 
+## Opt-in demo seeding tests (pending host verification)
+
+Use `manage.py seed_demo --username YOUR_LOGIN` to create synthetic local M1–M6.2 fixtures
+through the existing OTLP/HTTP protobuf boundary (see `DEMO_SEEDING.md`). Focused checks:
+`docker compose exec -T api /opt/venv/bin/python -m pytest apps/telemetry/tests/test_seed_demo.py -v`,
+then `./scripts/verify.ps1`. Test seeded project boundaries, service/environment variants,
+correlated log/trace IDs, alert evaluation and disabled webhook behavior. Demo telemetry
+is not a real operational smoke or production acceptance. Record actual results, not estimates.
+
 ## M6.2 detail correction gate (pending execution)
 
 Run `backend/apps/telemetry/tests/test_service_detail_api.py` with Django/pytest, the focused

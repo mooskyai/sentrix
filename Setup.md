@@ -1,5 +1,13 @@
 # Sentrix — Setup and Developer Environment
 
+## Optional local synthetic demo fixtures
+
+Once Compose and an existing login work, run
+`docker compose exec -T api /opt/venv/bin/python manage.py seed_demo --username YOUR_LOGIN`
+from the repository root. This populates two reserved demo organizations with test
+telemetry and no outbound notification deliveries; see `DEMO_SEEDING.md`.
+The seeder does not create accounts/passwords or delete existing data.
+
 **Acceptance target:** Windows 11 + PowerShell 7 + Docker Desktop / Compose v2. Linux/macOS bootstrap supported via `bootstrap.sh`. Use the checked-in `.env.example` and actual Compose config as environment authority.
 
 ## 1. Stack and prerequisites

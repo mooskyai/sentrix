@@ -1,5 +1,17 @@
 # Sentrix — Project Implementation Register
 
+## M6.2 pushed implementation and demo fixture checkpoint (2026-10-21)
+
+Actual `main` SHA verified locally and remotely: `a0e78817749e6a235194cb71d5a9349e4e9844b9`
+(`feat(services): complete M6.2 service workspace and detail`). The Windows/Docker
+`./scripts/verify.ps1` release gate passed: 164 backend tests, 44 frontend tests, Ruff
+lint/format, mypy (99 files), Django checks, ClickHouse schema, TypeScript and Vite build.
+The working tree was clean and synchronized after push. **Manual browser acceptance has not
+been reported yet.** Historical provisional M6.2 paragraphs below predate this commit.
+The opt-in `seed_demo` management command is an **unverified change pending host tests**,
+not a released milestone or a substitute for real telemetry acceptance. See `DEMO_SEEDING.md`.
+M6.3 remains gated on confirmed M6.2 manual/browser/documentation acceptance.
+
 ## M6.2 correction staging (not accepted yet)
 
 The first M6.2 patch was applied cleanly at the M6.1 `2c1b5a2` baseline. An additional M6.2

@@ -1,5 +1,12 @@
 # Sentrix — Feature Development Playbook
 
+## Opt-in demo fixture development rule
+
+`apps.telemetry.management.commands.seed_demo` creates clearly marked synthetic
+M1–M6.2 fixtures only, using the existing authorized project/OTLP ingest boundaries.
+It must not be used as proof of production telemetry, service health, infrastructure
+inventory or the M6.2 real-browser acceptance. See `DEMO_SEEDING.md` and tests.
+
 ## V1 M6.1 implementation slice
 
 Introduce the service query helper and Django read view in `apps.telemetry`, register the

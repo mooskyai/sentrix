@@ -1,5 +1,13 @@
 # Sentrix — Debugging and Incident Diagnosis
 
+## Synthetic demo seeder diagnostics
+
+Use `docker compose exec -T api /opt/venv/bin/python manage.py seed_demo --username YOUR_LOGIN`
+only after verifying Compose, an existing login and ClickHouse schema. On failure, inspect
+`docker compose ps` and run `docker compose exec -T api /opt/venv/bin/python manage.py clickhouse_schema --check`.
+The command may have inserted a partial append-only telemetry batch on failure; re-running
+adds a new batch and does not delete existing data. Never print authentication tokens.
+
 **Scope:** supported V1 M1–M5 local development and operational tests. Preserve PostgreSQL/ClickHouse volumes and never leak secrets while collecting evidence.
 
 ## 1. Establish the exact state

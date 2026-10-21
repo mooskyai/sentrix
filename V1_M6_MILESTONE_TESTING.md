@@ -1,5 +1,15 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability Test and Acceptance Plan
 
+## M6.2 synthetic browser fixture (not an acceptance substitute)
+
+Optional `manage.py seed_demo --username YOUR_LOGIN` (documented in `DEMO_SEEDING.md`)
+provides two authorized demo organizations, exact service/environment variants,
+OTLP-backed metric/log/span summaries, cross-service trace references, and an isolated
+second project's reused service identity. This allows manual checking of the Services
+list/detail, project switching, empty-environment handling and trace links. It does
+**not** replace foreign-user isolation or real external exporter proof; M6.2 browser
+acceptance and M6.3 gating requirements above remain in force.
+
 ## M6.2 detail test addition (verification pending)
 
 SD-003 now requires API tests for exact tenant/project/service/environment/time scoping,

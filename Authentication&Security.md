@@ -1,5 +1,14 @@
 # Sentrix — Authentication, Authorization and Security
 
+## Synthetic demo seeding trust boundary
+
+The opt-in `seed_demo --username` command requires an existing active Django user,
+creates only that user's reserved demo organizations/projects, refuses slug collisions
+with different owners, sends OTLP through temporary authorized project keys and deletes
+the keys in `finally`. Only a revoked demonstration key remains visible in the UI.
+The demo webhook channel is disabled, and the command never prints secret values.
+Synthetic fixture membership is not a foreign-user authorization proof.
+
 ## M6.1 catalog read boundary
 
 Session authentication and Django project membership precede ClickHouse client creation. A route UUID,

@@ -1,5 +1,19 @@
 # Sentrix
 
+## Opt-in demo dataset for V1 M1–M6.2
+
+To populate an isolated synthetic example for the Services, Metrics, Logs, Traces,
+Dashboards, Alerts and API Keys screens, run from the repository root:
+
+```powershell
+docker compose exec -T api /opt/venv/bin/python manage.py seed_demo --username YOUR_LOGIN
+```
+
+`YOUR_LOGIN` must be an existing active Sentrix user. The command creates two demo
+organizations and project-scoped OTLP telemetry, never prints credentials, and does not
+send webhooks. See [DEMO_SEEDING.md](DEMO_SEEDING.md) for full coverage, safe rerun behavior,
+and limitations. **Synthetic records are not real-data operational acceptance.**
+
 ## M6.2 service-detail completion (correction staged; acceptance pending)
 
 The Services workspace additionally queries `/api/v1/projects/{project_id}/services/detail/`
