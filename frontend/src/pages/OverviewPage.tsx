@@ -9,18 +9,19 @@ import {
   getProjects,
 } from "../api/resources";
 import { canWriteProjects, workspacePath } from "../workspace";
+import { useWorkspaceSelection } from "../workspaceSelection";
 
 export function OverviewPage() {
   const queryClient = useQueryClient();
   const organizations = useQuery({ queryKey: ["organizations"], queryFn: getOrganizations });
   const projects = useQuery({ queryKey: ["projects"], queryFn: getProjects });
-  const [selectedOrgId, setSelectedOrgId] = useState("");
+  const { organizationId, selectOrganization } = useWorkspaceSelection();
   const [orgName, setOrgName] = useState("");
   const [orgSlug, setOrgSlug] = useState("");
   const [projectName, setProjectName] = useState("");
   const [projectSlug, setProjectSlug] = useState("");
 
-  const effectiveOrgId = selectedOrgId || organizations.data?.[0]?.id || "";
+  const effectiveOrgId = organizationId;
   const selectedOrganization = (organizations.data ?? []).find(
     (organization) => organization.id === effectiveOrgId,
   );
@@ -32,7 +33,7 @@ export function OverviewPage() {
   const createOrg = useMutation({
     mutationFn: createOrganization,
     onSuccess: async (organization) => {
-      setSelectedOrgId(organization.id);
+      selectOrganization(organization.id);
       setOrgName("");
       setOrgSlug("");
       await queryClient.invalidateQueries({ queryKey: ["organizations"] });
@@ -102,7 +103,7 @@ export function OverviewPage() {
                 key={organization.id}
                 className={`list-item ${effectiveOrgId === organization.id ? "selected" : ""}`}
                 type="button"
-                onClick={() => setSelectedOrgId(organization.id)}
+                onClick={() => selectOrganization(organization.id)}
               >
                 <span>{organization.name}</span>
                 <small>{organization.role}</small>

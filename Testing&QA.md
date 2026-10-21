@@ -1,5 +1,14 @@
 # Sentrix — Testing and Quality Assurance
 
+## Pre-M6.3 UI refinement (pending acceptance)
+
+Against clean pushed `8b8d3fd`, the application shell consolidates organization/project
+selection into the header; project links are withheld until both valid selections exist, and
+Services/Logs/Trace span inspection uses a right drawer. Compact spacing is a presentation
+change only. Validation and operator steps are recorded in `UI_DENSITY_AND_DRAWERS.md`.
+Do not treat this proposal as passed, committed or a new infrastructure milestone until the
+full release gate, browser acceptance and clean push are documented.
+
 ## Verified M6.2/seeder automated gate (Windows/Docker, 2026-10-21)
 
 The seeder completed for existing user `admin`, and its six focused tests passed. The

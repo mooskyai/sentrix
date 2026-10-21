@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
 import { getLogs } from "../api/resources";
+import { DetailDrawer } from "./DetailDrawer";
 import type { LogSearchRow } from "../types";
 
 const RANGE_MS = {
@@ -71,6 +72,7 @@ export function LogsExplorer({ projectId, tracePath }: { projectId: string; trac
   const [bodyInput, setBodyInput] = useState("");
   const [traceInput, setTraceInput] = useState("");
   const [filters, setFilters] = useState<AppliedFilters>({});
+  const [inspectedLog, setInspectedLog] = useState<LogSearchRow | null>(null);
 
   const window = useMemo(
     () => ({
@@ -99,6 +101,7 @@ export function LogsExplorer({ projectId, tracePath }: { projectId: string; trac
 
   function applyFilters(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setInspectedLog(null);
     const serviceName = serviceInput.trim();
     const environment = environmentInput.trim();
     const bodyContains = bodyInput.trim();
@@ -114,6 +117,7 @@ export function LogsExplorer({ projectId, tracePath }: { projectId: string; trac
   }
 
   function clearFilters() {
+    setInspectedLog(null);
     setServiceInput("");
     setEnvironmentInput("");
     setSeverityInput("");
@@ -132,6 +136,7 @@ export function LogsExplorer({ projectId, tracePath }: { projectId: string; trac
             aria-label="Log time range"
             value={range}
             onChange={(event) => {
+              setInspectedLog(null);
               setRange(event.target.value as LogTimeRange);
               setAnchorMs(Date.now());
             }}
@@ -149,6 +154,7 @@ export function LogsExplorer({ projectId, tracePath }: { projectId: string; trac
             aria-label="Log result limit"
             value={limit}
             onChange={(event) => {
+              setInspectedLog(null);
               setLimit(Number(event.target.value) as ResultLimit);
               setAnchorMs(Date.now());
             }}
@@ -161,7 +167,7 @@ export function LogsExplorer({ projectId, tracePath }: { projectId: string; trac
         </label>
 
         <div className="logs-actions">
-          <button className="button secondary" type="button" onClick={() => setAnchorMs(Date.now())}>
+          <button className="button secondary" type="button" onClick={() => { setInspectedLog(null); setAnchorMs(Date.now()); }}>
             Refresh
           </button>
         </div>
@@ -303,35 +309,9 @@ export function LogsExplorer({ projectId, tracePath }: { projectId: string; trac
                       <span><strong>Span</strong> <code>{log.span_id ?? "—"}</code></span>
                     </td>
                     <td>
-                      <details className="log-details">
-                        <summary>Inspect</summary>
-                        <dl>
-                          <div>
-                            <dt>Observed</dt>
-                            <dd>{formatUtcTimestamp(log.observed_timestamp)}</dd>
-                          </div>
-                          <div>
-                            <dt>Scope</dt>
-                            <dd>{log.scope_name || "—"}{log.scope_version ? ` ${log.scope_version}` : ""}</dd>
-                          </div>
-                          <div>
-                            <dt>Log attributes</dt>
-                            <dd>{formatAttributes(log.attributes)}</dd>
-                          </div>
-                          <div>
-                            <dt>Resource attributes</dt>
-                            <dd>{formatAttributes(log.resource_attributes)}</dd>
-                          </div>
-                          <div>
-                            <dt>Scope attributes</dt>
-                            <dd>{formatAttributes(log.scope_attributes)}</dd>
-                          </div>
-                          <div>
-                            <dt>Flags / dropped attributes</dt>
-                            <dd>{log.flags} / {log.dropped_attributes_count}</dd>
-                          </div>
-                        </dl>
-                      </details>
+                      <button className="button secondary" type="button" onClick={() => setInspectedLog(log)}>
+                        Inspect
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -343,6 +323,26 @@ export function LogsExplorer({ projectId, tracePath }: { projectId: string; trac
             bounded UTC window. Span IDs remain raw correlation data.
           </p>
         </>
+      ) : null}
+      {inspectedLog ? (
+        <DetailDrawer title="Inspect log" onClose={() => setInspectedLog(null)}>
+          <p className="muted">{inspectedLog.service_name || "—"} · {severityLabel(inspectedLog)}</p>
+          <p>{inspectedLog.body || "—"}</p>
+          <dl>
+            <div><dt>Recorded</dt><dd>{formatUtcTimestamp(inspectedLog.timestamp)}</dd></div>
+            <div><dt>Observed</dt><dd>{formatUtcTimestamp(inspectedLog.observed_timestamp)}</dd></div>
+            <div><dt>Environment</dt><dd>{inspectedLog.environment || "(empty)"}</dd></div>
+            <div><dt>Trace / span</dt><dd className="mono">{inspectedLog.trace_id ?? "—"} / {inspectedLog.span_id ?? "—"}</dd></div>
+            <div><dt>Scope</dt><dd>{inspectedLog.scope_name || "—"}{inspectedLog.scope_version ? ` ${inspectedLog.scope_version}` : ""}</dd></div>
+            <div><dt>Log attributes</dt><dd>{formatAttributes(inspectedLog.attributes)}</dd></div>
+            <div><dt>Resource attributes</dt><dd>{formatAttributes(inspectedLog.resource_attributes)}</dd></div>
+            <div><dt>Scope attributes</dt><dd>{formatAttributes(inspectedLog.scope_attributes)}</dd></div>
+            <div><dt>Flags / dropped attributes</dt><dd>{inspectedLog.flags} / {inspectedLog.dropped_attributes_count}</dd></div>
+          </dl>
+          {isNavigableTraceId(inspectedLog.trace_id) && logQuery.data ? (
+            <Link className="button secondary" to={traceHref(tracePath, inspectedLog.trace_id, logQuery.data.start, logQuery.data.end)}>Open trace</Link>
+          ) : null}
+        </DetailDrawer>
       ) : null}
     </div>
   );

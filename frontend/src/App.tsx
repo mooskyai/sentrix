@@ -52,6 +52,7 @@ export default function App() {
       user={me.data}
       onLogout={async () => {
         await logout();
+        sessionStorage.removeItem(`sentrix.workspace.${me.data.id}`);
         queryClient.clear();
         window.location.reload();
       }}

@@ -70,6 +70,7 @@ describe("ServicesWorkspace", () => {
     renderServices();
     fireEvent.click(await screen.findByRole("button", { name: "Inspect checkout, environment production" }));
     expect(await screen.findByRole("region", { name: "Service detail" })).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Service: checkout" })).toBeInTheDocument();
     expect(screen.getByText("First observed:", { exact: false })).toBeInTheDocument();
     expect(screen.getByText(/not health, ownership, SLO/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open Metrics" })).toHaveAttribute("href", "/orgs/alpha/projects/shop/metrics");

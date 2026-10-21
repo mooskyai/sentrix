@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { getOrganizations, getProjects } from "../api/resources";
 import { AlertsWorkspace } from "../components/AlertsWorkspace";
@@ -54,7 +54,6 @@ const SECTION_COPY: Record<WorkspaceSection, { title: string; description: strin
 };
 
 export function ProjectWorkspacePage() {
-  const navigate = useNavigate();
   const { organizationSlug = "", projectSlug = "", section } = useParams();
   const organizations = useQuery({ queryKey: ["organizations"], queryFn: getOrganizations });
   const projects = useQuery({ queryKey: ["projects"], queryFn: getProjects });
@@ -102,9 +101,6 @@ export function ProjectWorkspacePage() {
     );
   }
 
-  const organizationProjects = (projects.data ?? []).filter(
-    (project) => project.organization_id === workspace.organization.id,
-  );
   const copy = SECTION_COPY[activeSection];
   const writable = canWriteProjects(workspace.organization.role);
 
@@ -120,56 +116,6 @@ export function ProjectWorkspacePage() {
           {workspace.organization.role} · {writable ? "write" : "read only"}
         </span>
       </div>
-
-      <section className="panel workspace-toolbar" aria-label="Workspace switcher">
-        <label>
-          <span>Organization</span>
-          <select
-            value={workspace.organization.id}
-            onChange={(event) => {
-              const nextOrganization = (organizations.data ?? []).find(
-                (organization) => organization.id === event.target.value,
-              );
-              if (!nextOrganization) return;
-              const nextProject = (projects.data ?? []).find(
-                (project) => project.organization_id === nextOrganization.id,
-              );
-              navigate(
-                nextProject
-                  ? workspacePath(nextOrganization.slug, nextProject.slug)
-                  : "/",
-              );
-            }}
-          >
-            {(organizations.data ?? []).map((organization) => (
-              <option key={organization.id} value={organization.id}>
-                {organization.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label>
-          <span>Project</span>
-          <select
-            value={workspace.project.id}
-            onChange={(event) => {
-              const nextProject = organizationProjects.find(
-                (project) => project.id === event.target.value,
-              );
-              if (nextProject) {
-                navigate(workspacePath(workspace.organization.slug, nextProject.slug, activeSection));
-              }
-            }}
-          >
-            {organizationProjects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      </section>
 
       <section className="panel workspace-section">
         <p className="eyebrow">{activeSection}</p>

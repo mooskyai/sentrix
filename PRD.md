@@ -1,5 +1,14 @@
 # Sentrix — Product Requirements Document
 
+## Pre-M6.3 compact UI / global selector / drawers (implementation pending verification)
+
+Reduce page and card vertical spacing, place organization/project selection in the shared
+header, hide project navigation until both selected resources are validated, and show
+Services, Logs and Trace span inspection in a desktop right-side drawer (mobile full-width).
+The management overview shares the header organization context. URL selection is only a
+locator; Django permissions and tenant-scoped query boundaries are unchanged. See
+`UI_DENSITY_AND_DRAWERS.md` for the acceptance plan. This change is not M6.3.
+
 **Document status:** V1 implemented through M5; V1 M6 service/infrastructure observability is a proposed next milestone pending its planning and implementation patches. **Canonical implementation evidence:** `ProjectImplementation.md` and the milestone files.
 
 ## 1. Product definition

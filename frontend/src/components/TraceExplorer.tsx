@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 
 import { getTrace } from "../api/resources";
+import { DetailDrawer } from "./DetailDrawer";
 import type { TraceSpan } from "../types";
 
 const RANGE_MS = {
@@ -92,6 +93,7 @@ export function TraceExplorer({ projectId }: { projectId: string }) {
   );
   const [anchorMs, setAnchorMs] = useState(() => Date.now());
   const [inputError, setInputError] = useState<string | null>(null);
+  const [inspectedSpan, setInspectedSpan] = useState<TraceSpan | null>(null);
 
   const localWindow = useMemo(() => traceWindow(range, anchorMs), [anchorMs, range]);
   const window = {
@@ -108,6 +110,7 @@ export function TraceExplorer({ projectId }: { projectId: string }) {
   });
 
   function setActiveWindow(nextRange: TraceTimeRange, nextAnchorMs: number) {
+    setInspectedSpan(null);
     setRange(nextRange);
     setAnchorMs(nextAnchorMs);
     if (!validActiveTrace) return;
@@ -117,6 +120,7 @@ export function TraceExplorer({ projectId }: { projectId: string }) {
 
   function lookupTrace(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setInspectedSpan(null);
     const normalized = traceInput.trim().toLowerCase();
     if (!isTraceId(normalized)) {
       setInputError("Trace ID must be a non-zero 32-character hexadecimal identifier.");
@@ -131,6 +135,7 @@ export function TraceExplorer({ projectId }: { projectId: string }) {
   }
 
   function clearTrace() {
+    setInspectedSpan(null);
     setTraceInput("");
     setInputError(null);
     setAnchorMs(Date.now());
@@ -286,28 +291,9 @@ export function TraceExplorer({ projectId }: { projectId: string }) {
                       {span.status_message ? <small className="trace-status-message">{span.status_message}</small> : null}
                     </td>
                     <td>
-                      <details className="trace-details">
-                        <summary>Inspect</summary>
-                        <dl>
-                          <div><dt>End</dt><dd>{formatUtcTimestamp(span.end_time)}</dd></div>
-                          <div><dt>Trace state</dt><dd>{span.trace_state || "—"}</dd></div>
-                          <div>
-                            <dt>Scope</dt>
-                            <dd>{span.scope_name || "—"}{span.scope_version ? ` ${span.scope_version}` : ""}</dd>
-                          </div>
-                          <div><dt>Span attributes</dt><dd>{formatAttributes(span.attributes)}</dd></div>
-                          <div><dt>Resource attributes</dt><dd>{formatAttributes(span.resource_attributes)}</dd></div>
-                          <div><dt>Scope attributes</dt><dd>{formatAttributes(span.scope_attributes)}</dd></div>
-                          <div><dt>Events JSON</dt><dd className="mono">{span.events_json || "[]"}</dd></div>
-                          <div><dt>Links JSON</dt><dd className="mono">{span.links_json || "[]"}</dd></div>
-                          <div>
-                            <dt>Flags / dropped attrs / events / links</dt>
-                            <dd>
-                              {span.flags} / {span.dropped_attributes_count} / {span.dropped_events_count} / {span.dropped_links_count}
-                            </dd>
-                          </div>
-                        </dl>
-                      </details>
+                      <button className="button secondary" type="button" onClick={() => setInspectedSpan(span)}>
+                        Inspect
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -318,6 +304,27 @@ export function TraceExplorer({ projectId }: { projectId: string }) {
             Sentrix does not invent missing spans. A parent marked “not returned” was not present in this bounded response.
           </p>
         </>
+      ) : null}
+      {inspectedSpan ? (
+        <DetailDrawer title={`Inspect span: ${inspectedSpan.span_name || "unnamed"}`} onClose={() => setInspectedSpan(null)}>
+          <p className="muted">{inspectedSpan.service_name || "—"} · {inspectedSpan.environment || "(empty)"}</p>
+          <dl>
+            <div><dt>Trace ID / span ID</dt><dd className="mono">{inspectedSpan.trace_id} / {inspectedSpan.span_id ?? "—"}</dd></div>
+            <div><dt>Start</dt><dd>{formatUtcTimestamp(inspectedSpan.start_time)}</dd></div>
+            <div><dt>End</dt><dd>{formatUtcTimestamp(inspectedSpan.end_time)}</dd></div>
+            <div><dt>Duration</dt><dd>{formatDuration(inspectedSpan.duration_ns)}</dd></div>
+            <div><dt>Parent</dt><dd className="mono">{parentLabel(inspectedSpan, returnedSpanIds)}</dd></div>
+            <div><dt>Kind / status</dt><dd>{spanKind(inspectedSpan.span_kind)} / {spanStatus(inspectedSpan.status_code)} {inspectedSpan.status_message}</dd></div>
+            <div><dt>Trace state</dt><dd>{inspectedSpan.trace_state || "—"}</dd></div>
+            <div><dt>Scope</dt><dd>{inspectedSpan.scope_name || "—"}{inspectedSpan.scope_version ? ` ${inspectedSpan.scope_version}` : ""}</dd></div>
+            <div><dt>Span attributes</dt><dd>{formatAttributes(inspectedSpan.attributes)}</dd></div>
+            <div><dt>Resource attributes</dt><dd>{formatAttributes(inspectedSpan.resource_attributes)}</dd></div>
+            <div><dt>Scope attributes</dt><dd>{formatAttributes(inspectedSpan.scope_attributes)}</dd></div>
+            <div><dt>Events JSON</dt><dd className="mono">{inspectedSpan.events_json || "[]"}</dd></div>
+            <div><dt>Links JSON</dt><dd className="mono">{inspectedSpan.links_json || "[]"}</dd></div>
+            <div><dt>Flags / dropped attrs / events / links</dt><dd>{inspectedSpan.flags} / {inspectedSpan.dropped_attributes_count} / {inspectedSpan.dropped_events_count} / {inspectedSpan.dropped_links_count}</dd></div>
+          </dl>
+        </DetailDrawer>
       ) : null}
     </div>
   );

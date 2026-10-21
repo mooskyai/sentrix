@@ -108,8 +108,11 @@ describe("TraceExplorer", () => {
     expect(screen.getByText("20.00 ms")).toBeInTheDocument();
     expect(screen.getByText("root")).toBeInTheDocument();
     expect(screen.getAllByText(rootSpanId).length).toBeGreaterThan(0);
+    fireEvent.click(screen.getAllByRole("button", { name: "Inspect" })[1]);
+    expect(screen.getByRole("dialog", { name: /Inspect span: authorize payment/i })).toBeInTheDocument();
     expect(screen.getByText("payment.provider=test")).toBeInTheDocument();
     expect(screen.getByText('[{"name":"exception"}]')).toBeInTheDocument();
+    fireEvent.keyDown(document, { key: "Escape" });
     expect(screen.getByText("declined")).toBeInTheDocument();
 
     expect(mockedGetTrace).toHaveBeenCalledWith("project-a", traceId, {

@@ -1180,3 +1180,47 @@
     @apply justify-start;
   }
 }
+
+/* Shared compact app density and persistent workspace header. */
+@layer components {
+  .sidebar { @apply px-2.5 py-3; }
+  .brand { @apply mb-2; }
+  .sidebar nav { @apply gap-0.5; }
+  .nav-item { @apply px-2.5 py-1.5; }
+  .content { @apply px-4 py-3 lg:px-5 lg:py-3; }
+  .page-heading { @apply mb-2 gap-2; }
+  .eyebrow { @apply mb-1; }
+  .panel { @apply p-3; }
+  .grid.two { @apply gap-2.5; }
+  .workspace-grid, .stack, .alerts-workspace, .trace-explorer { @apply gap-2; }
+  .workspace-card, .alert-rule-card, .trace-stat { @apply p-2.5; }
+  .list { @apply mt-2 gap-1; }
+  .list-item { @apply py-1.5; }
+  .topbar { @apply flex-wrap gap-3 px-4 py-2 lg:px-5; }
+  .topbar-context, .topbar-account { @apply flex flex-wrap items-center gap-2.5; }
+  .topbar-context label { @apply grid gap-0.5 font-semibold text-ink-muted; font-size: .6875rem; }
+  .topbar-context select { min-width: 158px; max-width: 245px; height: 32px; }
+  .topbar-context select:disabled { opacity: .55; }
+  .detail-drawer-layer { @apply fixed inset-0; z-index: 100; }
+  .detail-drawer-backdrop { @apply absolute inset-0 h-full w-full border-0; background: rgb(3 9 18 / .68); cursor: default; }
+  .detail-drawer { @apply absolute right-0 top-0 flex h-full flex-col border-l border-line bg-panel shadow-panel outline-none; width: min(640px, 92vw); }
+  .detail-drawer-header { @apply flex shrink-0 items-center justify-between gap-3 border-b border-line px-4 py-3; }
+  .detail-drawer-header h2 { @apply m-0 text-base font-semibold; }
+  .detail-drawer-content { @apply min-h-0 flex-1 overflow-y-auto p-3; overscroll-behavior: contain; }
+  .detail-drawer-content .alert-rule-card { @apply p-2.5; }
+  .detail-drawer-content dl { @apply m-0 grid gap-2; }
+  .detail-drawer-content dt { @apply font-bold uppercase text-ink-muted; font-size: .6875rem; }
+  .detail-drawer-content dd { @apply m-0 text-ink-soft; overflow-wrap: anywhere; }
+  .detail-drawer-content .metric-summary { @apply grid-cols-2; }
+  .service-detail { min-width: 0; }
+  .service-detail li { overflow-wrap: anywhere; }
+}
+@media (max-width: 850px) {
+  .topbar { @apply items-start; }
+  .topbar-context { @apply w-full; }
+}
+@media (max-width: 600px) {
+  .detail-drawer { width: 100%; }
+  .topbar-context label { flex: 1 1 140px; }
+  .topbar-context select { min-width: 0; width: 100%; }
+}

@@ -1,5 +1,14 @@
 # Sentrix — Project Implementation Register
 
+## Pre-M6.3 UI refinement (pending acceptance)
+
+Against clean pushed `8b8d3fd`, the application shell consolidates organization/project
+selection into the header; project links are withheld until both valid selections exist, and
+Services/Logs/Trace span inspection uses a right drawer. Compact spacing is a presentation
+change only. Validation and operator steps are recorded in `UI_DENSITY_AND_DRAWERS.md`.
+Do not treat this proposal as passed, committed or a new infrastructure milestone until the
+full release gate, browser acceptance and clean push are documented.
+
 ## Current verified checkpoint — 2026-10-21
 
 **Canonical repository:** `https://github.com/mooskyai/sentrix`

@@ -94,7 +94,10 @@ describe("LogsExplorer", () => {
     expect(await screen.findByText("payment authorization failed")).toBeInTheDocument();
     expect(screen.getByText("ERROR (17)")).toBeInTheDocument();
     expect(screen.getByText("0123456789abcdef0123456789abcdef")).toBeInTheDocument();
+    fireEvent.click(screen.getAllByRole("button", { name: "Inspect" })[0]);
+    expect(screen.getByRole("dialog", { name: "Inspect log" })).toBeInTheDocument();
     expect(screen.getByText("route=/pay, tenant=a")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Close drawer" }));
     const traceLink = screen.getByRole("link", { name: "Open trace" });
     const href = traceLink.getAttribute("href") ?? "";
     expect(href).toContain(`/orgs/acme/projects/shop/traces?trace_id=${logResponse.logs[0].trace_id}`);

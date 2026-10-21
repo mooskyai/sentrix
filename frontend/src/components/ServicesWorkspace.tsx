@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { getServiceCatalog, getServiceDetail } from "../api/resources";
+import { DetailDrawer } from "./DetailDrawer";
 import type { ObservedService } from "../types";
 
 const RANGE_MS = {
@@ -195,6 +196,7 @@ export function ServicesWorkspace({
             </div>
           ) : null}
           {selected ? (
+            <DetailDrawer title={`Service: ${selected.service_name}`} onClose={() => setSearchParams({})}>
             <section className="service-detail alert-rule-card" aria-label="Service detail">
               <div className="service-detail-heading flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -270,6 +272,7 @@ export function ServicesWorkspace({
                 </div>
               ) : null}
             </section>
+            </DetailDrawer>
           ) : null}
         </>
       ) : null}

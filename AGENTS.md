@@ -1,5 +1,14 @@
 # Sentrix — repository contributor and agent instructions
 
+## Pre-M6.3 compact UI / global selector / drawers (implementation pending verification)
+
+Reduce page and card vertical spacing, place organization/project selection in the shared
+header, hide project navigation until both selected resources are validated, and show
+Services, Logs and Trace span inspection in a desktop right-side drawer (mobile full-width).
+The management overview shares the header organization context. URL selection is only a
+locator; Django permissions and tenant-scoped query boundaries are unchanged. See
+`UI_DENSITY_AND_DRAWERS.md` for the acceptance plan. This change is not M6.3.
+
 > **Scope:** Entire repository. Treat this file as the standing contract for humans and coding agents. V1 M1–M5 and M6.1 are accepted. M6.2 code and demo fixtures are pushed; automated gates passed, but manual browser acceptance is unreported. M6.3–M6.5 remain planned. Inspect the latest Git state before treating a slice as complete.
 
 ## Repository authority and workflow
