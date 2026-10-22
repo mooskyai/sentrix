@@ -1,15 +1,21 @@
 # Sentrix — Project Implementation Register
 
-## Pre-M6.3 UI refinement (pending acceptance)
+## Pre-M6.3 UI refinement — pushed; final acceptance pending
 
-Against clean pushed `8b8d3fd`, the application shell consolidates organization/project
-selection into the header; project links are withheld until both valid selections exist, and
-Services/Logs/Trace span inspection uses a right drawer. Compact spacing is a presentation
-change only. Validation and operator steps are recorded in `UI_DENSITY_AND_DRAWERS.md`.
-Do not treat this proposal as passed, committed or a new infrastructure milestone until the
-full release gate, browser acceptance and clean push are documented.
+The compact header selectors, authorized project navigation and detail drawers are
+implemented and visually approved. The final single-level card correction was committed
+and pushed at `a4bcb4c`. No post-correction `scripts/verify.ps1` result or complete
+M6.2 browser acceptance has been reported. Neither is assumed passed; M6.3 stays
+blocked until both are recorded, the required docs are committed and `main` is clean.
+See `UI_DENSITY_AND_DRAWERS.md` and `M6_2_BROWSER_ACCEPTANCE.md`.
 
-## Current verified checkpoint — 2026-10-21
+## Historical M6.2/seeder checkpoint — 2026-10-21
+
+GitHub `main` is now `a4bcb4c4274fde5b5199a973f46060c375c4286b`, including the
+visually approved UI correction. The following verification record is historical
+and predates that final correction. The post-`0007` gate and M6.2 manual acceptance
+remain open; do not advance to M6.3 or claim that this historical test result
+validated `a4bcb4c`.
 
 **Canonical repository:** `https://github.com/mooskyai/sentrix`
 **Last independently confirmed pushed SHA:** `4b34f3c926b75ce997a2e07f8c15520556624ba8`
@@ -140,13 +146,13 @@ This UI-only change follows the global-header/drawers patches and adds a page
 layout regression test. It requires frontend gates, full release gate, manual
 browser acceptance, commit and push before starting M6.3.
 
-The next presentation-only correction flattens per-page control bars, data tables
-and related-item groupings, keeping only meaningful status affordances and real
-focus/row borders. It is unverified and uncommitted until frontend/full host gates,
-browser acceptance and the clean push. M6.3 remains on hold.
+The subsequent data-first presentation attempt removed too many visible cards
+and was superseded by the final single-level card correction at `a4bcb4c`.
+All those changes are now pushed; the final full gate and browser acceptance
+remain unreported. M6.3 remains on hold.
 
 The follow-up card-hierarchy correction restores one content surface for
 Services/Metrics/Logs/Traces/Settings while leaving Overview/Dashboards/Alerts
 item cards as siblings. Toolbars, plots and tables inside a content card do
-not get another border. This UI-only revision needs browser inspection, full
-release gate, commit and push before M6.3.
+not get another border. This UI-only correction is pushed at `a4bcb4c`. Post-correction
+release-gate output and manual browser acceptance are still required before M6.3.

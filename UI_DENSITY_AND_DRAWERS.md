@@ -2,6 +2,10 @@
 
 Baseline: `8b8d3fd5cdd3304a5919aa7ddafdbce682fb8f86` (pushed clean main).
 This is a presentation/navigation slice and does not introduce M6.3 infrastructure features.
+The final single-level card correction was pushed at `a4bcb4c` and visually
+approved. The last reported full automated gate preceded that correction, and
+the manual M6.2 browser acceptance remains open. Historical flat-layout proposals
+below are superseded by "Card hierarchy correction — one surface, not zero".
 
 ## Contract
 

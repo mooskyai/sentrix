@@ -1,13 +1,13 @@
 # Sentrix — Feature Development Playbook
 
-## Pre-M6.3 UI refinement (pending acceptance)
+## Pre-M6.3 UI refinement — pushed; final acceptance pending
 
-Against clean pushed `8b8d3fd`, the application shell consolidates organization/project
-selection into the header; project links are withheld until both valid selections exist, and
-Services/Logs/Trace span inspection uses a right drawer. Compact spacing is a presentation
-change only. Validation and operator steps are recorded in `UI_DENSITY_AND_DRAWERS.md`.
-Do not treat this proposal as passed, committed or a new infrastructure milestone until the
-full release gate, browser acceptance and clean push are documented.
+The compact header selectors, authorized project navigation and detail drawers are
+implemented and visually approved. The final single-level card correction was committed
+and pushed at `a4bcb4c`. No post-correction `scripts/verify.ps1` result or complete
+M6.2 browser acceptance has been reported. Neither is assumed passed; M6.3 stays
+blocked until both are recorded, the required docs are committed and `main` is clean.
+See `UI_DENSITY_AND_DRAWERS.md` and `M6_2_BROWSER_ACCEPTANCE.md`.
 
 ## Opt-in demo fixture development rule
 

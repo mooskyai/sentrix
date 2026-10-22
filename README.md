@@ -1,14 +1,18 @@
 # Sentrix
 
-## Compact workspace navigation and inspection — UI change awaiting acceptance
+## Compact workspace navigation and inspection — pushed; final acceptance pending
 
 The shared top header now holds the organization and project selectors for the browser session.
 Project-scoped sidebar links appear only after both selections resolve to authorized workspace
 resources; changing organization clears project context instead of auto-selecting one. Service,
 log-record and trace-span inspection use accessible right-side drawers on desktop (full width on
 small screens). Page and control spacing is reduced without changing any telemetry query/tenant
-boundary. This change is **pending Windows/Docker/browser acceptance and commit**; see
-`DESIGN.md` and `Testing&QA.md`. M6.3 has not started.
+boundary. The visually approved single-level card hierarchy (one content card for
+Services, Metrics, Logs, Traces and Settings; sibling cards for Overview, Dashboards
+and Alerts) is committed and pushed at `a4bcb4c`. The final post-correction
+Windows/Docker release gate and M6.2 manual browser acceptance remain unreported.
+See `DESIGN.md`, `Testing&QA.md` and `M6_2_BROWSER_ACCEPTANCE.md`.
+M6.3 has not started.
 
 ## Opt-in demo dataset for V1 M1–M6.2
 

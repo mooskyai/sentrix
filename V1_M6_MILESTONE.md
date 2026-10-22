@@ -1,13 +1,15 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability
 
-## Pre-M6.3 compact UI / global selector / drawers (implementation pending verification)
+## Pre-M6.3 UI refinement — committed; final acceptance pending
 
-Reduce page and card vertical spacing, place organization/project selection in the shared
-header, hide project navigation until both selected resources are validated, and show
-Services, Logs and Trace span inspection in a desktop right-side drawer (mobile full-width).
-The management overview shares the header organization context. URL selection is only a
-locator; Django permissions and tenant-scoped query boundaries are unchanged. See
-`UI_DENSITY_AND_DRAWERS.md` for the acceptance plan. This change is not M6.3.
+The shared right-side header selectors, conditional project navigation, compact spacing,
+and accessible Services/Logs/trace-span drawers are implemented and pushed at
+`a4bcb4c`. The final approved hierarchy uses one content card for
+Services/Metrics/Logs/Traces/Settings and sibling cards for Overview/Dashboards/Alerts,
+with no nested cards. This is a UI change, not M6.3. Visual approval has been
+reported, but the full release gate after the final UI correction and the
+M6.2 manual browser acceptance have **not** been reported. See
+`UI_DENSITY_AND_DRAWERS.md` and `M6_2_BROWSER_ACCEPTANCE.md`.
 
 ## M6.2 implementation checkpoint (pushed; manual browser acceptance open)
 
