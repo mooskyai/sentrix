@@ -1,6 +1,6 @@
 # Connect a Sentrix project to OpenTelemetry
 
-This guide describes the **implemented** Sentrix OTLP/HTTP binary-protobuf interface. The same guide is reachable from a project's **Settings → Telemetry setup guide** link; it is not a new workspace tab.
+This guide describes the **implemented** Sentrix OTLP/HTTP binary-protobuf interface. Open **Documentation** in the left sidebar after signing in, or use the Settings → Telemetry setup guide link. Choose Laravel, Node.js, React or Next.js in the interactive quickstart. API reference remains available at its direct route but is hidden from navigation. See [FRAMEWORK_QUICKSTART.md](FRAMEWORK_QUICKSTART.md) for the framework recipes and safety notes.
 
 ## 1. Create the project key
 

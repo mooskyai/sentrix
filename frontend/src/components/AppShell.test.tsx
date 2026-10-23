@@ -41,6 +41,8 @@ describe("AppShell", () => {
     expect(screen.getByText("Sentrix")).toBeInTheDocument();
     expect(screen.getByText("udit")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Services" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Documentation" })).toHaveAttribute("href", "/docs/telemetry-setup");
+    expect(screen.queryByRole("link", { name: "API reference" })).not.toBeInTheDocument();
     await screen.findByRole("option", { name: "Acme" });
     fireEvent.change(screen.getByLabelText("Organization"), { target: { value: "org-a" } });
     expect(screen.queryByRole("link", { name: "Metrics" })).not.toBeInTheDocument();

@@ -33,8 +33,6 @@ function DocumentationLinks() {
   return (
     <p className="muted" aria-label="Project documentation links">
       <a href="/docs/telemetry-setup">Telemetry setup guide</a>
-      {" · "}
-      <a href="/docs/api-reference">API reference</a>
     </p>
   );
 }

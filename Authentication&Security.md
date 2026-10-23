@@ -1,5 +1,14 @@
 # Sentrix — Authentication, Authorization and Security
 
+## Framework onboarding credential boundary
+
+The authenticated Documentation page is globally accessible but does not retrieve secrets.
+A project key is disclosed once via writable project Settings, and authorizes only
+OTLP/HTTP protobuf ingestion with `telemetry:write`. Laravel, Node.js and Next.js
+examples hold credentials in server-only environment/secrets. Vite `VITE_*` and
+Next `NEXT_PUBLIC_*` variables are public and must never contain project keys.
+No browser-to-Sentrix secret proxy or client-side OTLP authentication is added.
+
 ## M6.3 Infrastructure — implementation candidate (not accepted)
 
 M6.3 Infrastructure reads require authenticated Django session + `projects_for_user` before

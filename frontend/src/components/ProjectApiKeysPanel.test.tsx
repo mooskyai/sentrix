@@ -60,7 +60,7 @@ describe("ProjectApiKeysPanel", () => {
 
     expect(screen.getByText(/requires project write access/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Telemetry setup guide" })).toHaveAttribute("href", "/docs/telemetry-setup");
-    expect(screen.getByRole("link", { name: "API reference" })).toHaveAttribute("href", "/docs/api-reference");
+    expect(screen.queryByRole("link", { name: "API reference" })).not.toBeInTheDocument();
     expect(mockedGetProjectApiKeys).not.toHaveBeenCalled();
   });
 
@@ -71,7 +71,7 @@ describe("ProjectApiKeysPanel", () => {
 
     expect(await screen.findByText("Production collector")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Telemetry setup guide" })).toHaveAttribute("href", "/docs/telemetry-setup");
-    expect(screen.getByRole("link", { name: "API reference" })).toHaveAttribute("href", "/docs/api-reference");
+    expect(screen.queryByRole("link", { name: "API reference" })).not.toBeInTheDocument();
     expect(screen.getByText("sentrix_pk_abc123_••••")).toBeInTheDocument();
     expect(screen.getAllByText("telemetry:write").length).toBeGreaterThanOrEqual(2);
     expect(screen.queryByText(/sentrix_pk_abc123_secret/i)).not.toBeInTheDocument();

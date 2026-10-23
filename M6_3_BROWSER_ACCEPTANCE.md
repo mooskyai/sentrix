@@ -1,5 +1,14 @@
 # Sentrix M6.3 Infrastructure — operational and browser acceptance
 
+## Documentation sidebar follow-up (not accepted)
+
+For the separate framework onboarding patch, confirm the Documentation sidebar entry works
+without selecting a project; Laravel, Node.js, React and Next.js guides switch correctly,
+and copy controls work. Project Settings retains setup instructions only, while the API
+reference has no visible navigation link. Confirm the React guide warns against public
+keys and the Next.js recipe runs only in the Node server runtime. Verify desktop/mobile,
+keyboard controls and full release gate. Record actual results before acceptance.
+
 **Status: NOT RUN.** Code/test/docs candidate only. Do not mark M6.3 accepted from a patch, synthetic seeding, or unit tests. M6.2's separate manual browser gate in `M6_2_BROWSER_ACCEPTANCE.md` remains open.
 
 ## Required IR-001 through IR-008 verification

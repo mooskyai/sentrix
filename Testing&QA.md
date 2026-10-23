@@ -1,5 +1,15 @@
 # Sentrix — Testing and Quality Assurance
 
+## Documentation onboarding checks (implementation candidate)
+
+Verify Documentation link appears for logged-in users even without a project selection;
+API reference has no visible sidebar/Settings/setup link but legacy direct route remains.
+Switch Laravel, Node.js, React and Next.js and inspect distinct actionable code blocks,
+copy buttons and safe one-time secret handling. React instructions must not include a VITE_ key.
+Run Vitest focused on AppShell, ProjectApiKeysPanel and DocumentationPages plus full
+`scripts/verify.ps1`, then browser-check all four recipes, small screens and keyboard controls.
+Manual M6.2/M6.3 browser acceptance remains pending independently.
+
 ## M6.3 Infrastructure — implementation candidate (not accepted)
 
 M6.3 candidate tests: `docker compose exec -T api /opt/venv/bin/python -m pytest

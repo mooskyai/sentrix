@@ -1,5 +1,12 @@
 # Sentrix — Feature Development Playbook
 
+## Developer onboarding documentation (implementation candidate)
+
+Keep framework examples tied to the actual `/v1/traces`, `/v1/metrics`, `/v1/logs`
+protobuf ingestion boundary. Test framework switching, sidebar access for authenticated
+users without a project, and removal of visible API-reference navigation links.
+React/Next browser bundles must never contain telemetry write credentials.
+
 ## M6.3 Infrastructure — implementation candidate (not accepted)
 
 M6.3 candidate follows the existing service-catalog pattern: project membership lookup in DRF,

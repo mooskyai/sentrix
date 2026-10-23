@@ -1,5 +1,18 @@
 # Sentrix — Project Implementation Register
 
+## Documentation sidebar and framework quickstart — 2026-10-23 candidate
+
+Repository baseline: `75d2d212259caf8bce579464e008ed8755c45493`, pushed GitHub main.
+Adds a persistent authenticated Documentation sidebar entry and Laravel, Node.js, React/Vite,
+Next.js server-side onboarding. API reference route is unchanged but navigation links are hidden.
+Keeps existing Settings key creation and docs entry; does not expose a secret to browser code.
+The earlier M6.3 plus docs patch passed 182 backend/57 frontend tests and full release gate,
+and was pushed at this baseline. The **new** sidebar patch needs user-run verification and
+browser acceptance before commit/push or any M6.4 progression. M6.2/M6.3 manual acceptance
+remains unreported; do not mark accepted from this doc change.
+Reviewed README, Setup, DESIGN, Testing&QA, FeatureDevelopment, Authentication&Security, API,
+Integrations, and milestone scopes; no telemetry endpoint/schema/auth contract is modified.
+
 ## M6.3 Infrastructure — implementation candidate (not accepted)
 
 M6.3 candidate baseline: `78e1a94a02a5f258678f17bb1362650a82c7aff5` (clean pushed GitHub main

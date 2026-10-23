@@ -1,5 +1,13 @@
 # Sentrix — Setup and Developer Environment
 
+## In-app framework onboarding
+
+After login, click **Documentation** in the left sidebar. Choose Laravel, Node.js,
+React (Vite) or Next.js and follow the steps to create and protect a project-scoped
+`telemetry:write` key. The key is sent only from a server/collector to OTLP/HTTP
+protobuf endpoints, never from public browser code. This guide does not add a new
+collector or SDK; its examples are in `docs/FRAMEWORK_QUICKSTART.md`.
+
 ## M6.3 Infrastructure — implementation candidate (not accepted)
 
 M6.3 candidate requires no new environment variables or credentials. Use the existing Docker

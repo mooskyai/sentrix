@@ -1,5 +1,14 @@
 # Sentrix
 
+## User-friendly framework setup guides — 2026-10-23 implementation candidate
+
+Authenticated users see **Documentation** in the left sidebar; the guide offers Laravel, Node.js,
+React and Next.js with copyable install/configure/run snippets. The API reference is kept at its
+existing direct route but hidden from navigation; project Settings retains only the setup link.
+The React guide sends no project secret to the browser. See `docs/FRAMEWORK_QUICKSTART.md` and
+`docs/PROJECT_TELEMETRY_SETUP.md`. This change requires frontend and full release verification
+plus browser acceptance; it does not close the outstanding M6.2/M6.3 manual gates.
+
 ## M6.3 Infrastructure — implementation candidate (not accepted)
 
 M6.3 infrastructure discovery is being implemented from stored OTLP `resource_attributes` only.

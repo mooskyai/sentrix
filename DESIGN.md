@@ -1,5 +1,12 @@
 # Sentrix — Interface and Experience Design
 
+## Documentation entry and framework onboarding (implementation candidate)
+
+The global sidebar includes a single Documentation link independent of project selection.
+Inside, framework-choice buttons reveal only the selected Laravel/Node.js/React/Next.js recipe,
+with readable copyable code and clear numbered steps. Do not add API reference to navigation;
+retain its existing direct route. Keep the single-surface compact layout and accessible buttons.
+
 ## M6.3 Infrastructure — implementation candidate (not accepted)
 
 Infrastructure is a project-scoped section visible only after valid organization/project

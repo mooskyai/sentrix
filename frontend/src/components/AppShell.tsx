@@ -124,6 +124,7 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
                 </NavLink>
               ))
             : null}
+          <NavLink className="nav-item" to="/docs/telemetry-setup">Documentation</NavLink>
         </nav>
       </aside>
       <main className="main">
