@@ -223,6 +223,24 @@ export interface TraceDetailResponse {
   truncated: boolean;
 }
 
+export interface ObservedResourceSet {
+  attributes: Record<string, string>;
+  first_seen: string;
+  last_seen: string;
+  metric_points: number;
+  log_records: number;
+  span_records: number;
+}
+
+export interface InfrastructureResponse {
+  project_id: string;
+  start: string;
+  end: string;
+  limit: number;
+  truncated: boolean;
+  observations: ObservedResourceSet[];
+}
+
 export interface ObservedService {
   service_name: string;
   environment: string;

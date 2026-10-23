@@ -5,6 +5,7 @@ import { Link, useParams } from "react-router-dom";
 import { getOrganizations, getProjects } from "../api/resources";
 import { AlertsWorkspace } from "../components/AlertsWorkspace";
 import { DashboardPanels } from "../components/DashboardPanels";
+import { InfrastructureWorkspace } from "../components/InfrastructureWorkspace";
 import { LogsExplorer } from "../components/LogsExplorer";
 import { MetricsExplorer } from "../components/MetricsExplorer";
 import { ProjectApiKeysPanel } from "../components/ProjectApiKeysPanel";
@@ -26,6 +27,10 @@ const SECTION_COPY: Record<WorkspaceSection, { title: string; description: strin
   services: {
     title: "Services",
     description: "Discover services observed through project-scoped OpenTelemetry signals.",
+  },
+  infrastructure: {
+    title: "Infrastructure",
+    description: "Explore host and Kubernetes attributes observed in this project’s telemetry.",
   },
   metrics: {
     title: "Metrics",
@@ -156,6 +161,8 @@ export function ProjectWorkspacePage() {
             logsPath={workspacePath(workspace.organization.slug, workspace.project.slug, "logs")}
             tracesPath={workspacePath(workspace.organization.slug, workspace.project.slug, "traces")}
           />
+        ) : activeSection === "infrastructure" ? (
+          <InfrastructureWorkspace key={workspace.project.id} projectId={workspace.project.id} />
         ) : activeSection === "metrics" ? (
           <MetricsExplorer
             key={workspace.project.id}

@@ -1,5 +1,13 @@
 # Sentrix — repository contributor and agent instructions
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+M6.3 candidate implementation from verified pushed baseline
+`78e1a94a02a5f258678f17bb1362650a82c7aff5` remains unverified until focused/full Docker gates,
+real OTLP, browser acceptance, documentation closeout, commit and push. Continue following the
+14-document review rule. Preserve approved card hierarchy/global selectors/drawers, tenant-first
+queries, no fabricated inventory, and no M6.4 before M6.3 acceptance.
+
 ## Pre-M6.3 UI refinement — committed; final acceptance pending
 
 The shared right-side header selectors, conditional project navigation, compact spacing,

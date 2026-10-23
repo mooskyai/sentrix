@@ -15,6 +15,7 @@ interface AppShellProps extends PropsWithChildren {
 const SECTION_LABELS = {
   overview: "Overview",
   services: "Services",
+  infrastructure: "Infrastructure",
   metrics: "Metrics",
   logs: "Logs",
   traces: "Traces",

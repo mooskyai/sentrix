@@ -1,5 +1,13 @@
 # Sentrix — Feature Development Playbook
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+M6.3 candidate follows the existing service-catalog pattern: project membership lookup in DRF,
+trusted UUIDs, typed bounded ClickHouse query over preserved Map attributes, browser query keys
+including project/window, and a single-level Infrastructure page. The server returns complete
+co-observed attribute sets rather than joining independent names into a topology. No new model,
+collector or Kubernetes integration.
+
 ## Pre-M6.3 UI refinement — pushed; final acceptance pending
 
 The compact header selectors, authorized project navigation and detail drawers are
@@ -107,3 +115,7 @@ changes. Query keys must include project UUID, exact UTC start/end and limit. De
 catalog row (not an independently queried service entity). Accept empty environment as legitimate.
 Use explicit failure/empty/truncation UI and disclosure that existing explorer links do not prefilter.
 Ship component/browser tests, then the complete repository release gate before commit.
+
+## Linked documentation workflow
+
+Keep the existing Settings API-key UI as the entry point: show **Telemetry setup guide** and **API reference** as ordinary links for viewers and writers. Register the two documentation routes in the existing authenticated app router, not in `WORKSPACE_SECTIONS` or the global project navigation. Maintain the checked-in guides and the UI pages with the real backend API/OTLP contracts, then run component/page tests and the full gate.

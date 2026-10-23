@@ -235,6 +235,16 @@ export function getTrace(
   );
 }
 
+export function getInfrastructure(
+  projectId: string,
+  query: { start: string; end: string; limit: number },
+): Promise<import("../types").InfrastructureResponse> {
+  const params = metricQueryString(query);
+  return api<import("../types").InfrastructureResponse>(
+    `/projects/${encodeURIComponent(projectId)}/infrastructure/?${params}`,
+  );
+}
+
 export function getServiceCatalog(
   projectId: string,
   query: { start: string; end: string; limit: number },

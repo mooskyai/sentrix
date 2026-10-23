@@ -11,6 +11,10 @@ vi.mock("../components/ServicesWorkspace", () => ({
   ServicesWorkspace: () => <div data-testid="service-list">Observed services</div>,
 }));
 
+vi.mock("../components/InfrastructureWorkspace", () => ({
+  InfrastructureWorkspace: () => <div data-testid="infrastructure">Observed infrastructure</div>,
+}));
+
 const mockedOrganizations = vi.mocked(getOrganizations);
 const mockedProjects = vi.mocked(getProjects);
 
@@ -58,5 +62,12 @@ describe("ProjectWorkspacePage layout", () => {
     expect(section).toHaveClass("workspace-section--surface");
     expect(section.querySelectorAll(".panel")).toHaveLength(0);
     expect(within(section).getByTestId("service-list")).toBeInTheDocument();
+  });
+  it("gives Infrastructure the same single-level content surface", async () => {
+    renderOverview("/orgs/acme/projects/shop/infrastructure");
+    const section = await screen.findByRole("region", { name: "Project workspace content" });
+    expect(section).toHaveClass("workspace-section--surface");
+    expect(section.querySelectorAll(".panel")).toHaveLength(0);
+    expect(within(section).getByTestId("infrastructure")).toBeInTheDocument();
   });
 });

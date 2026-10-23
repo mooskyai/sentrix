@@ -1,5 +1,14 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+M6.3 proposed implementation: project Infrastructure route groups the 11 supported, nonempty OTel
+resource attributes co-observed on individual metrics/logs/spans resources. Full attribute-set
+aggregation allows correct same-resource association without inventing ownership edges. Result
+bounded to 1–500 rows, 24h default/7d max and ClickHouse query budgets. No cluster
+credentials/API, schema, collector or background worker. **Pending** full IR acceptance and pushed
+clean main; M6.2 browser checklist also remains open.
+
 ## Pre-M6.3 UI refinement — committed; final acceptance pending
 
 The shared right-side header selectors, conditional project navigation, compact spacing,

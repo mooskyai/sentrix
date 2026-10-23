@@ -1,5 +1,13 @@
 # Sentrix — Data Models and Persistence
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+M6.3 reuses `Map(String, String) resource_attributes` on existing `sentrix_metrics`,
+`sentrix_logs` and `sentrix_spans` tables. One query groups an ordered tuple/vector of supported
+keys, preserving co-observation from the same telemetry resource; missing values are ignored. No
+schema changes, migrations, projections, inventory cache or new indexes. Bounded window, typed
+tenant predicates and query-level aggregation budgets are required.
+
 ## M6.1 service-catalog storage contract
 
 No new tables or schema migrations. The API aggregates exact `service_name`/`environment` values across

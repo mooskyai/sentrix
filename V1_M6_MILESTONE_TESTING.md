@@ -1,5 +1,16 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability Test and Acceptance Plan
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+M6.3 implementation testing candidate: `backend/apps/telemetry/tests/test_infrastructure_api.py`
+covers IR-001 foreign auth before client, IR-002 supported keys, IR-003 empty data, IR-004
+co-observation, IR-005 time/size bounds + truncation, IR-006 true separate user/project, IR-007
+absence of K8s client dependency, and IR-008 regression gate remains to run.
+`frontend/src/components/InfrastructureWorkspace.test.tsx` covers observed values,
+empty/error/truncation/window/project switch. Real authenticated OTLP/ClickHouse integration test
+is present but **not claimed executed**. Complete `M6_3_BROWSER_ACCEPTANCE.md`,
+`scripts/verify.ps1`, commit/push before M6.4.
+
 ## Pre-M6.3 UI refinement — committed; final acceptance pending
 
 The shared right-side header selectors, conditional project navigation, compact spacing,

@@ -1,5 +1,12 @@
 # Sentrix — Product Requirements Document
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+M6.3 candidate user story: a signed-in project member can inspect observed host/Kubernetes
+resource dimensions derived from ingested OTLP, including co-observed names, last seen and counts.
+It must not advertise live cluster inventory, resource status or topology. M6.2 manual browser
+acceptance remains open; M6.3 operator acceptance is separate and unreported.
+
 ## Pre-M6.3 UI refinement — committed; final acceptance pending
 
 The shared right-side header selectors, conditional project navigation, compact spacing,

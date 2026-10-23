@@ -1,5 +1,13 @@
 # Sentrix — Integrations and External Protocols
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+M6.3 candidate consumes already supported authenticated OTLP/HTTP resource attributes on metrics,
+logs and spans. Producers may send `host.name`, `k8s.cluster.name`, `k8s.namespace.name`, node,
+workload, pod or container names. The API reflects only recorded values; no new exporter protocol,
+Kubernetes watcher/agent, cluster login or API access was introduced. The live integration test
+posts protobuf OTLP logs through the normal project Bearer key.
+
 **Implemented:** OpenTelemetry OTLP/HTTP ingestion and outbound signed webhooks. **Not implemented:** generic integrations marketplace, Kubernetes API client, Slack/email-specific notifier, integrations polling framework.
 
 ## 1. OTLP/HTTP ingestion (implemented)

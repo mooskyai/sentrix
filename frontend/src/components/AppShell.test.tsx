@@ -48,6 +48,7 @@ describe("AppShell", () => {
     fireEvent.change(screen.getByLabelText("Project"), { target: { value: "project-a" } });
     expect(await screen.findByRole("link", { name: "Metrics" })).toHaveAttribute("href", "/orgs/acme/projects/api/metrics");
     expect(screen.getByRole("link", { name: "Services" })).toHaveAttribute("href", "/orgs/acme/projects/api/services");
+    expect(screen.getByRole("link", { name: "Infrastructure" })).toHaveAttribute("href", "/orgs/acme/projects/api/infrastructure");
     fireEvent.change(screen.getByLabelText("Organization"), { target: { value: "org-b" } });
     expect(screen.getByLabelText("Project")).toHaveValue("");
     expect(screen.queryByText("Organization")).not.toBeInTheDocument();

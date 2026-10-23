@@ -1,5 +1,12 @@
 # Sentrix — Setup and Developer Environment
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+M6.3 candidate requires no new environment variables or credentials. Use the existing Docker
+Compose stack, OTLP/HTTP project API key for an exporter, and the browser session for read API.
+The optional M1–M6.2 synthetic seeder is not proof of host/K8s observations. Run focused tests and
+`scripts/verify.ps1` after patch application; do not destroy volumes.
+
 ## Optional local synthetic demo fixtures
 
 Once Compose and an existing login work, run
@@ -91,3 +98,7 @@ When changing runtime versions, dependency locks, variables, ports, bootstrap, o
 The same documented Docker/Python/Node stack supports **implemented V1 M1–M5**. M6's planned service/resource discovery should reuse the existing project-scoped OTLP ingestion and ClickHouse schema; **do not add Kubernetes credentials, Kubernetes API clients, graph services, or inventory databases** simply to prepare for M6. Use the current `docker-compose.yml` and `.env.example` as the actual runtime configuration, not a new speculative environment file.
 
 Before each M6 slice: verify a clean `main`, run `docker compose config --quiet`, confirm liveness/readiness and `manage.py clickhouse_schema --check`, and apply the exact verified patch. M6.5 should introduce its own verified operational command only when code is ready; `scripts/verify-m6.ps1` is **planned, not present** at M5 closeout. Continue using `scripts/verify.ps1` as the mandatory full release gate in the meantime.
+
+## Project collector setup links
+
+Once signed in, choose an organization/project, open project **Settings** and follow **Telemetry setup guide**. Local Compose OTLP/HTTP protobuf endpoints are `http://localhost:8000/v1/traces`, `/v1/metrics` and `/v1/logs` (without trailing slash). Create a `telemetry:write` API key with a writable project role; copy its secret once and configure the exporter with `Authorization: Bearer <key>`. Use `/docs/api-reference` (or `docs/API_REFERENCE.md`) for the separate session-authenticated query and management APIs. See `docs/PROJECT_TELEMETRY_SETUP.md` for a working Python example and network-address caveats.

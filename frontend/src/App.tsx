@@ -7,6 +7,7 @@ import { AppShell } from "./components/AppShell";
 import { LoginPage } from "./pages/LoginPage";
 import { OverviewPage } from "./pages/OverviewPage";
 import { ProjectWorkspacePage } from "./pages/ProjectWorkspacePage";
+import { ApiReferencePage, TelemetrySetupPage } from "./pages/DocumentationPages";
 
 function NotFoundPage() {
   return (
@@ -59,6 +60,8 @@ export default function App() {
     >
       <Routes>
         <Route path="/" element={<OverviewPage />} />
+        <Route path="/docs/telemetry-setup" element={<TelemetrySetupPage />} />
+        <Route path="/docs/api-reference" element={<ApiReferencePage />} />
         <Route path="/orgs/:organizationSlug/projects/:projectSlug" element={<ProjectWorkspacePage />} />
         <Route
           path="/orgs/:organizationSlug/projects/:projectSlug/:section"

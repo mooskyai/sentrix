@@ -1,5 +1,17 @@
 # Sentrix — Project Implementation Register
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+M6.3 candidate baseline: `78e1a94a02a5f258678f17bb1362650a82c7aff5` (clean pushed GitHub main
+verified 2026-10-23). Planned patch adds read-only infrastructure query + DRF route,
+Infrastructure workspace, backend security/OTLP integration tests, frontend tests and
+`M6_3_BROWSER_ACCEPTANCE.md`. **Status: code patch prepared; no Docker checks/browser operational
+proof or resulting commit/push claimed.** User explicitly requested M6.3 implementation while M6.2
+manual browser acceptance was still outstanding; this does not retroactively accept M6.2. Document
+review: PRD, DESIGN, ARCHITECTURE, DATABASE, API, AGENTS, README, ProjectImplementation, Setup,
+FeatureDevelopment, Authentication&Security, Integrations, Testing&QA, Debugging reviewed and
+updated where operational status/contract is affected. M6.4 stays blocked.
+
 ## Pre-M6.3 UI refinement — pushed; final acceptance pending
 
 The compact header selectors, authorized project navigation and detail drawers are
@@ -179,3 +191,11 @@ item cards as siblings. Toolbars, plots and tables inside a content card do
 not get another border. This UI-only correction is pushed at `a4bcb4c`. Post-correction
 release-gate output passed on 2026-10-22; manual browser acceptance is still
 required before M6.3.
+
+## Linked project documentation — implementation candidate
+
+Baseline: `78e1a94a02a5f258678f17bb1362650a82c7aff5` (verified remote `main`). This UI-only documentation change adds Settings links to authenticated `/docs/telemetry-setup` and `/docs/api-reference` pages, along with Python OTLP setup, machine-versus-session authentication, API endpoint details and frontend tests. No project API-key authorization boundary or telemetry behavior changes. Both owner/writer and viewer states expose the links without exposing credentials.
+
+Validation pending on Windows/Docker: focused `ProjectApiKeysPanel.test.tsx` and `DocumentationPages.test.tsx`, frontend lint/type/build, complete `scripts/verify.ps1`, and browser navigation from project Settings. Do not mark these gates passed, or M6.2/M6.3 browser acceptance complete, without observed results. This patch is deliberately independent of the M6.3 infrastructure candidate (which has not been verified/committed in the provided handoff); recheck the actual local SHA and patch compatibility before applying either.
+
+Documentation reviewed: README, API, DESIGN, ProjectImplementation, Testing&QA, Setup, Authentication&Security, FeatureDevelopment; architecture, DB, integrations, PRD, agent and active milestone docs have no new technical contract from documentation links.

@@ -29,6 +29,16 @@ function keyStatus(apiKey: ProjectApiKey): "active" | "expired" | "revoked" {
   return "active";
 }
 
+function DocumentationLinks() {
+  return (
+    <p className="muted" aria-label="Project documentation links">
+      <a href="/docs/telemetry-setup">Telemetry setup guide</a>
+      {" · "}
+      <a href="/docs/api-reference">API reference</a>
+    </p>
+  );
+}
+
 export function ProjectApiKeysPanel({ projectId, canManage }: ProjectApiKeysPanelProps) {
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
@@ -56,6 +66,7 @@ export function ProjectApiKeysPanel({ projectId, canManage }: ProjectApiKeysPane
           Owners, admins, and editors can manage telemetry credentials. Your viewer access remains
           read only, and Sentrix does not request key metadata for this project.
         </p>
+        <DocumentationLinks />
       </div>
     );
   }
@@ -135,6 +146,7 @@ export function ProjectApiKeysPanel({ projectId, canManage }: ProjectApiKeysPane
 
   return (
     <div className="settings-layout">
+      <DocumentationLinks />
       <section className="api-key-panel" aria-labelledby="api-key-create-heading">
         <div className="api-key-header">
           <div>

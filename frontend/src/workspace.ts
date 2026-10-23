@@ -3,6 +3,7 @@ import type { Organization, OrganizationRole, Project } from "./types";
 export const WORKSPACE_SECTIONS = [
   "overview",
   "services",
+  "infrastructure",
   "metrics",
   "logs",
   "traces",

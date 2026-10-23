@@ -1,5 +1,14 @@
 # Sentrix — Interface and Experience Design
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+Infrastructure is a project-scoped section visible only after valid organization/project
+selection. Preserve right-aligned unlabeled header selectors, compact spacing and one content card
+with unboxed toolbar/table. Show observed attribute sets with signal counts and timestamps;
+distinguish loading, empty, error and truncated. Do not label resources healthy, running, deleted,
+current inventory, or confirmed Kubernetes ownership. Mobile and keyboard acceptance remain
+required.
+
 ## Pre-M6.3 UI refinement — committed; final acceptance pending
 
 The shared right-side header selectors, conditional project navigation, compact spacing,
@@ -112,3 +121,7 @@ Traces, Settings). Overview, Dashboards and Alerts instead render their
 individual fact/data cards as siblings, without a shared enclosing card.
 Toolbar rows, tables, plots and metric statistics inside a content card
 remain visually flat. Do not remove all cards; avoid nested cards.
+
+## Linked documentation in Settings
+
+Show two inline links (Telemetry setup guide and API reference) near the API-key controls, including read-only roles. Linked pages use the shared app header and a single readable content surface; do not add a Documentation section to project navigation, nested panels, or a tab bar. Links must not include raw API keys in their URLs.

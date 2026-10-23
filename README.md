@@ -1,5 +1,13 @@
 # Sentrix
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+M6.3 infrastructure discovery is being implemented from stored OTLP `resource_attributes` only.
+The project Infrastructure workspace and read API show co-observed host/Kubernetes attribute sets,
+counts and observed times. This candidate is **not yet operator accepted or pushed**. M6.2 manual
+browser acceptance remains open. See `M6_3_BROWSER_ACCEPTANCE.md`. No Kubernetes API, inventory or
+health claims.
+
 ## Compact workspace navigation and inspection — pushed; final acceptance pending
 
 The shared top header now holds the organization and project selectors for the browser session.
@@ -1069,3 +1077,9 @@ The pre-M6.3 UI design uses single-level cards: a single surface for data-heavy
 explorers, or separate sibling cards for Overview, Dashboards and Alerts.
 Controls, tables and summaries never add another card inside that surface.
 See `UI_DENSITY_AND_DRAWERS.md`.
+
+## In-app documentation links — project setup and API reference
+
+Project **Settings** now has two plain links, **Telemetry setup guide** (`/docs/telemetry-setup`) and **API reference** (`/docs/api-reference`). They open read-only guidance inside the current app without adding a project navigation tab. The setup guide covers project API-key creation, the one-time secret, protobuf OTLP/HTTP trace export from Python, endpoint and auth configuration, and troubleshooting. The API reference distinguishes session/CSRF-protected management and query APIs from bearer-key telemetry ingestion. Repository mirrors: [`docs/PROJECT_TELEMETRY_SETUP.md`](docs/PROJECT_TELEMETRY_SETUP.md) and [`docs/API_REFERENCE.md`](docs/API_REFERENCE.md).
+
+These links add no telemetry capability, do not authorize a project, and never transmit a raw key to a documentation route. Existing M6.2 and M6.3 operator acceptance gates remain unchanged.

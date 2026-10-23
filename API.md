@@ -1,5 +1,14 @@
 # Sentrix — HTTP and Worker API Reference
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+Candidate route: `GET /api/v1/projects/{project_id}/infrastructure/?start=...&end=...&limit=...`.
+Session auth; membership lookup before ClickHouse. UTC half-open window defaults to 24h and caps
+at 7d. Limit defaults to 100, range 1–500. Return
+`{project_id,start,end,limit,truncated,observations:[{attributes,first_seen,last_seen,metric_points,log_records,span_records}]}`;
+only nonempty supported attribute keys. Errors: 400 invalid, 404 foreign/unknown, 503 ClickHouse
+unavailable. Query groups co-observed attributes, **not** inferred resource relationships.
+
 ## M6.2 service-detail API (implemented/pushed at `a0e7881`)
 
 `GET /api/v1/projects/{project_id}/services/detail/?service_name=...&environment=...&start=RFC3339&end=RFC3339`
@@ -136,3 +145,7 @@ for the selected exact service/environment pair. Selection query parameters gran
 project access; every Django read authorizes membership. Metrics/Logs explorer links
 are not prefiltered. Observed trace-ID links preserve the project and window.
 This implementation has passed automated tests, not yet recorded manual browser acceptance.
+
+## In-app setup and reference links
+
+From project **Settings**, use `/docs/telemetry-setup` to follow a real project API-key OTLP/HTTP Python example or `/docs/api-reference` for control-plane endpoint groups, response codes and limits. Both links render read-only pages inside the authenticated Sentrix UI. The mirrored repository guides are [`docs/PROJECT_TELEMETRY_SETUP.md`](docs/PROJECT_TELEMETRY_SETUP.md) and [`docs/API_REFERENCE.md`](docs/API_REFERENCE.md). These are documentation routes, **not** new `/api/v1/` or `/v1/` endpoints. A project `telemetry:write` key cannot call session-authenticated control-plane APIs.

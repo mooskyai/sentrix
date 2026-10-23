@@ -1,5 +1,14 @@
 # Sentrix — Debugging and Incident Diagnosis
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+For M6.3, check `docker compose ps`, `manage.py clickhouse_schema --check`, and focused
+`test_infrastructure_api.py` before diagnosing an empty Infrastructure view. Check the actual
+selected project, observation window and producer resource attributes; unsupported/empty keys are
+intentionally absent. A 503 denotes ClickHouse failure, not an empty project. A truncated result
+means the query cap was reached. Never print project Bearer keys or raw sensitive attribute
+payloads.
+
 ## Synthetic demo seeder diagnostics
 
 Use `docker compose exec -T api /opt/venv/bin/python manage.py seed_demo --username YOUR_LOGIN`

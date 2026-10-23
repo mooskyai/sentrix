@@ -1,5 +1,15 @@
 # Sentrix — Testing and Quality Assurance
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+M6.3 candidate tests: `docker compose exec -T api /opt/venv/bin/python -m pytest
+apps/telemetry/tests/test_infrastructure_api.py -v`; `docker compose exec -T web npm test --
+--run`; then `./scripts/verify.ps1`. IR-001–IR-008 require foreign membership rejection before
+ClickHouse, supported attrs only, absence/co-observation honesty, bounded window, truncation, live
+authenticated OTLP persistence, UI empty/error/loading/truncated/project changes, no K8s
+dependency, prior regressions. **None is marked accepted until the actual operator results are
+reported**.
+
 ## Pre-M6.3 UI refinement — pushed; final acceptance pending
 
 The compact header selectors, authorized project navigation and detail drawers are
@@ -157,3 +167,7 @@ card. Browser-check Services, Metrics, Logs, Traces, Settings, Overview,
 Dashboards and Alerts to ensure cards are visible but never nested.
 Run lint, TypeScript, Vitest, build and full `scripts/verify.ps1`; manual
 browser sign-off and a clean commit/push are still required.
+
+## Linked documentation acceptance — pending
+
+After adding links to project Settings, test that both writers and viewers see two links without a new project navigation tab. Verify `/docs/telemetry-setup` and `/docs/api-reference` render under the authenticated app shell, describe protobuf-only OTLP and session-versus-machine-key auth accurately, do not display or persist a real key, remain legible on narrow viewports, and return to the workspace. Run focused frontend component/page tests, lint, typecheck, build and `scripts/verify.ps1`. These checks and the separate M6.2/M6.3 browser matrices must be recorded before claiming acceptance.

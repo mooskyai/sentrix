@@ -1,5 +1,14 @@
 # Sentrix — Authentication, Authorization and Security
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+M6.3 Infrastructure reads require authenticated Django session + `projects_for_user` before
+ClickHouse. Each metrics/logs/spans branch scopes by server-derived organization and project
+UUIDs; client-supplied resource keys never authorize access. Supported keys are server
+allowlisted, and queries use typed timestamps/UUIDs and bounded limits. Unknown/foreign UUIDs
+return 404 without opening a ClickHouse client. Query failure is a generic 503; suppress raw
+exception strings. No Kubernetes credentials/API boundary exists.
+
 ## Synthetic demo seeding trust boundary
 
 The opt-in `seed_demo --username` command requires an existing active Django user,
@@ -82,3 +91,7 @@ Anonymous denial; real foreign project 404 before DB query; read-only viewer mut
 Service names, environments, span IDs and OTel resource attributes are **untrusted observation fields**, not authorization credentials. Future discovery, resource and graph queries must authorize the project via a browser session and membership first; only server-derived project/organization IDs may scope ClickHouse. Every nested lookup/join must constrain both IDs **and trace identity** where applicable. A foreign existing project and a random project ID must be indistinguishable `404`s before any ClickHouse access.
 
 Keep M6 list/detail queries bounded and typed. Do not leak metadata from neighboring tenants via counts, completions, suggestions, graph edges, absent-resource error differences or shared cache keys. Resource tags can contain sensitive infrastructure strings: return only fields required for the implemented view and never reinterpret arbitrary attributes as secrets or service ownership. Do not infer security posture, service health, operational readiness, Kubernetes API reachability or network topology from incomplete telemetry. No additional Kubernetes credential/storage trust boundary is approved for M6.
+
+## Documentation link trust boundary
+
+Authenticated read-only documentation routes under `/docs/` are static guides, not API endpoints or authorizing capabilities. Project Settings must show no raw key in the documentation URLs, query strings or page state; the existing one-time credential UI remains the only way to see a newly created secret. The docs clearly separate `telemetry:write` machine bearer keys for `/v1/{metrics,logs,traces}` from Django session + CSRF protected `/api/v1/` operations. Viewers may read the guides but cannot query API-key metadata or create/revoke keys.

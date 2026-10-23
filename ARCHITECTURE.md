@@ -1,5 +1,13 @@
 # Sentrix Architecture
 
+## M6.3 Infrastructure — implementation candidate (not accepted)
+
+M6.3 candidate: the authorized Django project supplies both trusted IDs to a read-only, bounded
+UNION of ClickHouse metrics/logs/spans. Each existing record stores `resource_attributes`;
+grouping an ordered vector of 11 supported keys preserves same-resource co-observation. Query-time
+7d/limit, ClickHouse execution and grouping budgets apply. React reads through cookie-session API.
+No PostgreSQL model, Redis worker, collector, new ClickHouse table or Kubernetes client.
+
 ## Pre-M6.3 UI refinement — committed; final acceptance pending
 
 The shared right-side header selectors, conditional project navigation, compact spacing,
