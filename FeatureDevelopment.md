@@ -4,9 +4,10 @@
 
 The compact header selectors, authorized project navigation and detail drawers are
 implemented and visually approved. The final single-level card correction was committed
-and pushed at `a4bcb4c`. No post-correction `scripts/verify.ps1` result or complete
-M6.2 browser acceptance has been reported. Neither is assumed passed; M6.3 stays
-blocked until both are recorded, the required docs are committed and `main` is clean.
+and pushed at `a4bcb4c`. The post-correction `scripts/verify.ps1` gate passed
+on 2026-10-22 (170 backend, 50 frontend tests). Manual M6.2 browser
+acceptance remains unreported. M6.3 stays blocked until it is recorded and
+the closeout documentation is committed and pushed.
 See `UI_DENSITY_AND_DRAWERS.md` and `M6_2_BROWSER_ACCEPTANCE.md`.
 
 ## Opt-in demo fixture development rule

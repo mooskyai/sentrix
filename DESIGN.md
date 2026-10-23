@@ -7,8 +7,9 @@ and accessible Services/Logs/trace-span drawers are implemented and pushed at
 `a4bcb4c`. The final approved hierarchy uses one content card for
 Services/Metrics/Logs/Traces/Settings and sibling cards for Overview/Dashboards/Alerts,
 with no nested cards. This is a UI change, not M6.3. Visual approval has been
-reported, but the full release gate after the final UI correction and the
-M6.2 manual browser acceptance have **not** been reported. See
+reported; the full release gate after the final UI correction passed on
+2026-10-22 (170 backend and 50 frontend tests). M6.2 manual browser
+acceptance has **not** been reported. See
 `UI_DENSITY_AND_DRAWERS.md` and `M6_2_BROWSER_ACCEPTANCE.md`.
 
 **Scope:** V1 M1–M5 implemented UI; future service/infrastructure design is proposed. For system architecture see `ARCHITECTURE.md`.

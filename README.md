@@ -10,7 +10,8 @@ small screens). Page and control spacing is reduced without changing any telemet
 boundary. The visually approved single-level card hierarchy (one content card for
 Services, Metrics, Logs, Traces and Settings; sibling cards for Overview, Dashboards
 and Alerts) is committed and pushed at `a4bcb4c`. The final post-correction
-Windows/Docker release gate and M6.2 manual browser acceptance remain unreported.
+Windows/Docker release gate passed on 2026-10-22 (170 backend, 50 frontend
+tests and all required checks). M6.2 manual browser acceptance remains open.
 See `DESIGN.md`, `Testing&QA.md` and `M6_2_BROWSER_ACCEPTANCE.md`.
 M6.3 has not started.
 

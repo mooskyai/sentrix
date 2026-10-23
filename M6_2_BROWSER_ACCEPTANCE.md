@@ -1,10 +1,11 @@
 # Sentrix M6.2 browser acceptance — operator checklist
 
-**Status: NOT YET REPORTED.** M6.2 code was pushed at `a0e7881`; the optional seeder
-was pushed at `4b34f3c`. The approved UI is pushed at `a4bcb4c`.
-The last explicitly reported full gate before the final UI correction passed
-170 backend and 49 frontend tests, plus Ruff, mypy, Django, ClickHouse,
-TypeScript and Vite. The post-correction release gate is **not yet reported**.
+**Status: AUTOMATED GATE PASSED; MANUAL BROWSER ACCEPTANCE OPEN.**
+M6.2 code was pushed at `a0e7881`, the seeder at `4b34f3c`, and the
+approved UI at `a4bcb4c`. The final UI `scripts/verify.ps1` run passed
+on 2026-10-22: 170 backend tests (one warning), 50 frontend tests,
+Ruff, mypy, Django, ClickHouse, ESLint, TypeScript and Vite.
+The documentation-only follow-up was pushed at `fb36906`.
 This checklist requires an actual
 operator in a browser, using the running Sentrix stack. Do not mark any item "passed"
 until you have seen it. The demo records are synthetic and not a substitute for a
@@ -12,7 +13,7 @@ separately sourced external-OTLP operational smoke.
 
 ## Prerequisites
 
-1. Verify clean `main...origin/main` at `a4bcb4c4274fde5b5199a973f46060c375c4286b` before any new changes; if the remote has advanced, rebaseline before applying a patch.
+1. Verify `main` is clean and matches `origin/main`. The documentation-only correction was pushed at `fb36906230c31ff6b7eccba03ec45c8bbe384379`; if GitHub has advanced, rebaseline rather than resetting legitimate work.
 2. Run `docker compose up -d`, then sign in at `http://localhost:5173` as an existing user.
 3. If no demo services remain in the last-hour window, run the **append-only** fixture once:
 
@@ -57,8 +58,8 @@ A trace ID reported by one example run was `cff76f1956e74b20baa7d21fe750679a`
 Fill this in **after** actual verification, then commit the documentation update:
 
 - Operator/date (UTC or local zone): **Not recorded**
-- Repository commit tested: **Not recorded** (target: `a4bcb4c4274fde5b5199a973f46060c375c4286b`)
-- Final UI `./scripts/verify.ps1` command/result/date: **Not recorded**
+- Repository UI commit tested: `a4bcb4c4274fde5b5199a973f46060c375c4286b`
+- Final UI `./scripts/verify.ps1` command/result/date: **Passed 2026-10-22; 170 backend, 50 frontend, all release checks green**
 - Browser route/project tested: **Not recorded**
 - Screens and trace-link observed results: **Not recorded**
 - Empty, error, truncation and tenant-switch notes: **Not recorded**

@@ -4,18 +4,40 @@
 
 The compact header selectors, authorized project navigation and detail drawers are
 implemented and visually approved. The final single-level card correction was committed
-and pushed at `a4bcb4c`. No post-correction `scripts/verify.ps1` result or complete
-M6.2 browser acceptance has been reported. Neither is assumed passed; M6.3 stays
-blocked until both are recorded, the required docs are committed and `main` is clean.
+and pushed at `a4bcb4c`. The post-correction `scripts/verify.ps1` gate passed
+on 2026-10-22 (170 backend, 50 frontend tests). Manual M6.2 browser
+acceptance remains unreported. M6.3 stays blocked until it is recorded and
+the closeout documentation is committed and pushed.
 See `UI_DENSITY_AND_DRAWERS.md` and `M6_2_BROWSER_ACCEPTANCE.md`.
+
+## Final UI automated verification — 2026-10-22
+
+Tested UI commit: `a4bcb4c4274fde5b5199a973f46060c375c4286b`.
+The operator reported 29 focused service catalog/detail tests passing (one
+warning); the full `scripts/verify.ps1` gate passed with 170 backend tests
+(one warning) and 50 frontend tests across 11 files. Ruff check/format,
+mypy on 101 files, Django checks and migration drift, ClickHouse schema,
+ESLint, TypeScript, Vite build and Git whitespace checks all passed.
+The documentation-only follow-up was pushed as `fb36906230c31ff6b7eccba03ec45c8bbe384379`,
+and GitHub `main` was confirmed there on 2026-10-23.
+
+Manual Services/browser/foreign-user acceptance has not been reported.
+The two synthetic demo organizations accessible to the same user do not
+prove foreign-user non-discovery. M6.3 is blocked until the actual browser
+acceptance record is completed, committed and pushed.
+
+Documentation review for this evidence-only correction: README,
+ProjectImplementation, Testing&QA, M6_2_BROWSER_ACCEPTANCE,
+UI_DENSITY_AND_DRAWERS, both V1_M6 milestone documents, PRD, DESIGN,
+ARCHITECTURE, AGENTS and FeatureDevelopment updated; DATABASE, API,
+Setup, Authentication&Security, Integrations and Debugging reviewed with
+no material contract, schema or configuration change.
 
 ## Historical M6.2/seeder checkpoint — 2026-10-21
 
-GitHub `main` is now `a4bcb4c4274fde5b5199a973f46060c375c4286b`, including the
-visually approved UI correction. The following verification record is historical
-and predates that final correction. The post-`0007` gate and M6.2 manual acceptance
-remain open; do not advance to M6.3 or claim that this historical test result
-validated `a4bcb4c`.
+This older verification record predates final UI correction `a4bcb4c`.
+Its 44 frontend tests are historical; the later 50-test UI release gate
+is documented above. M6.2 manual browser acceptance remains open.
 
 **Canonical repository:** `https://github.com/mooskyai/sentrix`
 **Last independently confirmed pushed SHA:** `4b34f3c926b75ce997a2e07f8c15520556624ba8`
@@ -148,11 +170,12 @@ browser acceptance, commit and push before starting M6.3.
 
 The subsequent data-first presentation attempt removed too many visible cards
 and was superseded by the final single-level card correction at `a4bcb4c`.
-All those changes are now pushed; the final full gate and browser acceptance
-remain unreported. M6.3 remains on hold.
+All those changes are pushed and the final full gate has passed; manual
+browser acceptance remains unreported. M6.3 remains on hold.
 
 The follow-up card-hierarchy correction restores one content surface for
 Services/Metrics/Logs/Traces/Settings while leaving Overview/Dashboards/Alerts
 item cards as siblings. Toolbars, plots and tables inside a content card do
 not get another border. This UI-only correction is pushed at `a4bcb4c`. Post-correction
-release-gate output and manual browser acceptance are still required before M6.3.
+release-gate output passed on 2026-10-22; manual browser acceptance is still
+required before M6.3.

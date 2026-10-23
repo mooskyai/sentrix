@@ -4,12 +4,24 @@
 
 The compact header selectors, authorized project navigation and detail drawers are
 implemented and visually approved. The final single-level card correction was committed
-and pushed at `a4bcb4c`. No post-correction `scripts/verify.ps1` result or complete
-M6.2 browser acceptance has been reported. Neither is assumed passed; M6.3 stays
-blocked until both are recorded, the required docs are committed and `main` is clean.
+and pushed at `a4bcb4c`. The post-correction `scripts/verify.ps1` gate passed
+on 2026-10-22 (170 backend, 50 frontend tests). Manual M6.2 browser
+acceptance remains unreported. M6.3 stays blocked until it is recorded and
+the closeout documentation is committed and pushed.
 See `UI_DENSITY_AND_DRAWERS.md` and `M6_2_BROWSER_ACCEPTANCE.md`.
 
-## Verified M6.2/seeder automated gate (Windows/Docker, 2026-10-21)
+## Verified final UI release gate — 2026-10-22
+
+The operator ran 29 focused service catalog/detail tests successfully.
+`scripts/verify.ps1` then completed on Windows/Docker with 170 backend tests
+(one warning), 50 frontend tests in 11 files, Ruff lint/format, mypy (101
+files), Django and migration checks, ClickHouse schema, ESLint, TypeScript,
+Vite build and Git whitespace checks passing. The tested UI code commit was
+`a4bcb4c`; documentation commit `fb36906` was subsequently pushed with a
+clean `main`. This is automated verification, not manual browser proof.
+See `M6_2_BROWSER_ACCEPTANCE.md` for the still-open browser gate.
+
+## Historical M6.2/seeder automated gate (Windows/Docker, 2026-10-21)
 
 The seeder completed for existing user `admin`, and its six focused tests passed. The
 complete `scripts/verify.ps1` gate then passed: 170 backend tests, 44 frontend tests,
