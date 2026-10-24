@@ -21,6 +21,29 @@ jobs:
           --health-interval 5s
           --health-timeout 3s
           --health-retries 20
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+      clickhouse:
+        image: clickhouse/clickhouse-server:25.8-alpine
+        env:
+          CLICKHOUSE_DB: sentrix
+          CLICKHOUSE_USER: default
+          CLICKHOUSE_PASSWORD: sentrix-ci
+          CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+        ports:
+          - 8123:8123
+        options: >-
+          --health-cmd "clickhouse-client --host 127.0.0.1 --user default --password=sentrix-ci --database sentrix --query 'SELECT 1'"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 30
     env:
       DJANGO_SECRET_KEY: ci-only-secret
       DJANGO_DEBUG: "false"
@@ -31,6 +54,10 @@ jobs:
       POSTGRES_PORT: 5432
       REDIS_URL: redis://localhost:6379/0
       CLICKHOUSE_HOST: localhost
+      CLICKHOUSE_PORT: 8123
+      CLICKHOUSE_DATABASE: sentrix
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: sentrix-ci
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

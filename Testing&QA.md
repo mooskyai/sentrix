@@ -1,5 +1,20 @@
 # Sentrix — Testing and Quality Assurance
 
+## GitHub Actions live-dependency integration tests — 2026-10-24
+
+CI runs `uv run pytest -q` from the Ubuntu runner and includes integration tests
+for real OTLP/HTTP persistence in ClickHouse. Therefore the backend GitHub Actions
+job must start healthy PostgreSQL (`localhost:5432`), Redis (`localhost:6379`),
+and ClickHouse (`localhost:8123`, database `sentrix`) service containers.
+The runner resolves `localhost`; the Docker Compose API container resolves
+`postgres`, `redis`, and `clickhouse` by service name. Never replace real
+persistence tests with mocks or skip `@pytest.mark.integration` merely to turn
+CI green. Validate that the job proceeds beyond
+`test_all_otlp_signals_persist_to_clickhouse`, completes all tests, and
+passes the full workflow. Record the run URL and commit SHA in the closeout.
+A connection-refused setup error indicates a missing/unhealthy network service,
+not a failed telemetry-persistence assertion.
+
 ## Roadmap-wide acceptance matrix (2026-10-24)
 
 See [ROADMAP.md](ROADMAP.md) for scoped future milestone targets, never as

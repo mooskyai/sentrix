@@ -1,5 +1,14 @@
 # Sentrix
 
+## GitHub Actions integration-test dependencies — 2026-10-24
+
+The backend CI job runs on the GitHub-hosted Ubuntu runner, **not** inside the
+Docker Compose `api` container. Its services must explicitly start PostgreSQL,
+Redis, and ClickHouse; CI connects to their published host ports at `localhost`.
+`pytest -q` includes real OTLP/ClickHouse persistence and tenant isolation tests.
+See `Testing&QA.md` for CI verification and `Debugging.md` for connection errors.
+A successful local `scripts/verify.ps1` run does not prove hosted CI services exist.
+
 ## Current product direction and release status — 2026-10-24
 
 Sentrix is being developed toward **Datadog-class core observability workflows**,

@@ -1,5 +1,13 @@
 # Sentrix — repository contributor and agent instructions
 
+## GitHub Actions real-dependency invariant — 2026-10-24
+
+CI executes pytest on the Ubuntu host, not the Compose `api` container. Keep
+PostgreSQL, Redis and ClickHouse health-checked CI services aligned with their
+host-side `localhost` environment variables; Compose uses service DNS names.
+Do not disable live ClickHouse integration tests to mask missing infrastructure.
+A passing local Docker release gate does not certify GitHub Actions.
+
 ## Standing roadmap execution contract — current 2026-10-24
 
 Treat [ROADMAP.md](ROADMAP.md) as the ordered **planning** source, not proof of

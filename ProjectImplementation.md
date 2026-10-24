@@ -1,5 +1,20 @@
 # Sentrix — Project Implementation Register
 
+## GitHub Actions ClickHouse/Redis dependency correction — 2026-10-24
+
+**Baseline:** pushed `main` `001a3027d49e6847c6856e87e243a8d05e711967`.
+The operator supplied a backend CI failure after 161 passing tests:
+`test_all_otlp_signals_persist_to_clickhouse` errored during fixture setup with
+`localhost:8123` connection refused. Inspection of `.github/workflows/ci.yml`
+confirmed the backend job defined a PostgreSQL service but **no ClickHouse or
+Redis service**, despite pointing `CLICKHOUSE_HOST` and `REDIS_URL` at localhost.
+This patch adds health-checked ClickHouse 25.8 and Redis 8 job services and explicit
+ClickHouse database/user/password/port settings. It does **not** alter test
+assertions, ingestion code, database schema, or access policy. Candidate only:
+actual GitHub Actions rerun and local `scripts/verify.ps1` remain unreported;
+M6.2/M6.3 manual acceptance remains open. Do not call the CI failure fixed until
+that rerun passes, and do not begin M6.4 based on this infrastructure correction.
+
 ## Roadmap alignment — 2026-10-24 (planning patch; not implementation)
 
 Base GitHub `main`: `0939cca36f56c6106082976f8a5410ee022e9607`.

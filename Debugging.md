@@ -1,5 +1,20 @@
 # Sentrix — Debugging and Incident Diagnosis
 
+## GitHub Actions failure: ClickHouse localhost:8123 connection refused
+
+If CI's `test_all_otlp_signals_persist_to_clickhouse` fails during
+`live_clickhouse_schema` setup with `Connection refused` to `localhost:8123`,
+inspect `.github/workflows/ci.yml` **backend services** first. The GitHub-hosted
+runner cannot reach the Compose DNS name `clickhouse`; it needs its own
+ClickHouse service bound to host port 8123, healthy before pytest. Likewise,
+CI's `REDIS_URL=redis://localhost:6379/0` requires a Redis service. Inspect
+GitHub Actions service-container logs/health state, ClickHouse credentials,
+database name and port; do not skip integration tests or change code assertions.
+For local Windows Docker Compose runs, use `docker compose ps` and
+`docker compose exec -T clickhouse clickhouse-client --query 'SELECT 1'`.
+Inside the Compose `api` container, the correct hostname is `clickhouse`,
+not `localhost`. Do not use `docker compose down -v` to troubleshoot.
+
 ## M6.3 Infrastructure — implementation candidate (not accepted)
 
 For M6.3, check `docker compose ps`, `manage.py clickhouse_schema --check`, and focused

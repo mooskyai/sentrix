@@ -1,5 +1,15 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability Test and Acceptance Plan
 
+## GitHub Actions ClickHouse integration prerequisite — 2026-10-24
+
+The backend GitHub Actions job must provision healthy PostgreSQL, Redis and
+ClickHouse services before running its unfiltered pytest suite. The existing
+M6.2/M6.3 full release gate passed locally, but the operator observed CI's
+ClickHouse persistence fixture fail to connect to `localhost:8123` after 161
+passed tests. Validate the fixed workflow on GitHub and record run evidence;
+this operational CI correction is **not** M6.2/M6.3 browser acceptance and
+does not unlock M6.4. Keep real OTLP/ClickHouse tests enabled.
+
 ## Current M6 quality and acceptance gate (2026-10-24)
 
 The last operator-reported integrated `scripts/verify.ps1` run passed 182
