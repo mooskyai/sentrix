@@ -1,5 +1,16 @@
 # Sentrix M6.4 — Observed service relationships operator acceptance
 
+## Global header selection regression — added after M6.4 commit, NOT RUN
+
+With two authorized organizations/projects and a real browser, verify initial
+auto-selection, persisted manual project selection after reload, automatic
+first-project selection when switching organization, and stale localStorage
+flag/recovery after removing access to the saved choice. A foreign/unknown
+workspace deep link must remain unavailable rather than being rerouted to a
+different project. Check fresh sign-in, sign-out/in, narrow viewport and
+keyboard controls; record actual operator/date/SHA before marking complete.
+This check does not close any previously outstanding M6 manual acceptance.
+
 **Status: NOT RUN.** M6.2 and M6.3 manual browser acceptance are still open and
 must be completed before this slice can be accepted. Candidate patch baseline:
 `8337cc14d17bc76413d5a6c9cd5418020163a737`.

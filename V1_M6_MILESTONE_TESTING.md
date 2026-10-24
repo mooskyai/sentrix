@@ -1,5 +1,17 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability Test and Acceptance Plan
 
+## Global workspace selector regression (candidate, not M6 acceptance)
+
+Verify with two real authorized organizations/projects: initial header auto-
+selects a usable pair, switching organizations selects its first project, a
+manual project choice persists across reloads and remains tenant-specific,
+and removed/foreign saved IDs are never trusted. Inspect versioned per-user
+`localStorage` for `stale: true` after a removed choice and `false` after an
+explicit valid selection. Invalid deep links must keep a not-found state;
+no project must mean no project-scoped sidebar links. Check browser refresh,
+keyboard/mobile, sign-out/in and no tokens in storage. Operator must record
+results; M6.2/M6.3/M6.4 checklists remain separate and open.
+
 ## M6.4 candidate test and acceptance matrix
 
 `backend/apps/telemetry/tests/test_service_map_api.py` includes real authenticated

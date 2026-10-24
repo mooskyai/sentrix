@@ -1,5 +1,15 @@
 # Sentrix — Feature Development Playbook
 
+## Global workspace selection maintenance — candidate
+
+Use `workspacePersistence.ts` to reconcile server-listed organization/project
+IDs with a versioned per-user localStorage preference. Do not introduce
+provider-independent storage keys, client-side authorization, or hidden fallback
+from an unauthorized explicit project route. Preserve the ability to create a
+new organization (refresh membership before selecting it) and to select the
+first project after project creation. Test with two users, missing/stale IDs,
+new/empty organizations, reloads and blocked browser storage.
+
 ## M6.4 implementation contract — candidate
 
 For relationship reads, authenticate project first, parameterize both tenant

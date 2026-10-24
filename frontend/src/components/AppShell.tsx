@@ -6,6 +6,10 @@ import { getOrganizations, getProjects } from "../api/resources";
 import type { User } from "../types";
 import { isWorkspaceSection, WORKSPACE_SECTIONS, workspacePath } from "../workspace";
 import { WorkspaceSelectionContext } from "../workspaceSelection";
+import {
+  readWorkspacePreference, reconcileWorkspacePreference, writeWorkspacePreference,
+  type WorkspacePreference,
+} from "../workspacePersistence";
 
 interface AppShellProps extends PropsWithChildren {
   user: User;
@@ -24,26 +28,12 @@ const SECTION_LABELS = {
   settings: "Settings",
 } as const;
 
-function storedSelection(userId: number): { organizationId: string; projectId: string } {
-  try {
-    const value = JSON.parse(sessionStorage.getItem(`sentrix.workspace.${userId}`) ?? "null") as unknown;
-    if (value && typeof value === "object" && "organizationId" in value && "projectId" in value) {
-      const selected = value as Record<string, unknown>;
-      return {
-        organizationId: typeof selected.organizationId === "string" ? selected.organizationId : "",
-        projectId: typeof selected.projectId === "string" ? selected.projectId : "",
-      };
-    }
-  } catch { /* Invalid or disabled browser storage is treated as no selection. */ }
-  return { organizationId: "", projectId: "" };
-}
-
 export function AppShell({ user, onLogout, children }: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const organizations = useQuery({ queryKey: ["organizations"], queryFn: getOrganizations });
   const projects = useQuery({ queryKey: ["projects"], queryFn: getProjects });
-  const [saved, setSaved] = useState(() => storedSelection(user.id));
+  const [saved, setSaved] = useState(() => readWorkspacePreference(user.id));
   const workspaceMatch =
     matchPath("/orgs/:organizationSlug/projects/:projectSlug", location.pathname) ??
     matchPath("/orgs/:organizationSlug/projects/:projectSlug/:section", location.pathname);
@@ -55,14 +45,18 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
     (item) => item.slug === workspaceMatch?.params.projectSlug &&
       item.organization_id === routeOrganization?.id,
   );
-  // A route never authorizes a workspace: only server-returned memberships and projects do.
+  // Client preferences never grant access: only server-returned memberships/projects do.
+  const resolved = organizations.isSuccess && projects.isSuccess
+    ? reconcileWorkspacePreference(organizations.data, projects.data, saved)
+    : saved;
+  // Explicit deep links are authoritative: never silently redirect a foreign or invalid URL.
   const organization = onWorkspaceRoute
     ? routeOrganization
-    : (organizations.data ?? []).find((item) => item.id === saved.organizationId);
+    : (organizations.data ?? []).find((item) => item.id === resolved.organizationId);
   const project = onWorkspaceRoute
     ? routeProject
     : (projects.data ?? []).find(
-        (item) => item.id === saved.projectId && item.organization_id === organization?.id,
+        (item) => item.id === resolved.projectId && item.organization_id === organization?.id,
       );
   const activeSection = matchPath(
     "/orgs/:organizationSlug/projects/:projectSlug/:section",
@@ -72,19 +66,30 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
   const routeOrganizationId = routeOrganization?.id ?? "";
   const routeProjectId = routeProject?.id ?? "";
   useEffect(() => {
-    if (!onWorkspaceRoute || !routeOrganizationId || !routeProjectId) return;
-    const next = { organizationId: routeOrganizationId, projectId: routeProjectId };
-    // Sync the header when navigation originates from browser history or a deep link.
-    setSaved((old) => old.organizationId === next.organizationId && old.projectId === next.projectId ? old : next);
-  }, [onWorkspaceRoute, routeOrganizationId, routeProjectId]);
-
-  useEffect(() => {
-    try { sessionStorage.setItem(`sentrix.workspace.${user.id}`, JSON.stringify(saved)); }
-    catch { /* Browser storage may be unavailable. */ }
-  }, [saved, user.id]);
+    if (!organizations.isSuccess || !projects.isSuccess) return;
+    // Do not overwrite the last authorized choice when an explicit URL is invalid.
+    if (onWorkspaceRoute && (!routeOrganizationId || !routeProjectId)) return;
+    const next: WorkspacePreference = onWorkspaceRoute
+      ? { organizationId: routeOrganizationId, projectId: routeProjectId, stale: false }
+      : {
+          organizationId: resolved.organizationId,
+          projectId: resolved.projectId,
+          stale: resolved.stale,
+        };
+    setSaved((old) => old.organizationId === next.organizationId &&
+      old.projectId === next.projectId && old.stale === next.stale ? old : next);
+    writeWorkspacePreference(user.id, next);
+  }, [
+    organizations.isSuccess, projects.isSuccess, onWorkspaceRoute,
+    routeOrganizationId, routeProjectId, resolved.organizationId, resolved.projectId,
+    resolved.stale, user.id,
+  ]);
 
   function selectOrganization(organizationId: string) {
-    setSaved({ organizationId, projectId: "" });
+    const firstProject = (projects.data ?? []).find(
+      (item) => item.organization_id === organizationId,
+    );
+    setSaved({ organizationId, projectId: firstProject?.id ?? "", stale: false });
     navigate("/");
   }
 
@@ -93,7 +98,7 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
       (item) => item.id === projectId && item.organization_id === organization?.id,
     );
     if (!nextProject || !organization) return;
-    setSaved({ organizationId: organization.id, projectId: nextProject.id });
+    setSaved({ organizationId: organization.id, projectId: nextProject.id, stale: false });
     navigate(workspacePath(
       organization.slug, nextProject.slug,
       isWorkspaceSection(activeSection) ? activeSection : "overview",
@@ -155,6 +160,12 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
             {organizations.isError || projects.isError ? (
               <span className="error" role="alert">Unable to load workspace choices.</span>
             ) : null}
+            {!onWorkspaceRoute && !contextLoading && !organizations.isError &&
+              !projects.isError && resolved.stale ? (
+                <span className="muted" role="status">
+                  Saved workspace was unavailable. First available selection restored.
+                </span>
+              ) : null}
           </div>
           <div className="topbar-account">
             <strong>{user.username}</strong>

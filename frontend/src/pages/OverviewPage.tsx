@@ -33,10 +33,11 @@ export function OverviewPage() {
   const createOrg = useMutation({
     mutationFn: createOrganization,
     onSuccess: async (organization) => {
-      selectOrganization(organization.id);
       setOrgName("");
       setOrgSlug("");
+      // Refresh server-authorized options before picking a newly created org.
       await queryClient.invalidateQueries({ queryKey: ["organizations"] });
+      selectOrganization(organization.id);
     },
   });
 

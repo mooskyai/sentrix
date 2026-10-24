@@ -1,5 +1,22 @@
 # Sentrix — Project Implementation Register
 
+## Workspace auto-default and stale localStorage preference — 2026-10-24 candidate
+
+Starting from verified pushed `main` `41ed2104aa493aeb480803e0716fbedacfe4efe9`,
+this client-only refinement selects the first authorized usable organization and
+project when needed, remembers valid manual choices in versioned per-user
+`localStorage`, marks replaced stale IDs explicitly, and migrates the former
+session-scoped preference. Explicit valid URLs continue to win; unknown/foreign
+URLs do not silently redirect to other projects. React component/pure helper
+regression tests are included. This is a **patch candidate**: no local Docker
+or hosted CI result, browser evidence, acceptance, commit or push is claimed.
+Previous M6.4 code is pushed and local `scripts/verify.ps1` passed 194 backend
+and 62 frontend tests; M6.2/M6.3/M6.4 manual acceptance remains unreported.
+Document review: README, PRD, DESIGN, ARCHITECTURE, DATABASE, API, AGENTS,
+ProjectImplementation, Setup, FeatureDevelopment, Authentication&Security,
+Integrations, Testing&QA and Debugging. No server-side contracts, database,
+telemetry, integration, ingestion or API route changes are introduced.
+
 ## M6.4 observed service map candidate — 2026-10-24
 
 Baseline verified from GitHub `main`:

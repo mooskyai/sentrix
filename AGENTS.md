@@ -1,5 +1,16 @@
 # Sentrix — repository contributor and agent instructions
 
+## Per-user workspace selection persistence contract — candidate
+
+The UI may store only organization/project identifiers, a schema version, and a
+stale-selection flag in per-user `localStorage`. Always revalidate against the
+authenticated API membership/project lists; storage, a deep link or a displayed
+selector is never an access grant. Default to the first authorized usable pair
+if there is no valid choice. Mark replaced/removed stored choices stale; clear
+that flag on a user selection or a valid authorized deep link. On invalid explicit
+workspace URLs, retain the not-found result and do not silently substitute a
+neighboring tenant. Never store access tokens, telemetry or secrets in this record.
+
 ## M6.4 implementation candidate — acceptance remains blocked
 
 The observed service map code must not be represented as accepted until the

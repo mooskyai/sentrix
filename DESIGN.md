@@ -1,5 +1,16 @@
 # Sentrix — Interface and Experience Design
 
+## Automatic workspace defaults and stale selection notice — candidate
+
+The global organization/project selectors start from the first authorized usable
+pair when none was selected. Choosing another organization automatically chooses
+its first server-listed project, while explicit project navigation retains the
+active explorer section. A valid saved preference is retained across reloads.
+When that preference becomes invalid, show a compact status message and keep the
+`localStorage` stale flag until the user makes a new choice. Do not hide unauthorized
+workspace routes by silently navigating to a different project. Preserve the
+single-level surfaces and existing responsive header placement.
+
 ## M6.4 observed relationship visualization — candidate
 
 Add a disclosure button on Services, not a new global navigation item. The

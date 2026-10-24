@@ -1,5 +1,15 @@
 # Sentrix
 
+## Automatic workspace selection and stale preference recovery — 2026-10-24 candidate
+
+When the API lists an authorized organization and project, the header selects the
+first usable organization/project pair automatically. A valid manual choice persists
+in user-scoped, versioned `localStorage`, not as an authorization token. On a
+removed or mismatched saved choice, the header falls back to server-listed IDs
+and persists `stale: true` until a fresh explicit selection. Existing valid deep
+links override preferences; invalid routes still fail closed. No telemetry query
+window, backend access policy or acceptance status is changed.
+
 ## M6.4 observed service relationships — implementation candidate
 
 The Services page gains an opt-in **Observed relationships** map from exact same-trace

@@ -1,5 +1,14 @@
 # Sentrix — Authentication, Authorization and Security
 
+## Browser workspace preference is not authentication — candidate
+
+`sentrix.workspace.v2.<userId>` holds only schema version, organization ID,
+project ID and a `stale` boolean in `localStorage`. On every load/refetch the
+header intersects it with the authenticated API response; it cannot authorize
+or select a project absent from server-returned membership. Invalid explicit
+URLs do not fall back to a different tenant; no credential or sensitive
+telemetry is stored. A blocked storage API degrades to an in-memory choice.
+
 ## M6.4 observed map trust boundary — candidate
 
 Session-authenticated membership lookup precedes the ClickHouse client. Both

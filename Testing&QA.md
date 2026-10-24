@@ -1,5 +1,16 @@
 # Sentrix — Testing and Quality Assurance
 
+## Auto-selection/localStorage regression gate — candidate
+
+Run `docker compose exec -T web npm test -- --run src/components/AppShell.test.tsx
+src/workspacePersistence.test.ts` and full `scripts/verify.ps1`. Cover first usable
+organization/project on clean storage, persistence of a valid manual choice,
+organization switch selecting its first project, legacy sessionStorage migration,
+project/org deletion or mismatch marking the versioned localStorage record stale,
+no-data and disabled-storage behavior, a separately signed-in user, browser
+navigation/deep links and unauthorized URLs. Repeat with real browser refresh,
+account sign-out/in and two organizations. No browser acceptance is presumed.
+
 ## M6.4 observed map verification (candidate)
 
 Focused backend: `docker compose exec -T api /opt/venv/bin/python -m pytest

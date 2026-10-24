@@ -50,10 +50,13 @@ export default function App() {
 
   return (
     <AppShell
+      key={me.data.id}
       user={me.data}
       onLogout={async () => {
         await logout();
-        sessionStorage.removeItem(`sentrix.workspace.${me.data.id}`);
+        // Only remove the legacy tab-scoped record; keep the safe per-user preference.
+        try { sessionStorage.removeItem(`sentrix.workspace.${me.data.id}`); }
+        catch { /* Storage may be unavailable; logout must still finish. */ }
         queryClient.clear();
         window.location.reload();
       }}
