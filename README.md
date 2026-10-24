@@ -11,7 +11,7 @@ A successful local `scripts/verify.ps1` run does not prove hosted CI services ex
 
 ## Current product direction and release status — 2026-10-24
 
-Sentrix is being developed toward **Datadog-class core observability workflows**,
+Sentrix is being developed toward **production-grade observability workflows**,
 using vendor-neutral OpenTelemetry collection. This is a *roadmap*, not a claim
 of feature parity. See **[ROADMAP.md](ROADMAP.md)** for staged deliverables,
 security/quality gates and an implemented-vs-planned capability ledger.

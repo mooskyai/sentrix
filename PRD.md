@@ -4,8 +4,9 @@
 
 **North star:** connected applications deliver real telemetry that developers
 can investigate across Services, Traces, Logs, Metrics, Infrastructure, dashboards
-and alerts. Design toward Datadog-class *core workflows*, not visual or product
-parity. Prefer OpenTelemetry SDKs/Collector and first-class, tested onboarding.
+and alerts. Prioritize evidence-backed core observability workflows, not
+visual imitation or unsupported claims. Prefer OpenTelemetry SDKs/Collector
+and first-class, tested onboarding.
 **[ROADMAP.md](ROADMAP.md)** is the ordered product plan and release-gate ledger.
 
 **At `0939cca`:** V1 M1–M5 and M6.1 have existing delivery evidence. M6.2

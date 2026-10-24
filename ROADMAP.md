@@ -1,4 +1,4 @@
-# Sentrix — Product Roadmap (Datadog-class Observability)
+# Sentrix — Product Roadmap (Core Observability Platform)
 
 **Status:** approved direction / planning only. **Baseline reviewed:** GitHub `main` at
 `0939cca36f56c6106082976f8a5410ee022e9607` (2026-10-24 review).
@@ -7,13 +7,13 @@ or monitoring capabilities. Milestone acceptance remains evidence-based.
 
 ## North star and positioning
 
-Sentrix should solve the core observability workflows associated with mature
-platforms such as Datadog: connect an application; collect metrics, logs, traces
-and infrastructure signals; discover services; investigate latency, errors and
-correlations; create dashboards and alerts; and act on reliable evidence.
-The objective is *functional usefulness*, not UI imitation, marketing parity or
-a complete clone. Prefer vendor-neutral OpenTelemetry SDKs and Collector
-components; build Sentrix-specific components only for real gaps.
+Sentrix should deliver end-to-end observability workflows: connect an
+application; collect metrics, logs, traces and infrastructure signals;
+discover services; investigate latency, errors and correlations; build
+dashboards and alerts; and act on reliable evidence.
+The objective is *functional usefulness*, with capabilities supported by real
+telemetry and test evidence. Prefer vendor-neutral OpenTelemetry SDKs and
+Collector components; build Sentrix-specific components only for real gaps.
 
 **Non-negotiable boundaries:** Django/PostgreSQL control plane for authenticated
 accounts, organizations, projects and configuration; ClickHouse telemetry data
@@ -130,7 +130,7 @@ Keep **Documentation** in the sidebar. Lead with framework quickstarts and
 getting-started steps, not the API reference. Preserve the hidden direct API
 reference route until it is ready to surface deliberately. Each runnable guide
 needs prerequisites, secrets/endpoint selection, install, configure, request,
-verify and troubleshooting. SDK or Datadog reference links are learning sources,
+verify and troubleshooting. Upstream SDK and protocol references are learning sources,
 not proof that a Sentrix integration has been exercised.
 
 **Canonical status:** this roadmap and the latest evidenced entry in

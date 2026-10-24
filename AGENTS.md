@@ -16,14 +16,18 @@ operator results and acceptance checklists. At `0939cca`, M6.3 infrastructure
 and framework documentation are pushed; M6.2/M6.3 manual acceptance stays open.
 Never begin M6.4 until both acceptance checklists are completed and pushed.
 
-For each new Datadog-class workflow, prefer OpenTelemetry SDKs/Collector,
+For each new Sentrix workflow, prefer OpenTelemetry SDKs/Collector,
 but verify *actual framework processes*, data reception and supported signals.
-Do not claim native Datadog agents, gRPC/JSON ingestion, an all-in-one collector,
+Do not claim a proprietary agent, gRPC/JSON ingestion, an all-in-one collector,
 Kubernetes inventory, automatic alert scheduling, RUM or a new Sentrix SDK.
 Keep browser credentials public-safe and ingestion keys server-only. First
 specify auth, tenancy, cardinality, retention, query limits and failure modes;
 then deliver one patch, focused/full verification, real acceptance, docs,
 commit/push and a clean aligned `main`.
+
+Keep repository documentation, UI text, tests and release notes Sentrix-first.
+Avoid named competitor references unless the product owner changes this policy;
+describe concrete supported capabilities and evidence instead of comparisons.
 
 ## Historical M6.3 candidate instruction (superseded by current status)
 

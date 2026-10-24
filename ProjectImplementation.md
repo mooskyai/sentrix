@@ -1,5 +1,16 @@
 # Sentrix — Project Implementation Register
 
+## Repository terminology cleanup — 2026-10-24 (documentation only)
+
+Baseline: `f0fc483803779911b3830e5beee7fc4b632f605e` (pushed `main`).
+Replace named competitor references with Sentrix-first capability language in
+ROADMAP, README, PRD, AGENTS, V1 M6 milestone and this register. No product
+code, API, schema or feature scope changes. Existing M6.2/M6.3 acceptance
+remains open. The operator reported a passing local release gate (182 backend,
+58 frontend tests) for the previous CI correction, but its hosted Actions
+rerun has not been independently verified here. This wording-only patch needs
+application and review before commit/push; no new test pass is claimed.
+
 ## GitHub Actions ClickHouse/Redis dependency correction — 2026-10-24
 
 **Baseline:** pushed `main` `001a3027d49e6847c6856e87e243a8d05e711967`.
@@ -20,7 +31,7 @@ that rerun passes, and do not begin M6.4 based on this infrastructure correction
 Base GitHub `main`: `0939cca36f56c6106082976f8a5410ee022e9607`.
 Documentation-only change: publish [ROADMAP.md](ROADMAP.md) and align product,
 architecture, contributor workflow, integration, setup, design, test and V1 M6
-plans around phased Datadog-class observability outcomes. **No application
+plans around phased core observability outcomes. **No application
 code, collector, schema or API was changed.** The roadmap artifact itself
 is not a tested or committed milestone until the user applies and pushes it.
 

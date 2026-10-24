@@ -2,7 +2,7 @@
 
 ## Current M6 execution order (2026-10-24)
 
-The longer-term Datadog-class product strategy is in [ROADMAP.md](ROADMAP.md).
+The longer-term Sentrix product strategy is in [ROADMAP.md](ROADMAP.md).
 M6.1 was accepted. M6.2 Services detail and M6.3 Infrastructure code have
 been pushed (M6.3 at `75d2d21`; framework sidebar/docs at `0939cca`).
 The operator reported a green 182-backend/58-frontend release gate.
