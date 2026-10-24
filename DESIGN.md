@@ -1,5 +1,14 @@
 # Sentrix — Interface and Experience Design
 
+## M6.4 observed relationship visualization — candidate
+
+Add a disclosure button on Services, not a new global navigation item. The
+expanded view shows accessible parent → child service pairs, both exact
+environments, observed span-pair count, and links to real trace IDs in the same
+project/window. Use the existing single flat workspace surface, responsive
+wrapping and visible loading/empty/error/incomplete states. Avoid a fabricated
+force-directed topology, inferred hosts or service health coloring.
+
 ## Experience direction — guided connection to investigation (2026-10-24)
 
 See [ROADMAP.md](ROADMAP.md). Keep **Documentation** in the global sidebar;

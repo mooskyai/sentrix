@@ -1,5 +1,18 @@
 # Sentrix API reference: authentication, routes and limits
 
+## M6.4 observed service relationships — candidate API
+
+Project members can use `GET /api/v1/projects/{project_id}/services/map/`
+with optional RFC3339 `start`, `end` and integer `limit` (default 100; max 500).
+Only Django-session-authorized projects are readable. Response has
+`project_id`, `start`, `end`, `limit`, `truncated`, `span_scan_truncated`,
+`scanned_spans` and `relationships` with observed parent/child service pairs,
+environments, counts, and up to three sample trace IDs. Half-open UTC windows
+are at most seven days; 10,000 spans are scanned per request. Unobserved or
+missing parentage is not a service-health finding. A failure returns 503; a
+foreign or unknown project returns 404 without a telemetry read. This route
+is an implementation candidate pending operational acceptance.
+
 This document complements the canonical root [API.md](../API.md) and is linked from project **Settings → API reference**. It documents stable implemented routes. No Kubernetes API integration is implied.
 
 ## Bases and authentication

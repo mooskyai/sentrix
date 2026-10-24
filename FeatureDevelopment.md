@@ -1,5 +1,14 @@
 # Sentrix — Feature Development Playbook
 
+## M6.4 implementation contract — candidate
+
+For relationship reads, authenticate project first, parameterize both tenant
+UUIDs, use UTC half-open bounded windows and fixed raw scan limits, and resolve
+an edge only when observed parent/child span IDs belong to the same trace.
+Group exact service/environment pairs; deduplicate retry spans; expose evidence
+and truncation in the API/UI. Update focused tests and operational checklists;
+do not advance acceptance from synthetic fixtures or unit tests alone.
+
 ## Implementation workflow for roadmap items — 2026-10-24
 
 Use [ROADMAP.md](ROADMAP.md) to select one **unblocked** milestone; start with

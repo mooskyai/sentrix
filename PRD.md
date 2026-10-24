@@ -1,5 +1,14 @@
 # Sentrix — Product Requirements Document
 
+## M6.4 candidate user journey
+
+A project member opens **Services → Show observed relationships** and sees only
+cross-service edges proven by span parentage inside that project's selected UTC
+window, with a sample trace link for investigation. Empty, loading, backend
+unavailable and scan/result truncation are distinct. Service/environment remains
+an exact observed pair; no inferred health, uptime, network path or inventory.
+M6.2/M6.3 manual gates remain prerequisites to accepting or shipping M6.4.
+
 ## Product direction, evidence and phased scope — current 2026-10-24
 
 **North star:** connected applications deliver real telemetry that developers

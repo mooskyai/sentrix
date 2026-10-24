@@ -1,5 +1,18 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability Test and Acceptance Plan
 
+## M6.4 candidate test and acceptance matrix
+
+`backend/apps/telemetry/tests/test_service_map_api.py` includes real authenticated
+OTLP/ClickHouse two-service span parentage, foreign project 404 before querying,
+missing parent/cross-trace/same-service exclusion, ID ambiguity, duplicate spans,
+invalid windows, empty vs 503, edge cap and 10,000-span scan cap. Frontend
+`ServiceMapPanel.test.tsx` covers observed links, exact environments, real trace
+navigation, truncation, dependency failure, and project-keyed refresh.
+Run focused tests, full `scripts/verify.ps1`, and manual steps in
+`M6_4_BROWSER_ACCEPTANCE.md` with real producer identifiers but no secrets.
+M6.2/M6.3 manuals must be closed first. None of these gates is claimed passed
+merely from producing this patch.
+
 ## GitHub Actions ClickHouse integration prerequisite — 2026-10-24
 
 The backend GitHub Actions job must provision healthy PostgreSQL, Redis and

@@ -1,5 +1,17 @@
 # Sentrix Architecture
 
+## M6.4 observed service map — candidate data path
+
+The signed-in browser selects an authorized project and bounded UTC window. DRF
+resolves the membership **before** querying ClickHouse `sentrix_spans` with
+server-derived organization and project UUIDs. A single bounded query reads only
+trace/span/parent IDs plus observed service and environment. Edges require an
+actual same-trace parent and child span; missing, ambiguous or same-service
+parents do not create an edge. In-memory aggregation is request-local, never a
+persisted service topology. Raw scan and result limits are explicit; truncation
+can mean valid relationships are absent from the result. No migrations, graph DB,
+new ingestion contract, or worker. Release acceptance remains separate.
+
 ## Current architecture boundary and future evolution (2026-10-24)
 
 Roadmap: [ROADMAP.md](ROADMAP.md). Current control plane: Django/DRF,

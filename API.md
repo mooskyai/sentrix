@@ -1,5 +1,18 @@
 # Sentrix — HTTP and Worker API Reference
 
+## M6.4 observed service map — candidate API
+
+`GET /api/v1/projects/{project_id}/services/map/?start=RFC3339&end=RFC3339&limit=100`
+uses Django session authentication and project membership before ClickHouse. Window
+is UTC half-open, defaults to 24h and caps at 7d. Limit defaults to 100, range 1–500.
+Response: `{project_id,start,end,limit,truncated,span_scan_truncated,scanned_spans,relationships}`.
+Each relationship has `from_service`, `from_environment`, `to_service`,
+`to_environment`, `span_pairs` and up to three real `trace_ids`. The maximum
+raw span scan is 10,000 rows, queried with `LIMIT 10001` to detect truncation;
+`truncated` is true for either an edge limit or the raw scan cap. `404` for
+foreign/unknown projects without ClickHouse access; `400` bad bounds; `503`
+dependency failure. No inferred links, health or background graph cache.
+
 ## M6.3 Infrastructure — implementation candidate (not accepted)
 
 Candidate route: `GET /api/v1/projects/{project_id}/infrastructure/?start=...&end=...&limit=...`.

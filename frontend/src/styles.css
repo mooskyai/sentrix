@@ -1325,3 +1325,15 @@
     padding: .75rem; background: var(--color-canvas-soft); border-radius: .4rem; }
   .docs-quickstart code, .docs-quickstart pre { overflow-wrap: anywhere; }
 }
+
+/* M6.4: trace-proven directed relationships, inside the existing flat Services surface. */
+@layer components {
+  .service-map { @apply grid gap-2 border-t border-line pt-3; }
+  .service-map-links { @apply m-0 grid gap-2 p-0; list-style: none; }
+  .service-map-edge { @apply grid gap-1 border-b border-line py-2; }
+  .service-map-pair { @apply flex flex-wrap items-center gap-2; }
+  .service-map-node { @apply grid gap-0.5; min-width: 140px; overflow-wrap: anywhere; }
+  .service-map-node small { @apply text-ink-muted; }
+  .service-map-arrow { @apply text-ink-muted; font-size: 1.3rem; }
+  .service-map-traces { @apply flex flex-wrap gap-3 text-sm; }
+}

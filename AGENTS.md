@@ -1,5 +1,14 @@
 # Sentrix — repository contributor and agent instructions
 
+## M6.4 implementation candidate — acceptance remains blocked
+
+The observed service map code must not be represented as accepted until the
+separate M6.2/M6.3 manual evidence is recorded and the M6.4 tests, real external
+OTLP multi-service evidence, browser checks, full release gate and clean commit
+are reported. Preserve strict server-side tenancy and require stored same-trace
+span parentage; do not infer graph edges or service health. Keep the roadmap
+independent of competitor names and do not rewrite historical acceptance facts.
+
 ## GitHub Actions real-dependency invariant — 2026-10-24
 
 CI executes pytest on the Ubuntu host, not the Compose `api` container. Keep

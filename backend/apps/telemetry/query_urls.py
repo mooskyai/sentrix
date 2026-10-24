@@ -5,6 +5,7 @@ from .logs_views import LogSearchView
 from .metrics_views import MetricCatalogView, MetricSeriesView
 from .service_catalog_views import ServiceCatalogView
 from .service_detail_views import ServiceDetailView
+from .service_map_views import ServiceMapView
 from .traces_views import TraceDetailView
 
 urlpatterns = [
@@ -22,6 +23,11 @@ urlpatterns = [
         "projects/<uuid:project_id>/services/detail/",
         ServiceDetailView.as_view(),
         name="project-service-detail",
+    ),
+    path(
+        "projects/<uuid:project_id>/services/map/",
+        ServiceMapView.as_view(),
+        name="project-service-map",
     ),
     path(
         "projects/<uuid:project_id>/metrics/catalog/",

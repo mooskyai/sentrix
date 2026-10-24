@@ -1,5 +1,14 @@
 # Sentrix
 
+## M6.4 observed service relationships — implementation candidate
+
+The Services page gains an opt-in **Observed relationships** map from exact same-trace
+parent/child spans. A bounded, session-authorized API provides directional evidence
+and sample trace links; it never assumes missing edges mean downtime. No graph
+store or schema change. See `V1_M6_MILESTONE.md` and `M6_4_BROWSER_ACCEPTANCE.md`.
+The M6.2 and M6.3 operator acceptance gates remain open; this candidate is not
+verified, accepted, or committed merely by applying the patch.
+
 ## GitHub Actions integration-test dependencies — 2026-10-24
 
 The backend CI job runs on the GitHub-hosted Ubuntu runner, **not** inside the

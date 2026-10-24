@@ -1,5 +1,16 @@
 # Sentrix — Debugging and Incident Diagnosis
 
+## M6.4 observed relationships diagnostic guide — candidate
+
+When Services shows no links, verify that both parent and child spans were
+actually ingested in the selected project, same trace ID and time window,
+with distinct `service.name` and a nonzero child `parent_span_id`. Missing,
+ambiguous and same-service parentage intentionally produce no edge. A window
+or raw-scan cap may omit valid links; `span_scan_truncated` and `truncated`
+must not be dismissed. A 503 indicates a ClickHouse read failure, not an
+empty dependency map. Check the Django API and ClickHouse logs without
+logging keys or sensitive span attributes.
+
 ## GitHub Actions failure: ClickHouse localhost:8123 connection refused
 
 If CI's `test_all_otlp_signals_persist_to_clickhouse` fails during

@@ -1,5 +1,15 @@
 # Sentrix — Testing and Quality Assurance
 
+## M6.4 observed map verification (candidate)
+
+Focused backend: `docker compose exec -T api /opt/venv/bin/python -m pytest
+apps/telemetry/tests/test_service_map_api.py -v` (including live ClickHouse).
+Focused UI: `docker compose exec -T web npm test -- --run
+src/components/ServiceMapPanel.test.tsx src/components/ServicesWorkspace.test.tsx`.
+Then `./scripts/verify.ps1`, real OTLP producer and separate authenticated
+browser/foreign-user tests in `M6_4_BROWSER_ACCEPTANCE.md`. Ensure neither
+expired trace IDs nor incomplete scans lead to fabricated topology.
+
 ## GitHub Actions live-dependency integration tests — 2026-10-24
 
 CI runs `uv run pytest -q` from the Ubuntu runner and includes integration tests

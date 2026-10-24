@@ -1,5 +1,15 @@
 # Sentrix — Authentication, Authorization and Security
 
+## M6.4 observed map trust boundary — candidate
+
+Session-authenticated membership lookup precedes the ClickHouse client. Both
+organization/project IDs are resolved server-side; trace IDs, service names,
+environments and parent IDs are untrusted telemetry, not access keys. Only
+same-trace, same-project in-window spans form edges. A foreign project is a
+404 without querying data. Frontend query caching includes project UUID and
+exact time boundaries. Sample trace IDs remain scoped to the current project;
+no raw API credentials appear in browser code or error responses.
+
 ## Future observability security requirements (roadmap only)
 
 See [ROADMAP.md](ROADMAP.md). SDK/Collector examples must send project keys

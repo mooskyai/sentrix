@@ -1,5 +1,14 @@
 # Sentrix — Product Roadmap (Core Observability Platform)
 
+## M6.4 observed service map implementation candidate
+
+The next technical slice reads trace-proven parent/child service relationships
+through a bounded, membership-scoped API and renders them inside Services.
+No new data collection, graph storage, automatic health or inferred topology.
+The M6.2/M6.3 operator acceptance records are still open and block **acceptance**
+of M6.4; its own live OTLP/browser verification is in
+`M6_4_BROWSER_ACCEPTANCE.md`. Later roadmap phases are unchanged.
+
 **Status:** approved direction / planning only. **Baseline reviewed:** GitHub `main` at
 `0939cca36f56c6106082976f8a5410ee022e9607` (2026-10-24 review).
 This document does not deliver new APIs, workers, collectors, SDKs, integrations,

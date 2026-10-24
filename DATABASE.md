@@ -1,5 +1,14 @@
 # Sentrix — Data Models and Persistence
 
+## M6.4 span relationship query — candidate
+
+Read existing `sentrix_spans.trace_id`, `span_id`, `parent_span_id`,
+`service_name`, `environment` and `start_time`; every read is scoped to trusted
+`organization_id` and `project_id`. A request-local hash map resolves only
+same-trace parent IDs inside a bounded scanned window. No new table, schema,
+index, PostgreSQL graph, or materialized relationship. The 10,000-span scan cap
+and 1–500 edge response bound prevent unbounded in-process aggregation.
+
 ## M6.3 Infrastructure — implementation candidate (not accepted)
 
 M6.3 reuses `Map(String, String) resource_attributes` on existing `sentrix_metrics`,

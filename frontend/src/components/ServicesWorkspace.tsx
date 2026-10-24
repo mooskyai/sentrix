@@ -4,6 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import { getServiceCatalog, getServiceDetail } from "../api/resources";
 import { DetailDrawer } from "./DetailDrawer";
+import { ServiceMapPanel } from "./ServiceMapPanel";
 import type { ObservedService } from "../types";
 
 const RANGE_MS = {
@@ -46,6 +47,7 @@ export function ServicesWorkspace({
 }: ServicesWorkspaceProps) {
   const [range, setRange] = useState<Range>("24h");
   const [anchorMs, setAnchorMs] = useState(() => Date.now());
+  const [showMap, setShowMap] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const serviceName = searchParams.get("service_name");
   const environment = searchParams.get("environment");
@@ -126,6 +128,14 @@ export function ServicesWorkspace({
       <p className="muted service-window">
         Requested observation window: {utc(window.start)} — {utc(window.end)} (end exclusive)
       </p>
+      <button className="button secondary" type="button" aria-expanded={showMap}
+        onClick={() => setShowMap((open) => !open)}>
+        {showMap ? "Hide observed relationships" : "Show observed relationships"}
+      </button>
+      {showMap ? (
+        <ServiceMapPanel key={projectId} projectId={projectId} start={window.start}
+          end={window.end} tracesPath={tracesPath} />
+      ) : null}
       {catalog.isPending ? <p role="status">Loading observed services…</p> : null}
       {catalog.isError ? (
         <p className="error" role="alert">Unable to load services: {catalog.error.message}</p>

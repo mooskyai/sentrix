@@ -268,3 +268,13 @@ export function getServiceDetail(
     `/projects/${encodeURIComponent(projectId)}/services/detail/?${params.toString()}`,
   );
 }
+
+export function getServiceMap(
+  projectId: string,
+  query: { start: string; end: string; limit: number },
+): Promise<import("../types").ServiceMapResponse> {
+  const params = metricQueryString(query);
+  return api<import("../types").ServiceMapResponse>(
+    `/projects/${encodeURIComponent(projectId)}/services/map/?${params}`,
+  );
+}

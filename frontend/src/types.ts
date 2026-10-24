@@ -294,3 +294,23 @@ export interface ServiceDetailResponse {
     trace_references: boolean;
   };
 }
+
+export interface ObservedServiceRelationship {
+  from_service: string;
+  from_environment: string;
+  to_service: string;
+  to_environment: string;
+  span_pairs: number;
+  trace_ids: string[];
+}
+
+export interface ServiceMapResponse {
+  project_id: string;
+  start: string;
+  end: string;
+  limit: number;
+  truncated: boolean;
+  span_scan_truncated: boolean;
+  scanned_spans: number;
+  relationships: ObservedServiceRelationship[];
+}

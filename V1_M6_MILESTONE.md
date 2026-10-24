@@ -1,5 +1,16 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability
 
+## M6.4 observed service relationships — implementation candidate
+
+Create a bounded `services/map/` read endpoint from existing span parent IDs,
+plus an opt-in Services relationship view. Only actual same-project, same-trace
+parent/child pairs with different service names generate directed edges.
+Disambiguate environment, reject missing/ambiguous IDs, and expose sample trace
+links. Query scanning is limited to 10,000 spans and edges to 1–500, with
+visible incompleteness. No graph storage, new collectors, inference or status.
+**Status: candidate only.** M6.2/M6.3 browser acceptance is still open.
+M6.4 must also pass `M6_4_BROWSER_ACCEPTANCE.md` before release.
+
 ## Current M6 execution order (2026-10-24)
 
 The longer-term Sentrix product strategy is in [ROADMAP.md](ROADMAP.md).

@@ -1,5 +1,21 @@
 # Sentrix — Project Implementation Register
 
+## M6.4 observed service map candidate — 2026-10-24
+
+Baseline verified from GitHub `main`:
+`8337cc14d17bc76413d5a6c9cd5418020163a737`. Candidate patch adds a
+bounded tenant-first read-only service relationship query from stored parent and
+child spans, `services/map/` endpoint, React relationship disclosure and tests.
+Existing ClickHouse schema, ingestion, security roles and deployment are unchanged.
+The candidate is **not verified on user Docker, not accepted, not committed or
+pushed**. M6.2/M6.3 manual acceptance remains open; do not represent M6.4 as
+shipped before real multi-service OTLP/browser proof and green release gate.
+See `V1_M6_MILESTONE_TESTING.md` and `M6_4_BROWSER_ACCEPTANCE.md`.
+Docs reviewed: README, PRD, DESIGN, ARCHITECTURE, DATABASE, API, AGENTS,
+ProjectImplementation, Setup, FeatureDevelopment, Authentication&Security,
+Integrations, Testing&QA and Debugging. Setup, Integrations and Debugging
+contracts do not change with this read-only query.
+
 ## Repository terminology cleanup — 2026-10-24 (documentation only)
 
 Baseline: `f0fc483803779911b3830e5beee7fc4b632f605e` (pushed `main`).
