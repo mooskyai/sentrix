@@ -1,6 +1,21 @@
 # Sentrix Architecture
 
-## M6.3 Infrastructure — implementation candidate (not accepted)
+## Current architecture boundary and future evolution (2026-10-24)
+
+Roadmap: [ROADMAP.md](ROADMAP.md). Current control plane: Django/DRF,
+PostgreSQL (identity, membership, projects, credentials, configuration),
+Django browser sessions/CSRF; data plane: project-key-authenticated
+OTLP/HTTP protobuf into ClickHouse (metrics/logs/spans). Redis does not
+implicitly provide a production scheduler. M6.3 reads *observed* resource
+attributes; there is no live Kubernetes inventory, agent or inferred health.
+
+Future Collector integrations, APM aggregates, query retention limits, recurring
+alert workers and browser ingest require new explicit threat models, tenancy,
+scaling and failure semantics **before implementation**. Do not turn roadmap
+proposals into infrastructure diagrams labeled 'implemented'. At `0939cca`,
+M6.2/M6.3 are pushed with open operator acceptance; M6.4 map is unimplemented.
+
+## Historical M6.3 design candidate (implemented; manual acceptance open)
 
 M6.3 candidate: the authorized Django project supplies both trusted IDs to a read-only, bounded
 UNION of ClickHouse metrics/logs/spans. Each existing record stores `resource_attributes`;

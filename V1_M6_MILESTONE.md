@@ -1,6 +1,21 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability
 
-## M6.3 Infrastructure — implementation candidate (not accepted)
+## Current M6 execution order (2026-10-24)
+
+The longer-term Datadog-class product strategy is in [ROADMAP.md](ROADMAP.md).
+M6.1 was accepted. M6.2 Services detail and M6.3 Infrastructure code have
+been pushed (M6.3 at `75d2d21`; framework sidebar/docs at `0939cca`).
+The operator reported a green 182-backend/58-frontend release gate.
+**Not accepted yet:** the separate real-data/operator/browser checks in
+`M6_2_BROWSER_ACCEPTANCE.md` and `M6_3_BROWSER_ACCEPTANCE.md`.
+
+**Strict sequence:** close M6.2/M6.3 acceptance with actual evidence and a
+synchronized documentation commit; then implement M6.4 observed service
+relationships, then M6.5 full multi-service operational closeout. New
+post-M6 onboarding/APM/infrastructure milestones start only after those gates.
+Do not mistake the historical candidate note below for unpushed code.
+
+## Historical M6.3 implementation design (pushed; acceptance still open)
 
 M6.3 proposed implementation: project Infrastructure route groups the 11 supported, nonempty OTel
 resource attributes co-observed on individual metrics/logs/spans resources. Full attribute-set

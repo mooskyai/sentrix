@@ -1,6 +1,30 @@
 # Sentrix — Project Implementation Register
 
-## Documentation sidebar and framework quickstart — 2026-10-23 candidate
+## Roadmap alignment — 2026-10-24 (planning patch; not implementation)
+
+Base GitHub `main`: `0939cca36f56c6106082976f8a5410ee022e9607`.
+Documentation-only change: publish [ROADMAP.md](ROADMAP.md) and align product,
+architecture, contributor workflow, integration, setup, design, test and V1 M6
+plans around phased Datadog-class observability outcomes. **No application
+code, collector, schema or API was changed.** The roadmap artifact itself
+is not a tested or committed milestone until the user applies and pushes it.
+
+Correct the distinction in older snapshots: M6.3 infrastructure is pushed at
+`75d2d21`; the sidebar/framework guides are pushed at `0939cca`. User-reported
+prior release gate: **182 backend and 58 frontend passed**. Operator evidence
+in `M6_2_BROWSER_ACCEPTANCE.md` and `M6_3_BROWSER_ACCEPTANCE.md` remains
+unreported, so neither M6.2 nor M6.3 may be marked manually accepted. M6.4
+and M6.5 remain future work. After this planning patch, verify Git diff,
+review/check links, commit/push and record the resulting SHA in the next entry.
+
+Documentation review: README, PRD, DESIGN, ARCHITECTURE, DATABASE, API,
+AGENTS, ProjectImplementation, Setup, FeatureDevelopment,
+Authentication&Security, Integrations, Testing&QA and Debugging; no new wire
+formats, authorization model, schema or alert evaluator behavior is introduced,
+so the existing API/database/debug contracts remain unchanged. M6 milestone,
+testing and framework quickstart docs are synchronized here.
+
+## Historical 2026-10-23 documentation patch preparation note
 
 Repository baseline: `75d2d212259caf8bce579464e008ed8755c45493`, pushed GitHub main.
 Adds a persistent authenticated Documentation sidebar entry and Laravel, Node.js, React/Vite,

@@ -1,6 +1,26 @@
 # Sentrix — Product Requirements Document
 
-## M6.3 Infrastructure — implementation candidate (not accepted)
+## Product direction, evidence and phased scope — current 2026-10-24
+
+**North star:** connected applications deliver real telemetry that developers
+can investigate across Services, Traces, Logs, Metrics, Infrastructure, dashboards
+and alerts. Design toward Datadog-class *core workflows*, not visual or product
+parity. Prefer OpenTelemetry SDKs/Collector and first-class, tested onboarding.
+**[ROADMAP.md](ROADMAP.md)** is the ordered product plan and release-gate ledger.
+
+**At `0939cca`:** V1 M1–M5 and M6.1 have existing delivery evidence. M6.2
+service detail and M6.3 infrastructure/API plus Documentation sidebar, Laravel,
+Node.js, React and Next.js guide code are pushed. The operator reported a full
+182-backend/58-frontend automated gate; real framework certification and
+M6.2/M6.3 manual browser acceptance are still open. M6.4 and M6.5 are planned.
+
+**Future requirements, not existing features:** reliable guided real-exporter
+onboarding (including Django/Collector), evidence-backed APM analysis and service
+relationships, host/K8s collection, enhanced aggregate/query/dashboards,
+continuous alert scheduling/SLOs, and safely scoped browser monitoring. Each
+requires its own protocol/security/error/limit contract and test evidence.
+
+## Historical M6.3 requirement brief (code now pushed; manual acceptance open)
 
 M6.3 candidate user story: a signed-in project member can inspect observed host/Kubernetes
 resource dimensions derived from ingested OTLP, including co-observed names, last seen and counts.
@@ -19,7 +39,7 @@ reported; the full release gate after the final UI correction passed on
 acceptance has **not** been reported. See
 `UI_DENSITY_AND_DRAWERS.md` and `M6_2_BROWSER_ACCEPTANCE.md`.
 
-**Document status:** V1 implemented through M5; V1 M6 service/infrastructure observability is a proposed next milestone pending its planning and implementation patches. **Canonical implementation evidence:** `ProjectImplementation.md` and the milestone files.
+**Current document status:** M6.2/M6.3 code is pushed; real operator/browser acceptance is still open. M6.4/M6.5 remain planned. See `ROADMAP.md`, `ProjectImplementation.md` and the M6 acceptance checklists.
 
 ## 1. Product definition
 
@@ -75,7 +95,7 @@ V1 does **not** claim automatic recurring evaluation/dispatch: those run through
 
 **Not implemented in V1 M1–M5:** scheduled alert evaluation/delivery workers, incident management, alert history, service ownership/SLOs, Kubernetes API integration, billing, SSO/MFA, AI root-cause analysis, graph database, unbounded dashboards.
 
-**Proposed V1 M6 sequence:** tenant-scoped service discovery; service workspace; infrastructure/Kubernetes resource attributes; observed trace relationships; operational closeout. This is a plan, **not an existing API/UI**. If the M6 plan patch is accepted, follow `V1_M6_MILESTONE.md` and `V1_M6_MILESTONE_TESTING.md`.
+**V1 M6 current sequence:** tenant-scoped service discovery, Services detail and observed infrastructure attributes have implementation evidence. M6.2/M6.3 manual acceptance remains open; only then proceed to M6.4 real-span relationship mapping and M6.5 operational closeout. Follow `ROADMAP.md`, `V1_M6_MILESTONE.md` and `V1_M6_MILESTONE_TESTING.md`.
 
 ## 7. Release criterion
 
@@ -90,9 +110,9 @@ Do not mark a slice delivered from documentation alone. Require targeted tests, 
 | V1 M3 | Raw scalar metrics and configured project dashboard panels | **Implemented** | Query correctness, real metric and browser checks |
 | V1 M4 | Log investigation and exact log-to-trace correlation | **Implemented** | Correlated OTLP signals and real navigation |
 | V1 M5 | Metric alert evaluation, persisted states and signed webhook delivery | **Implemented** | Firing, deduplication, recovery and delivery closeout |
-| V1 M6 | Service discovery, detail, infrastructure attributes and observed span relationships | **M6.1 accepted; M6.2 code pushed/browser gate open** | `2c1b5a2`, `a0e7881`; M6.3–M6.5 planned |
+| V1 M6 | Service discovery/detail and observed infrastructure attributes; service map planned | **M6.1 accepted; M6.2/M6.3 code pushed, manual acceptance open** | `75d2d21`, `0939cca`; M6.4–M6.5 planned |
 
-These are **six milestones within product Version 1**, not claims that six separately released product versions exist. M6.1 and M6.2 service UI/API code exists; M6.3–M6.5 are not implemented. For acceptance see `V1_M6_MILESTONE.md` and `V1_M6_MILESTONE_TESTING.md`.
+These are **six milestones within product Version 1**, not six separately released product versions. M6.2 and M6.3 code is shipped, but manual acceptance remains unrecorded; M6.4/M6.5 are unimplemented. See `ROADMAP.md` and the M6 milestone/testing/acceptance docs.
 
 ### M6 product acceptance contract (planned)
 

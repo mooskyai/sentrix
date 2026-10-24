@@ -1,5 +1,16 @@
 # Framework setup quickstart for Sentrix
 
+## Roadmap and evidence status (2026-10-24)
+
+The in-app framework choices are **onboarding recipes**, not a certified SDK
+compatibility matrix. At `0939cca` this guide and its sidebar entry are pushed;
+full automated tests were user-reported as green, but per-framework real-app
+smoke tests and M6.2/M6.3 operator acceptance remain open. See
+[ROADMAP.md](../ROADMAP.md) for the required Laravel/Node/Next/Django/Collector
+runtime acceptance matrix. React uses an instrumented backend until a separate
+browser-safe data ingestion design exists. Never put keys in `VITE_*` or
+`NEXT_PUBLIC_*` environment values.
+
 The in-app **Documentation** link in the left sidebar (`/docs/telemetry-setup`) provides copyable, selectable framework recipes. The old API reference remains directly routable (`/docs/api-reference`) but has no navigation links while setup takes priority.
 
 ## Prerequisites

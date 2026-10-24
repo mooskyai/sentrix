@@ -1,6 +1,20 @@
 # Sentrix
 
-## User-friendly framework setup guides — 2026-10-23 implementation candidate
+## Current product direction and release status — 2026-10-24
+
+Sentrix is being developed toward **Datadog-class core observability workflows**,
+using vendor-neutral OpenTelemetry collection. This is a *roadmap*, not a claim
+of feature parity. See **[ROADMAP.md](ROADMAP.md)** for staged deliverables,
+security/quality gates and an implemented-vs-planned capability ledger.
+
+At reviewed `main` (`0939cca`), M6.1 is accepted; M6.2 Services detail and M6.3
+Infrastructure discovery plus framework documentation are implemented, committed
+and pushed. The last reported full gate passed **182 backend / 58 frontend**
+tests, but M6.2/M6.3 manual browser and real-producer acceptance remains open.
+M6.4 service relationships and M6.5 closeout have **not** been implemented.
+Do not treat old 'candidate' snippets below as current release status.
+
+## Historical 2026-10-23 onboarding patch note (superseded by current status)
 
 Authenticated users see **Documentation** in the left sidebar; the guide offers Laravel, Node.js,
 React and Next.js with copyable install/configure/run snippets. The API reference is kept at its

@@ -1,5 +1,16 @@
 # Sentrix — Authentication, Authorization and Security
 
+## Future observability security requirements (roadmap only)
+
+See [ROADMAP.md](ROADMAP.md). SDK/Collector examples must send project keys
+**only** from trusted server-side processes; rotating, revoking, expiration,
+HTTPS and log redaction remain core acceptance tests. Browser/RUM collection
+cannot reuse `telemetry:write` secrets exposed through `VITE_*` or
+`NEXT_PUBLIC_*`; it requires a separately designed public credential,
+scoped ingestion endpoint, abuse/rate controls, CORS/privacy/retention review
+and proven isolation before implementation. Do not infer authorization from
+OpenTelemetry resource labels. There is no shipped RUM protocol or agent here.
+
 ## Framework onboarding credential boundary
 
 The authenticated Documentation page is globally accessible but does not retrieve secrets.

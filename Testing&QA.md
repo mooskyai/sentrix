@@ -1,6 +1,22 @@
 # Sentrix — Testing and Quality Assurance
 
-## Documentation onboarding checks (implementation candidate)
+## Roadmap-wide acceptance matrix (2026-10-24)
+
+See [ROADMAP.md](ROADMAP.md) for scoped future milestone targets, never as
+proof of shipped features. Existing baseline `0939cca` had a user-reported
+182-backend/58-frontend release gate. M6.2/M6.3 manual browser evidence
+remains open (two independent acceptance files). This docs change does not
+rerun automated tests or verify real framework instrumentation.
+
+Future integration tests must include a real exported OTLP trace for each
+advertised server framework, correct project/service/time correlation,
+invalid/expired/foreign keys, connectivity and ClickHouse 503, duplicate/
+retry/flush outcomes and no credential in browser bundles. Later APM/infrastructure
+and alert-worker milestones add statistical correctness, cardinality/cost,
+resource/tenant isolation, failover and transport durability tests respectively.
+Every claimed user-visible feature needs browser/mobile/keyboard evidence.
+
+## Historical onboarding verification checklist (automation passed; manual open)
 
 Verify Documentation link appears for logged-in users even without a project selection;
 API reference has no visible sidebar/Settings/setup link but legacy direct route remains.

@@ -1,6 +1,22 @@
 # Sentrix — Integrations and External Protocols
 
-## M6.3 Infrastructure — implementation candidate (not accepted)
+## Integration roadmap and current contract — 2026-10-24
+
+Current contract: project-scoped `telemetry:write` Bearer key,
+`POST /v1/{traces,metrics,logs}` using OTLP/HTTP **binary protobuf**; these
+three paths have no trailing slash. Control-plane `/api/v1/` uses Django
+session/CSRF instead of project keys. Infrastructure currently observes
+persisted resource attributes; no Kubernetes watch API or runtime inventory.
+See [ROADMAP.md](ROADMAP.md) and `docs/FRAMEWORK_QUICKSTART.md`.
+
+Planned and **not shipped**: framework exporter certification (Laravel/Node/
+Next/Django), full Collector distribution recipes, live host/Kubernetes
+receivers, browser-safe dedicated signal ingress and third-party integrations.
+Each integration requires a documented network/secret model, supported signal
+matrix, runtime smoke tests and failure/troubleshooting guide. The presence of
+a guide does not prove it is operationally accepted.
+
+## Historical M6.3 integration candidate (now shipped; manual gate open)
 
 M6.3 candidate consumes already supported authenticated OTLP/HTTP resource attributes on metrics,
 logs and spans. Producers may send `host.name`, `k8s.cluster.name`, `k8s.namespace.name`, node,

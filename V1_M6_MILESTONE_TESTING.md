@@ -1,6 +1,19 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability Test and Acceptance Plan
 
-## M6.3 Infrastructure — implementation candidate (not accepted)
+## Current M6 quality and acceptance gate (2026-10-24)
+
+The last operator-reported integrated `scripts/verify.ps1` run passed 182
+backend tests, 58 frontend tests, Ruff lint/format, mypy, Django and schema,
+ESLint, TypeScript and Vite build (before this docs-only roadmap change).
+See [ROADMAP.md](ROADMAP.md) for post-M6 feature-by-feature acceptance.
+
+**Still open:** `M6_2_BROWSER_ACCEPTANCE.md` and `M6_3_BROWSER_ACCEPTANCE.md`
+need a named operator/date, exact tested SHA, genuine OTLP producer data,
+separate foreign-user refusal, browser and mobile/keyboard checks, source
+attributes and observed results. Never substitute demo rows, React unit tests
+or a docs-only roadmap patch. Do not begin M6.4 before closeout is recorded.
+
+## Historical M6.3 pre-commit test plan (implementation now pushed)
 
 M6.3 implementation testing candidate: `backend/apps/telemetry/tests/test_infrastructure_api.py`
 covers IR-001 foreign auth before client, IR-002 supported keys, IR-003 empty data, IR-004

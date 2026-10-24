@@ -1,6 +1,19 @@
 # Sentrix — Feature Development Playbook
 
-## Developer onboarding documentation (implementation candidate)
+## Implementation workflow for roadmap items — 2026-10-24
+
+Use [ROADMAP.md](ROADMAP.md) to select one **unblocked** milestone; start with
+an exact GitHub baseline, review affected backend/frontend code, specify user
+journey and network/security/tenant contracts. For a framework integration,
+validate a real process-exporter path, logs/metrics/traces signal support,
+secret handling and a truthful verification result before calling it supported.
+
+Preserve the existing documentation sync and `scripts/verify.ps1` release
+gate. Add positive, negative, error, project switch and real external signal
+tests plus browser acceptance. Update current milestone/test docs and
+`ProjectImplementation.md`; commit and push only after evidence is recorded.
+
+## Historical framework-doc implementation checklist
 
 Keep framework examples tied to the actual `/v1/traces`, `/v1/metrics`, `/v1/logs`
 protobuf ingestion boundary. Test framework switching, sidebar access for authenticated

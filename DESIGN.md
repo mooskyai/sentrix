@@ -1,6 +1,21 @@
 # Sentrix — Interface and Experience Design
 
-## Documentation entry and framework onboarding (implementation candidate)
+## Experience direction — guided connection to investigation (2026-10-24)
+
+See [ROADMAP.md](ROADMAP.md). Keep **Documentation** in the global sidebar;
+start with choosing framework/runtime, one-time project key, safe local/Docker/
+HTTPS exporter endpoint, copyable SDK config, real test signal, verified arrival
+and a direct link to Services/Traces. Use understandable error/empty states;
+do not show 'connected', healthy or inferred topology without evidence.
+
+Current Laravel/Node/React/Next.js instructions are code-shipped guidance,
+**not certified runtime integrations**. React is backend-observation-only:
+never inject `VITE_*`/`NEXT_PUBLIC_*` telemetry write secrets. Detailed API
+reference remains accessible by its direct URL but is hidden from navigation.
+Preserve compact single-level cards, authorized project selectors and
+accessible responsive controls. See `docs/FRAMEWORK_QUICKSTART.md`.
+
+## Historical documentation UI proposal (implemented; operator review open)
 
 The global sidebar includes a single Documentation link independent of project selection.
 Inside, framework-choice buttons reveal only the selected Laravel/Node.js/React/Next.js recipe,

@@ -1,5 +1,19 @@
 # Sentrix — Setup and Developer Environment
 
+## Setup roadmap and operator expectations — 2026-10-24
+
+[ROADMAP.md](ROADMAP.md) defines staged onboarding. The in-app Documentation
+page (`/docs/telemetry-setup`) currently provides Laravel/Node.js/React/
+Next.js instructions. Use project **Settings** for a one-time `telemetry:write`
+key; never put it in browser code. On Windows host use `localhost:8000`, on
+the same Compose network `api:8000`, and for remote exporters a secured,
+reachable HTTPS origin. OTLP transport is HTTP protobuf, **not** JSON/gRPC.
+
+Runnable framework certification, Django, Collector and production runbooks
+are **future** slices. Until tested, copyable examples should be treated as
+recipes, not a warranty of supported deployment. Keep the existing local
+Docker commands and source-of-truth environment instructions below intact.
+
 ## In-app framework onboarding
 
 After login, click **Documentation** in the left sidebar. Choose Laravel, Node.js,
