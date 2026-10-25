@@ -1,5 +1,15 @@
 # Sentrix — repository contributor and agent instructions
 
+## M6.5 read-back candidate — pending operator sign-off
+
+Baseline `dc3b7bf` starts a read-only persisted-evidence verifier; it must
+never accept organization/project UUIDs from the operator or telemetry data.
+Require temporary key only from stdin; avoid printing tokens or raw payloads.
+Do not label an HTTP 200, unit test or even successful DB read-back as M6
+acceptance. Separate-user 404, operator browser evidence, external SDK signal,
+controlled failure/retry, cleanup, release gate and CI remain explicit gates.
+
+
 ## M6 closeout evidence — candidate at `f84f0bc`
 
 `backend/scripts/m6_acceptance_smoke.py` provides a controlled, independent-process

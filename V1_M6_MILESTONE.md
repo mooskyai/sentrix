@@ -1,5 +1,19 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability
 
+## M6.5 implementation candidate — stored telemetry read-back
+
+`backend/scripts/m6_readback.py` accepts only run ID, trace ID and timestamp
+from the producer, and a masked project key through standard input. Django
+authenticates the key and derives tenant UUIDs; three bounded ClickHouse
+queries verify each stored signal and exact service/environment, trace/log
+correlation, gateway → checkout → payments parentage and co-observed resource
+attributes. It neither sends new data nor modifies control-plane objects.
+A successful read-back is **not** proof of independent foreign-user denial,
+manual browser acceptance, real Kubernetes collection, external application
+integration, retry guarantees, or temporary credential cleanup. Preserve
+all previous M6.2/M6.3/M6.4 acceptance records as pending unless observed.
+
+
 ## M6.4 observed service relationships — implementation candidate
 
 Create a bounded `services/map/` read endpoint from existing span parent IDs,

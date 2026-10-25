@@ -1,5 +1,42 @@
 # Sentrix M6 — Live OTLP operator evidence producer
 
+## M6.5 persisted read-back — independent verification step
+
+After a successful producer run, **use a temporary project key from the same
+project** (the key may be a new one if the original was revoked). Run this in
+PowerShell 7 from the repository root. Use the *actual* producer identifiers;
+never put the secret in the command, console transcript, URL or Git repository.
+
+```powershell
+Set-Location "C:\working\Projects\Python\sentrix"
+$token = Read-Host "Temporary Sentrix project key" -MaskInput
+try {
+  $token | docker compose exec -T api /opt/venv/bin/python -m scripts.m6_readback `
+    --run-id 319b34b2346645fe8729b5518ca8a236 `
+    --trace-id 29b8393d3bef43d191ebc371b0113e26 `
+    --time "2026-10-24T17:11:41.422946+00:00"
+  if ($LASTEXITCODE -ne 0) { throw "M6 persisted read-back failed" }
+} finally { Remove-Variable token -ErrorAction SilentlyContinue }
+```
+
+The verifier is launched with `python -m` from `/app`, so the Django `config`
+package resolves correctly; direct file execution is also supported.
+
+The IDs/time above identify one earlier controlled run; replace them with a
+fresh producer's output where possible. The verifier opens Django/PostgreSQL
+to authenticate the project key, then queries ClickHouse (no new OTLP request).
+It checks exactly three rows per signal, service/environment, resource labels,
+trace correlation and two span-parent edges. It is bounded to five minutes
+before and after the supplied UTC timestamp and 100 rows per signal; failed
+or incomplete evidence results in a nonzero exit without a fabricated pass.
+
+This read-back proves neither the separate-user 404/authorization behavior of
+session-read APIs nor what a human actually saw in the browser. It is not a
+real instrumented external framework, Kubernetes inventory, collector health,
+reliable retry proof, or teardown verification. Record those separately in
+M6.2–M6.4 acceptance docs and the M6.5 closeout decision. Revoke test keys.
+
+
 **State: operator tool, not acceptance.** The test utility generates trace-correlated
 metrics, logs and spans using the real OTLP/HTTP binary-protobuf endpoint. This
 is an independent Python producer process, not a certified framework integration

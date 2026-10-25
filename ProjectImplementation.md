@@ -1,5 +1,31 @@
 # Sentrix — Project Implementation Register
 
+## M6.5 verifier standalone boot correction — candidate
+
+The first operator direct-file invocation failed before querying telemetry because
+Python started with `/app/scripts` on its import path and could not resolve
+Django `config`. Module invocation is now the documented method; direct
+execution explicitly includes the backend root on `sys.path`. A subprocess
+regression covers startup with `PYTHONPATH` unset and a deliberately invalid
+key, without relying on persisted data. The 223-backend/82-frontend release
+gate passed before this correction; rerun it before committing. Live read-back
+and manual operator acceptance remain pending.
+
+## M6.5 read-back verification slice — implementation candidate
+
+Baseline: committed/pushed `dc3b7bf2b2c22ad8a07dca7cb4f64c6482ca48bd`.
+Operator previously reported 207 backend tests and 82 frontend tests passed.
+This slice adds a key-derived tenant-scoped ClickHouse read-back verifier for
+three correlated signals, an exact span-parent chain, and resource labels;
+it has pure unit/negative/security-contract tests and an operator command.
+**Not performed by this patch:** a real read-back run, different-user 404,
+UI/keyboard/mobile proof, truncation/failure handling in the browser,
+framework exporter, temporary-key revocation or current full Docker/hosted CI.
+Leave M6.2–M6.5 closeout open until evidence is independently recorded.
+Run focused tests and `scripts/verify.ps1`; record actual results and final SHA
+before a clean commit/push. No new tables or ingestion API are introduced.
+
+
 ## M6.2–M6.4 operator evidence enabler — candidate 2026-10-24
 
 Baseline GitHub `main` `f84f0bc8090d3dbf6827fa99370724a67d49ee86`.

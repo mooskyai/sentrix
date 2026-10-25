@@ -1,5 +1,24 @@
 # Sentrix — Testing and Quality Assurance
 
+## M6.5 standalone CLI import-path regression
+
+`test_m6_readback_cli.py` runs the read-back entry point as a direct script
+with `PYTHONPATH` removed and a deliberately malformed project key. It must
+initialize Django and reject the key without `ModuleNotFoundError`; this is
+only a startup check, not a database read-back or credential authorization
+proof. Prefer `python -m scripts.m6_readback` for operator invocations.
+
+## M6.5 persisted read-back candidate (not manual acceptance)
+
+Focused verifier checks:
+`docker compose exec -T api /opt/venv/bin/python -m pytest apps/telemetry/tests/test_m6_readback.py -v`.
+The verifier uses only an authenticated temporary project's scope and executes
+bounded typed ClickHouse queries; tests reject fabricated/missing persistence,
+incorrect trace/log correlation and false parent links. Actual operator
+read-back plus independent foreign-user 404 and browser/UI evidence remain
+outstanding, even when the full `scripts/verify.ps1` gate is green.
+
+
 ## M6 operator OTLP producer — candidate validation
 
 Focused test: `docker compose exec -T api /opt/venv/bin/python -m pytest

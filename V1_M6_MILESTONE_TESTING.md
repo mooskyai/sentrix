@@ -1,5 +1,27 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability Test and Acceptance Plan
 
+## M6.5 verifier test and operator gate — not yet signed off
+
+- RB-001: Validate 32-hex run/trace ID and timestamp with timezone; reject
+  malformed and zero trace IDs.
+- RB-002: Authenticate project key; derive tenant UUIDs from Django, not CLI.
+- RB-003: Parameterize org/project, UTC half-open 10-minute evidence window
+  and resource run marker for all three ClickHouse tables; fail closed if a
+  query exceeds the 100-record cap.
+- RB-004: Require exactly three correctly named/environment-scoped samples
+  in each signal; verify metric value/name and resource label co-observation.
+- RB-005: Require exact trace IDs, correlated log/span IDs, and two genuine
+  parent references without joining unrelated services.
+- RB-006: Negative tests for missing rows, wrong trace, broken parents,
+  cross-service attributes, duplicate identities and excess rows.
+- RB-007 (operator pending): Run producer then verifier using the same project
+  credential; retain nonsecret run/trace/time, verify UI and API membership
+  with **independent foreign account** and 404 before ClickHouse access.
+- RB-008 (operator pending): Browser/error/empty/truncation/mobile/keyboard,
+  real framework exporter, retries, key revocation and cleanup. Run focused
+  pytest plus complete `scripts/verify.ps1`, then record SHA/CI and results.
+
+
 ## Repeatable OTLP signal evidence helper — candidate
 
 For a fresh independent-process OTLP/HTTP request, use

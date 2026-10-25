@@ -1,5 +1,18 @@
 # Sentrix
 
+## M6.5 — persisted evidence read-back (candidate)
+
+After the controlled OTLP producer returns HTTP 200, run the read-only
+`backend/scripts/m6_readback.py` against the **same project's** temporary key.
+It verifies three stored metrics, logs, and spans, log/span correlation,
+trace parentage, and co-observed host/Kubernetes attributes in ClickHouse.
+See [M6 acceptance producer and read-back guide](docs/M6_ACCEPTANCE_PRODUCER.md).
+This is a **candidate operator check**, not completion of M6.2–M6.5 browser,
+foreign-user authorization, external app, retry, or cleanup acceptance.
+The last reported baseline gate was 207 backend / 82 frontend at `dc3b7bf`;
+run the full verifier after applying this patch before reporting new counts.
+
+
 ## M6 browser acceptance evidence producer — candidate
 
 `backend/scripts/m6_acceptance_smoke.py` is an opt-in **independent Python

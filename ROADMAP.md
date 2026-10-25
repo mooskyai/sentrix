@@ -1,5 +1,17 @@
 # Sentrix — Product Roadmap (Core Observability Platform)
 
+## M6.5 read-back implementation slice — pending operator completion
+
+GitHub `main` baseline `dc3b7bf2b2c22ad8a07dca7cb4f64c6482ca48bd`
+contains the three-signal M6 producer and service-aware navigation, with an
+operator-reported green 207-backend/82-frontend gate. The new M6.5
+`backend/scripts/m6_readback.py` verifies its *persisted* records using the
+project key's authenticated tenant identity. It is read-only, bounded to the
+producer timestamp, and doesn't accept caller-supplied tenant IDs.
+M6.2/M6.3/M6.4 human browser, foreign-user and external workload evidence
+remain unrecorded; M6.5 is **in progress**, not accepted. M7 remains planned.
+
+
 ## M6 release evidence update — 2026-10-24
 
 M6.4 code and UI were pushed at `41ed210`; the workspace selection enhancement
