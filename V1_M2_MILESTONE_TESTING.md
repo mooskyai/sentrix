@@ -1,5 +1,11 @@
 # Sentrix V1 M2 — Telemetry Ingestion Testing
 
+> **Master acceptance index:**
+> [MILESTONE_ACCEPTANCE_CHECKLIST.md](MILESTONE_ACCEPTANCE_CHECKLIST.md)
+> covers M2.1–M2.7 and the reusable evidence template. This detailed
+> test plan retains authoritative case IDs and outcomes. A master
+> checklist checkbox never certifies an unrun operational test.
+
 ## 1. Gate discipline
 
 Each V1 M2 part has its own release gate. Do not start the next part until the current part is green,

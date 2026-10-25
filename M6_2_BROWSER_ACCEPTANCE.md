@@ -1,5 +1,11 @@
 # Sentrix M6.2 browser acceptance — operator checklist
 
+> **Cross-milestone checklist:**
+> [MILESTONE_ACCEPTANCE_CHECKLIST.md](MILESTONE_ACCEPTANCE_CHECKLIST.md)
+> indexes this operator gate and the common evidence template. This
+> browser acceptance record remains authoritative; no previously
+> unrun check is accepted by the master document.
+
 ## Optional fresh OTLP run identifier (not acceptance evidence by itself)
 
 For a fresh trace/metric/log set, execute the separate-process producer using

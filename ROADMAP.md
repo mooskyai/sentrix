@@ -1,5 +1,14 @@
 # Sentrix — Product Roadmap (Core Observability Platform)
 
+## Master acceptance checklist — documentation index
+
+Use [MILESTONE_ACCEPTANCE_CHECKLIST.md](MILESTONE_ACCEPTANCE_CHECKLIST.md)
+for the cross-milestone M1–M12 acceptance checklist and evidence template.
+M1–M5/M6.1 historical acceptance remains governed by the original testing
+records; M6 browser/foreign-user/external-app gates are **open** despite the
+successful 61161bd persistence read-back. M7–M12 items are planning-only,
+not approved delivery claims. This is a documentation index, not a new release.
+
 ## M6.5 read-back implementation slice — pending operator completion
 
 GitHub `main` baseline `dc3b7bf2b2c22ad8a07dca7cb4f64c6482ca48bd`

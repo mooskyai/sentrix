@@ -1,5 +1,11 @@
 # Sentrix V1 M3 Testing — Metrics Explorer and First Dashboard Panels
 
+> **Master acceptance index:**
+> [MILESTONE_ACCEPTANCE_CHECKLIST.md](MILESTONE_ACCEPTANCE_CHECKLIST.md)
+> covers M3.1–M3.4 and the reusable evidence template. This detailed
+> test plan retains authoritative case IDs and outcomes. A master
+> checklist checkbox never certifies an unrun operational test.
+
 ## 1. Testing principle
 
 M3 testing must prove telemetry reads are both semantically honest and tenant safe. A chart rendering is

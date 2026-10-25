@@ -1,5 +1,15 @@
 # Sentrix — Testing and Quality Assurance
 
+## Master milestone proof and operator status
+
+The [M1–M12 acceptance checklist](MILESTONE_ACCEPTANCE_CHECKLIST.md) links
+V1 M1–M6 detailed test plans, records the outstanding M6.2–M6.5 manual gates,
+and lists **provisional** future M7–M12 acceptance criteria. Preserve the
+original case IDs and real operator records; checkboxes alone are not proof.
+For every acceptance run record SHA, scoped result, CI, independent-user 404,
+live signal/host evidence, UI/failure/limit checks, credential cleanup and
+release sign-off. A full automated gate does not substitute for manual checks.
+
 ## M6.5 standalone CLI import-path regression
 
 `test_m6_readback_cli.py` runs the read-back entry point as a direct script

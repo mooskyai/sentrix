@@ -1,5 +1,11 @@
 # Sentrix M6.4 — Observed service relationships operator acceptance
 
+> **Cross-milestone checklist:**
+> [MILESTONE_ACCEPTANCE_CHECKLIST.md](MILESTONE_ACCEPTANCE_CHECKLIST.md)
+> indexes this operator gate and the common evidence template. This
+> browser acceptance record remains authoritative; no previously
+> unrun check is accepted by the master document.
+
 ## Optional three-service OTLP relationship smoke — still NOT RUN
 
 Run `backend/scripts/m6_acceptance_smoke.py` as described in

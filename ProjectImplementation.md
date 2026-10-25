@@ -1,5 +1,21 @@
 # Sentrix — Project Implementation Register
 
+## M1–M12 master acceptance index — documentation-only candidate (2026-10-25)
+
+Added `MILESTONE_ACCEPTANCE_CHECKLIST.md` as the evidence index for historical
+M1–M5 and M6.1, detailed M6.2–M6.5 closeout gates, and explicitly **planned**
+M7–M12. Baseline is pushed `61161bd3fb2da859ac1f6636a71e5daccbff6e02`;
+its GitHub Actions succeeded at
+https://github.com/mooskyai/sentrix/actions/runs/40162534351.
+Operator-reported read-back passed for run
+`319b34b2346645fe8729b5518ca8a236`, trace
+`29b8393d3bef43d191ebc371b0113e26` in project
+`07e54c2a-7cb5-4ff1-8c50-09f7a3a4fc4d`, with the previously reported
+224-backend/82-frontend release gate. Browser/independent-user/real app,
+retries, credential revocation and closeout sign-off remain **unverified**.
+This checklist patch changes documentation only; run the repository gate and
+record its actual result before a follow-up documentation commit/push.
+
 ## M6.5 verifier standalone boot correction — candidate
 
 The first operator direct-file invocation failed before querying telemetry because

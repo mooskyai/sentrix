@@ -1,5 +1,11 @@
 # Sentrix M6.3 Infrastructure — operational and browser acceptance
 
+> **Cross-milestone checklist:**
+> [MILESTONE_ACCEPTANCE_CHECKLIST.md](MILESTONE_ACCEPTANCE_CHECKLIST.md)
+> indexes this operator gate and the common evidence template. This
+> browser acceptance record remains authoritative; no previously
+> unrun check is accepted by the master document.
+
 ## Optional co-observed resource smoke — still NOT RUN
 
 `docs/M6_ACCEPTANCE_PRODUCER.md` describes an OTLP producer that sends unique

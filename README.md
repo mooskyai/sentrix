@@ -1,5 +1,14 @@
 # Sentrix
 
+## Milestone acceptance — M1 through planned M12
+
+The [master milestone acceptance checklist](MILESTONE_ACCEPTANCE_CHECKLIST.md)
+indexes every delivered V1 submilestone (M1–M6), the currently outstanding
+M6.2–M6.5 operator gates, and **provisional** proof requirements for planned
+M7–M12. It links to the authoritative per-milestone testing and M6 browser
+records and provides a reusable release-evidence template. The checklist
+tracks evidence only; it adds no runtime behavior or supported integration.
+
 ## M6.5 — persisted evidence read-back (candidate)
 
 After the controlled OTLP producer returns HTTP 200, run the read-only

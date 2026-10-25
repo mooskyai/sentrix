@@ -1,5 +1,11 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability Test and Acceptance Plan
 
+> **Master acceptance index:**
+> [MILESTONE_ACCEPTANCE_CHECKLIST.md](MILESTONE_ACCEPTANCE_CHECKLIST.md)
+> covers M6.1–M6.5 and the reusable evidence template. This detailed
+> test plan retains authoritative case IDs and outcomes. A master
+> checklist checkbox never certifies an unrun operational test.
+
 ## M6.5 verifier test and operator gate — not yet signed off
 
 - RB-001: Validate 32-hex run/trace ID and timestamp with timezone; reject

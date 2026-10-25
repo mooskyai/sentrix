@@ -1,5 +1,11 @@
 # Sentrix V1 M5 — Alerting Test and Acceptance Plan
 
+> **Master acceptance index:**
+> [MILESTONE_ACCEPTANCE_CHECKLIST.md](MILESTONE_ACCEPTANCE_CHECKLIST.md)
+> covers M5.1–M5.5 and the reusable evidence template. This detailed
+> test plan retains authoritative case IDs and outcomes. A master
+> checklist checkbox never certifies an unrun operational test.
+
 ## 1. Gate philosophy
 
 Alerting can create external side effects later in M5, so each slice must prove tenant scope and explicit

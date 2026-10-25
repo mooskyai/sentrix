@@ -1,5 +1,11 @@
 # Sentrix V1 M1 — Platform Foundation Testing
 
+> **Master acceptance index:**
+> [MILESTONE_ACCEPTANCE_CHECKLIST.md](MILESTONE_ACCEPTANCE_CHECKLIST.md)
+> covers M1 and the reusable evidence template. This detailed
+> test plan retains authoritative case IDs and outcomes. A master
+> checklist checkbox never certifies an unrun operational test.
+
 ## 1. Purpose
 
 This document defines the verification required before V1 can be accepted. It is a release gate, not a list of optional test ideas.

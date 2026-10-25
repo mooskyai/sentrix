@@ -1,5 +1,11 @@
 # Sentrix V1 M4 Testing — Logs and Trace Correlation
 
+> **Master acceptance index:**
+> [MILESTONE_ACCEPTANCE_CHECKLIST.md](MILESTONE_ACCEPTANCE_CHECKLIST.md)
+> covers M4.1–M4.4 and the reusable evidence template. This detailed
+> test plan retains authoritative case IDs and outcomes. A master
+> checklist checkbox never certifies an unrun operational test.
+
 ## 1. Testing principle
 
 M4 testing must prove that correlation never bypasses tenant authorization. A trace ID, span ID, log

@@ -1,5 +1,15 @@
 # Sentrix — repository contributor and agent instructions
 
+## Master milestone acceptance index — documentation-only coordination
+
+`MILESTONE_ACCEPTANCE_CHECKLIST.md` is the cross-milestone M1–M12 proof index.
+It does **not** supersede existing per-milestone test matrices, imply planned
+M7–M12 capabilities are implemented, or close the open M6.2–M6.5 manual
+operator gates. Link acceptance entries to real, nonsecret evidence, tested
+SHA, CI result, independent-user authorization, teardown and reviewer sign-off.
+Documentation-only checklist additions still require a clean diff, quality
+checks, synchronized implementation register and a commit/push before release.
+
 ## M6.5 read-back candidate — pending operator sign-off
 
 Baseline `dc3b7bf` starts a read-only persisted-evidence verifier; it must
