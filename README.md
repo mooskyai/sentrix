@@ -1,5 +1,17 @@
 # Sentrix
 
+## M7.2 — guided Django and Node server onboarding (candidate)
+
+Project **Settings → Connect an application** offers Django/Python and Node.js
+server-only OTLP/HTTP trace exporter recipes. Choose host, same Compose network,
+or a validated remote HTTPS origin, then check the **exact** service and
+environment against this project's bounded 24h Services catalog. No key is
+entered in the browser or embedded in a copied snippet. A matching row is
+historical telemetry evidence, not exporter connectivity or runtime health;
+a truncated catalog is inconclusive. See
+[the M7 guided integrations runbook](docs/M7_GUIDED_INTEGRATIONS.md) and
+[V1 M7 testing](V1_M7_MILESTONE_TESTING.md). M7.1/M6 operator gates remain open.
+
 ## M7.1 first-telemetry diagnostics — implementation candidate
 
 Project **Settings** now has an on-demand **First telemetry check** that reads

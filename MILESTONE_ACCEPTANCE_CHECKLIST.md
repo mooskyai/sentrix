@@ -1,5 +1,21 @@
 # Sentrix — Master Milestone Acceptance Checklist (M1–M12)
 
+## M7.2 guided integrations candidate gate — NOT ACCEPTED
+
+- [ ] **M7.2-G01:** Django and Node server instructions generated for the
+      selected project, service/environment and host/Compose/remote HTTPS.
+- [ ] **M7.2-G02:** Verify copied snippets never contain a raw key and reject
+      remote HTTP, embedded credentials, paths and unsafe resource identities.
+- [ ] **M7.2-G03:** Trigger real instrumented app traffic and independently
+      verify this exact service/environment through the correct project;
+      document SDK versions, signals and timestamp.
+- [ ] **M7.2-G04:** Observe no-row, truncated, dependency 503, wrong project,
+      browser keyboard/mobile, project switch, and retry behaviors.
+- [ ] **M7.2-G05:** Run full backend/frontend gate and CI at pushed commit;
+      revoke temporary key, record nonsecret evidence and approval.
+
+M6.2–M6.4 and M7.1 operator acceptance remain open independently.
+
 ## M7.1 candidate sub-gate — NOT ACCEPTED
 
 - [ ] **M7.1-D01:** A signed-in member reads only the correct project's

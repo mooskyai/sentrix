@@ -1,5 +1,18 @@
 # Sentrix — Project Implementation Register
 
+## M7.2 — guided server integration candidate (2026-10-25)
+
+Baseline `4116f087127575a8218d85708932ef1448262361` (M7.1 committed,
+local 233-backend/87-frontend full gate reported). This slice introduces a
+Settings guide for Django/Python and Node.js/Express, validated host/Compose/
+remote-HTTPS origins, safe resource identity inputs and server-only placeholder
+commands. The follow-up check uses the authorized project's existing bounded
+Services catalog (`limit=500`, last 24h); it distinguishes exact observed
+service/environment, missing data, truncated results and dependency failures.
+Unit/component tests cover safety, read isolation, no secret entry, refresh and
+error states. **Candidate:** run the full gate and actual operator/browser
+verification; no framework-runtime certification or M6/M7.1 sign-off implied.
+
 ## M7.1 — first-telemetry diagnostics implementation candidate (2026-10-25)
 
 GitHub baseline: `16c94afdbbc5d5cfaf107760d3559ecc795d6143`, clean

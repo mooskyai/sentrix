@@ -1,5 +1,26 @@
 # Sentrix V1 M7 — Guided Integrations and Verified Onboarding
 
+## M7.2 implementation — guided Django/Python and Node.js server exporters
+
+**Baseline:** committed `4116f087127575a8218d85708932ef1448262361`.
+M7.1 code/full local gate is complete (233 backend, 87 frontend reported),
+its browser/external-app acceptance remains open; M6 manual acceptance is open.
+M7.2 adds Settings-based Django/Node recipes without new ingestion interfaces.
+Operator chooses Windows host `http://localhost:8000`, same Compose network
+`http://api:8000`, or a user-entered HTTPS root origin; unsafe origins and
+service/environment snippet injection are rejected. All copied code is
+server-only and placeholder-based, never project credentials.
+
+After actual app traffic, an explicit **Check service** calls the existing
+member-authorized Services catalog with UTC 24h and maximum 500 entries,
+matching exact service and environment. Presence is historical telemetry,
+not connection health. No result means no matching row in the returned window;
+when truncated or query failed it is **inconclusive**, not a disconnection.
+Recipes emit traces only; no new backend query endpoint, migrations, key
+validation, browser OTLP or automatic polling. Django/Node real-runtime smoke
+and version certification remain M7.3 work. M7.2 is not accepted until its
+operator tests and clean committed release gate are recorded.
+
 **State: planned milestone with an M7.1 implementation candidate (not accepted).**
 Baseline reviewed: `16c94afdbbc5d5cfaf107760d3559ecc795d6143`.
 M6.2/M6.3/M6.4 operator browser and independent foreign-user acceptance is still open.

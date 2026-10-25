@@ -1,5 +1,16 @@
 # Sentrix — HTTP and Worker API Reference
 
+## M7.2 exact service verification (reuse existing GET)
+
+The guided Settings check calls the already shipped session-protected
+`GET /api/v1/projects/{project_id}/services/catalog/` with UTC `start/end`
+covering 24 hours and `limit=500`. Django alone derives tenant predicates
+from membership; a project write key is **never** accepted as browser auth.
+A matching `{service_name,environment}` row reports stored signal counts;
+no exact row within a truncated catalog is inconclusive. API errors (including
+503) are not empty successful results. M7.2 adds **no new API route**, schema
+or active connection probe.
+
 ## M7.1 — first-telemetry observation endpoint (candidate)
 
 `GET /api/v1/projects/{project_id}/integrations/connection-status/` uses a

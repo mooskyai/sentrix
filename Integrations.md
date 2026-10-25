@@ -1,5 +1,17 @@
 # Sentrix — Integrations and External Protocols
 
+## M7.2 Django and Node guided recipes — candidate
+
+Settings offers copyable, server-only Django auto-instrumentation and Node
+SDK trace-export recipes. Allowed destinations are host localhost:8000,
+Sentrix Compose `api:8000`, or an HTTPS root origin entered explicitly for a
+remote server. Django uses the OpenTelemetry Python CLI and OTLP/HTTP
+protobuf; Node loads instrumentation before the server. The recipes configure
+traces only; metrics/logs require separate exporters. The exact
+service/environment check reads existing 24-hour catalog data with session
+membership; it is not a network/key probe. Runtime compatibility and actual
+request smoke tests are deferred to M7.3. See `docs/M7_GUIDED_INTEGRATIONS.md`.
+
 ## M7.1 read-only first-signal check — candidate
 
 Project Settings can display stored metric/log/span counts and latest UTC

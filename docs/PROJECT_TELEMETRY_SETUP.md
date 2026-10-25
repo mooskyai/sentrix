@@ -1,5 +1,16 @@
 # Connect a Sentrix project to OpenTelemetry
 
+## M7.2: guided server integration — candidate
+
+In the target project's **Settings → Connect an application**, select the
+Django or Node server guide and exporter network context. Real keys are entered
+only in your *server process*, never in Sentrix's browser; copied recipes use
+placeholders. After one real request, check the exact service and environment
+through the project's authorized Services catalog. No observations is not a
+disconnected signal, and a truncated response cannot establish absence. See
+[M7 integration runbook](M7_GUIDED_INTEGRATIONS.md) for credentials, endpoint
+semantics, partial-signal support and manual acceptance requirements.
+
 ## First-telemetry read-back (M7.1 candidate)
 
 Under the authorized project's **Settings**, use **First telemetry check**

@@ -5,6 +5,7 @@ import { Link, useParams } from "react-router-dom";
 import { getOrganizations, getProjects } from "../api/resources";
 import { AlertsWorkspace } from "../components/AlertsWorkspace";
 import { ConnectionDiagnosticsPanel } from "../components/ConnectionDiagnosticsPanel";
+import { GuidedIntegrationPanel } from "../components/GuidedIntegrationPanel";
 import { DashboardPanels } from "../components/DashboardPanels";
 import { InfrastructureWorkspace } from "../components/InfrastructureWorkspace";
 import { LogsExplorer } from "../components/LogsExplorer";
@@ -193,6 +194,7 @@ export function ProjectWorkspacePage() {
         ) : activeSection === "settings" ? (
           <>
             <ConnectionDiagnosticsPanel key={`diagnostics:${workspace.project.id}`} projectId={workspace.project.id} />
+            <GuidedIntegrationPanel key={`guided:${workspace.project.id}`} projectId={workspace.project.id} />
             <ProjectApiKeysPanel
               key={`${workspace.project.id}:${writable ? "manage" : "read"}`}
               projectId={workspace.project.id}

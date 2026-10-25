@@ -1,5 +1,15 @@
 # Sentrix — Feature Development Playbook
 
+## M7.2 verified-resource onboarding contract
+
+The settings integration guide must validate URL and resource identity inputs
+before copyable snippets are available. Prefer upstream OpenTelemetry
+instrumentation; do not store, request or reveal keys in the browser. Use
+on-demand, 24h, `limit=500` session-authorized catalog reads, preserve project
+identity on every query and render missing, truncated and 503 states separately.
+Do not add a new telemetry write endpoint or mark real runtimes supported
+without M7.3 operator evidence. Keep test plans and all affected docs in sync.
+
 ## M7.1 first-telemetry candidate workflow
 
 Implement a narrow read-only diagnostic before broader integration helpers.

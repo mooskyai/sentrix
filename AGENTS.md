@@ -1,5 +1,17 @@
 # Sentrix — repository contributor and agent instructions
 
+## M7.2 guided exporter recipe security contract — candidate
+
+Keep all project API keys in the external application's server environment.
+No browser input, clipboard recipe, URL, query key, log or storage may contain
+a raw key. Templates may contain clearly non-secret placeholders only.
+Do not issue an active OTLP write request from this browser view. Use the
+existing Django-authorized service catalog for a bounded on-demand *read*;
+exact project/service/environment matching is mandatory, and a truncated
+catalog is inconclusive. Never claim connection health, working credential,
+Django/Node framework certification or completed M6/M7 acceptance from a
+matching historical row. See `docs/M7_GUIDED_INTEGRATIONS.md`.
+
 ## M7.1 candidate guardrails
 
 The first-telemetry endpoint is a read-only, session-authenticated observation

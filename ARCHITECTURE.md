@@ -1,5 +1,16 @@
 # Sentrix Architecture
 
+## M7.2 guided exporter onboarding (frontend-only candidate)
+
+Project Settings renders static Django/Node server recipes from strictly
+validated origin/resource labels. No ingestion secret enters the browser,
+local storage or HTTP read request. The user triggers an on-demand 24h
+Services catalog GET over their Django session. Its existing authorization
+and typed ClickHouse organization/project query remain unchanged; returned
+rows are compared on project, exact service and environment. Truncated
+results and query failures do not establish absence. No collector, extra
+query endpoint, worker, migration or active exporter probe is added.
+
 ## M7.1 first-telemetry read boundary (candidate)
 
 Settings requests a non-mutating Django session GET for its authorized project.

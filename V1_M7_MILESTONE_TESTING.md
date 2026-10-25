@@ -1,5 +1,35 @@
 # Sentrix V1 M7 — Integration Testing and Acceptance
 
+## M7.2 automated and operator acceptance — NOT RUN
+
+| Case | Expected result |
+| --- | --- |
+| GIN-001 | Host/Compose origins resolve correctly; remote accepts only HTTPS root without credentials/paths |
+| GIN-002 | Service/environment fields reject quotes, whitespace, shell and multiline injection |
+| GIN-003 | Django CLI and Node SDK recipes export traces to OTLP/HTTP protobuf with server-only placeholders |
+| GIN-004 | No browser key entry/storage; no query until user requests a service check |
+| GIN-005 | Exact project/service/environment match; nonmatching row not shown as connected |
+| GIN-006 | Bounded UTC 24h catalog query; empty, truncated and failure states remain distinct |
+| GIN-007 | Framework/input/project change never displays stale other-service evidence |
+| GIN-008 | Full `scripts/verify.ps1` (backend/frontend/tests, Ruff, mypy, build, schema) |
+
+Manual operator: apply from clean SHA; run a real Django process and a real
+Node/Express process with temporary *server-only* project key and collect
+nonsecret runtime/SDK versions, exact service/environment, signal times and
+actual ClickHouse/browser comparison. Verify no key in DevTools, no unexpected
+ingest from the browser, secure remote origin validation, wrong-project data
+isolation, truncated/503 states, keyboard/narrow view and key revocation.
+Record CI for pushed SHA, unresolved deviations and operator approval here.
+A passing mocked test or historical acceptance producer is **not** a real
+framework runtime certification. Keep M6/M7.1 browser gates open.
+
+Commands:
+
+```powershell
+docker compose exec -T web npm run test -- --run src/guidedIntegration.test.ts src/components/GuidedIntegrationPanel.test.tsx
+.\scripts\verify.ps1
+```
+
 **State:** M7.1 implementation candidate. No M7 runtime/operational
 acceptance has been recorded. The M6 browser gates remain open independently.
 

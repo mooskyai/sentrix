@@ -1,5 +1,18 @@
 # Framework setup quickstart for Sentrix
 
+## M7.2 guided Django and Node service check — candidate
+
+Open a particular project's **Settings → Connect an application** to select
+Django/Python or Node.js/Express. Choose exporter location from the server's
+network namespace (Windows host, same Sentrix Compose network, or remote
+HTTPS root), then copy placeholder-only **server** commands and issue an
+actual application request. **Check service** queries exact `service.name`
+and `deployment.environment.name` from the authorized project's persisted
+Services catalog in a 24-hour UTC window, not from OTLP write credentials.
+A match means rows exist; absent in a truncated result is inconclusive. This
+guide currently emits traces only, and its examples are not independently
+runtime-certified. See [M7 guided runbook](M7_GUIDED_INTEGRATIONS.md).
+
 ## M7.1 stored-telemetry check — implementation candidate
 
 After triggering a real server request, choose the same project and open

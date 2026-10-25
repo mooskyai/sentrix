@@ -1,5 +1,16 @@
 # Sentrix — Product Requirements Document
 
+## M7.2 user journey — guided Django and Node exports (candidate)
+
+An authenticated project member selects a Python/Django or Node server recipe
+and network context in Settings, then configures an external server's OTLP/HTTP
+trace exporter with a temporary project key kept outside the browser. The
+user can explicitly search the authorized project's 24-hour service catalog
+for the exact service/environment. A result is historical observed telemetry;
+empty, truncated and API-error states must remain distinct. This slice does
+not promise working external SDKs without a real process smoke (M7.3), live
+connection health, browser export or completion of existing M6/M7.1 acceptance.
+
 ## M7.1 — project first-telemetry diagnostics (candidate)
 
 The first M7 slice exposes telemetry-backed onboarding evidence from the

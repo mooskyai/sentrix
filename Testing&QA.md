@@ -1,5 +1,16 @@
 # Sentrix — Testing and Quality Assurance
 
+## M7.2 guided server integration regression matrix — candidate
+
+New `frontend/src/guidedIntegration.test.ts` tests endpoint selection,
+injection-resistant snippet identifiers and project/service/environment
+matching (including truncated results). `GuidedIntegrationPanel.test.tsx`
+tests no implicit requests, bounded explicit project query, exact match,
+truncation/no-data/503, HTTPS-only remote, framework changes and secret-free
+copies. Run focused Vitest, then `scripts/verify.ps1`; live Django/Node server
+instrumentation and browser/keyboard acceptance remain unverified until
+operator evidence is recorded in `V1_M7_MILESTONE_TESTING.md`.
+
 ## M7.1 first-telemetry diagnostics gate — candidate
 
 Run `docker compose exec -T api /opt/venv/bin/python -m pytest

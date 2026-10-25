@@ -1,5 +1,16 @@
 # Sentrix — Product Roadmap (Core Observability Platform)
 
+## M7.2 implementation slice — guided server exporters (candidate)
+
+On pushed M7.1 baseline `4116f087127575a8218d85708932ef1448262361`
+(additional M7.1 browser evidence pending), add project-specific Django and
+Node server recipes, a network-context selection, strict remote HTTPS
+origin validation and on-demand exact service/environment observations.
+Use the existing membership-scoped Services catalog; do not add credential
+probes, write-key handling in browser, inferred connection health or
+new storage. Django/Node process certification belongs to M7.3 and is **not**
+claimed by copyable recipes. M6 manual acceptance is unchanged.
+
 ## M7.1 bounded diagnostic candidate — M6 operator closeout remains open
 
 M7.1 starts with a session-authenticated, project-scoped first-telemetry

@@ -1,5 +1,16 @@
 # Sentrix — Authentication, Authorization and Security
 
+## M7.2 guided application secrets boundary (candidate)
+
+The Settings guide never solicits or reads the `telemetry:write` project key.
+Copyable Django/Node recipes include only a literal key placeholder and use
+server environment variables at execution time; no secret in localStorage,
+URL or the browser-side query. Remote origins must be HTTPS without embedded
+credentials, paths, queries or fragments. Service/environment values are
+strictly whitelisted before being inserted into shell snippets. Matching
+historical observations is not key validity, exporter health or an
+independent-user authorization acceptance test.
+
 ## M7.1 diagnostic trust boundary — candidate
 
 `GET /api/v1/projects/{project_id}/integrations/connection-status/` requires
