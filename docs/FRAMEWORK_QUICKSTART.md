@@ -1,5 +1,14 @@
 # Framework setup quickstart for Sentrix
 
+## M7.3.1 Django runtime example — manual tracing
+
+Use [the isolated Django WSGI runtime acceptance guide](M7_DJANGO_RUNTIME_ACCEPTANCE.md)
+for a runnable upstream SDK trace export followed by an independent
+ClickHouse read-back. It proves only the specifically instrumented manual
+Django `SERVER` span after real operator execution; it is **not** automatic
+framework instrumentation for an existing Django installation. Keep API keys
+outside browser bundles and record missing runtime checks honestly.
+
 ## M7.2 guided Django and Node service check — candidate
 
 Open a particular project's **Settings → Connect an application** to select

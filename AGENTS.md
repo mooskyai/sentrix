@@ -1,5 +1,25 @@
 # Sentrix — repository contributor and agent instructions
 
+## Static-analysis-first release verification — M7.3.1 correction
+
+`./scripts/verify.ps1` must run Ruff lint, Ruff format --check and strict mypy
+**before** the expensive pytest suite. Keep that order when editing milestone
+release gates, and run focused tests and live acceptance only after preflight.
+The M7 Django runtime script publishes an explicitly typed URL pattern list;
+ClickHouse read-back results and normalized trace IDs must be statically typed.
+This changes no milestone acceptance state.
+
+## M7.3.1 independent Django runtime probe — candidate
+
+`backend/scripts/m7_django_runtime.py` creates a minimal isolated Django WSGI
+application, receives a real HTTP request and exports one manually instrumented
+OpenTelemetry server span. `m7_django_readback.py` independently checks durable
+project-scoped ClickHouse evidence. Never claim that SDK acceptance, mocked
+transport tests or a synthetic WSGI service certify auto-instrumentation in
+an external customer app. Temporary write keys come only from stdin; preserve
+all M6 and earlier M7 manual acceptance gates. Run the complete release gate
+and update `docs/M7_DJANGO_RUNTIME_ACCEPTANCE.md` with operator evidence.
+
 ## M7.2 guided exporter recipe security contract — candidate
 
 Keep all project API keys in the external application's server environment.

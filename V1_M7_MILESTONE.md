@@ -1,5 +1,20 @@
 # Sentrix V1 M7 — Guided Integrations and Verified Onboarding
 
+## M7.3.1 implementation slice — Django/Python manual span export
+
+Build an independent minimal Django WSGI service and generate one actual
+HTTP `/checkout/` request. The real OpenTelemetry Python SDK manually records
+one `SERVER` span with service `m7-django-runtime`, environment `integration`
+and a unique run marker, posting OTLP/HTTP protobuf to the selected project.
+A second CLI authenticates the same temporary project key in Django/PostgreSQL,
+then checks a bounded ClickHouse query for exactly one correlated span.
+Regression tests cover the isolated Django-to-fake-receiver wire path, scoped
+SQL, limits and malformed evidence. No production lockfile changes.
+Actual run, persistent read-back, foreign-user session denial, browser UI,
+revoke/teardown, CI and reviewer sign-off remain mandatory. This does not
+constitute automatic instrumentation, arbitrary Django-app certification or
+completion of the wider M7.3 matrix.
+
 ## M7.2 implementation — guided Django/Python and Node.js server exporters
 
 **Baseline:** committed `4116f087127575a8218d85708932ef1448262361`.

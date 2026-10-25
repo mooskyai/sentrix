@@ -1,5 +1,13 @@
 # Sentrix M7.2 — Guided Django/Node server integration
 
+## M7.3.1 — runtime follow-up, not part of guided recipe acceptance
+
+The Django/Python instructions now have an optional isolated WSGI runtime
+probe at [M7 Django runtime acceptance](M7_DJANGO_RUNTIME_ACCEPTANCE.md).
+It sends a **manually instrumented** SDK span in a separate process, then
+independently verifies stored telemetry. This does not mean M7.2 generated
+instructions are certified for third-party Django projects.
+
 **Status:** code/test candidate on `4116f08`, not certified runtime integration.
 M6 human/browser acceptance and M7.1 independent runtime/browser acceptance remain open.
 

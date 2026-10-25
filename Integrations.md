@@ -1,5 +1,16 @@
 # Sentrix — Integrations and External Protocols
 
+## M7.3.1 — isolated Django/Python SDK export example
+
+`backend/scripts/m7_django_runtime.py` drives an independent minimal Django
+WSGI application through an actual HTTP request and exports a manually created
+server span using the upstream SDK to `/v1/traces`. The paired read-back tool
+verifies a uniquely marked trace in the key-derived ClickHouse tenant. These
+are development/acceptance tools, not a public Django auto-instrumentation
+package or general framework certification. Keys only enter through stdin;
+no browser ingestion secrets, OTLP JSON/gRPC or backend schema changes.
+Runbook: [M7 Django runtime](docs/M7_DJANGO_RUNTIME_ACCEPTANCE.md).
+
 ## M7.2 Django and Node guided recipes — candidate
 
 Settings offers copyable, server-only Django auto-instrumentation and Node

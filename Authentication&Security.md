@@ -1,5 +1,16 @@
 # Sentrix — Authentication, Authorization and Security
 
+## M7.3.1 runtime probe secret/tenant boundary
+
+The independent Django example accepts a `telemetry:write` credential only
+through stdin and sends it in the server-side OTLP Authorization header to an
+HTTPS or explicitly allowlisted local HTTP origin. It does not echo secrets
+or accept userinfo/query secrets in the URL. The verifier again derives
+organization/project from the authenticated key, uses typed ClickHouse
+parameters and fails if one exact span is not present. A key-based check does
+**not** prove foreign-user session authorization; test that independently.
+Revoke the temporary key and do not paste stdout containing secrets.
+
 ## M7.2 guided application secrets boundary (candidate)
 
 The Settings guide never solicits or reads the `telemetry:write` project key.

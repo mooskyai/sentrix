@@ -1,5 +1,48 @@
 # Sentrix — Testing and Quality Assurance
 
+## M7.3.1 observed operator gate and persisted Django trace (2026-10-25)
+
+The corrected release gate passed 250 backend tests and 102 frontend tests,
+including Ruff and strict mypy preflight, Django/schema checks and frontend
+build. The isolated Django OpenTelemetry HTTP export and exact project-scoped
+ClickHouse read-back succeeded for run `3ac7ac6765ea487cbd5de61b32bb1090`
+and trace `06b5945cf479625c5a7a051bb748ca3a` (UTC producer time
+`2026-10-25T08:18:57.946820+00:00`). This establishes a real stored Django
+server span, not auto-instrumentation coverage or M7 operational acceptance.
+Manual browser, independent-user, credential cleanup, other framework and
+pushed-SHA CI gates are still open. See `V1_M7_MILESTONE_TESTING.md`.
+
+## Mandatory Ruff and mypy preflight — M7.3.1 correction
+
+`scripts/verify.ps1` validates Compose, then executes `ruff check .`,
+`ruff format --check .` and strict `mypy .` before `python -m pytest`.
+The M7.3.1 correction resolves the dynamic Django URL declaration and two
+ClickHouse read-back `Any` return paths. Re-run the complete release gate and
+independent real OTLP/ClickHouse read-back; previously passing unit tests do
+not by themselves establish runtime or browser acceptance.
+
+## M7.3.1 UTC ClickHouse read-back regression — candidate
+
+Run the Ruff and strict mypy preflight before pytest. The read-back tests must
+accept naive UTC `DateTime64` datetimes returned by ClickHouse Connect while
+rejecting naive/aware timestamps outside the exact run window and non-datetime
+values. This does not weaken project-key-derived tenant, service, environment,
+run marker or trace-ID checks. Re-run the same operator-produced trace's
+persistence verifier before recording verified storage; M7.3.1 acceptance
+remains open until proof and cleanup are recorded.
+
+## M7.3.1 Django runtime test plan — not yet operator accepted
+
+Run `docker compose exec -T api /opt/venv/bin/python -m pytest
+apps/telemetry/tests/test_m7_django_runtime.py -v`, then `./scripts/verify.ps1`.
+The tests launch a real isolated Django WSGI process and a local fake OTLP
+HTTP receiver, asserting genuine upstream SDK protobuf transport; they also
+validate ClickHouse tenant predicates, timestamp/result caps and negative rows.
+A fake receiver does not demonstrate Sentrix storage. Separately run the
+masked-key SDK producer and persisted read-back described at
+`docs/M7_DJANGO_RUNTIME_ACCEPTANCE.md`; record browser/foreign-user/cleanup
+results as **NOT RUN** until explicitly executed. Do not close M6 gates.
+
 ## M7.2 guided server integration regression matrix — candidate
 
 New `frontend/src/guidedIntegration.test.ts` tests endpoint selection,

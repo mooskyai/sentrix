@@ -1,5 +1,16 @@
 # Sentrix — Product Roadmap (Core Observability Platform)
 
+## M7.3.1 Django SDK runtime — implementation candidate
+
+Add an isolated runnable Django WSGI request with manual OTel server-span
+instrumentation, upstream SDK OTLP/HTTP export and an independently authenticated
+project-scoped ClickHouse verifier. This is not Django auto-instrumentation
+certification or proof that a customer's Django app works unchanged. Real
+operator export/read-back, separate-user browser authorization, retry, teardown
+and SDK version evidence are required before accepting M7.3.1. The M6 and
+M7.1/M7.2 browser acceptance remains open; next proposed slice is Node/Express.
+See `docs/M7_DJANGO_RUNTIME_ACCEPTANCE.md`.
+
 ## M7.2 implementation slice — guided server exporters (candidate)
 
 On pushed M7.1 baseline `4116f087127575a8218d85708932ef1448262361`

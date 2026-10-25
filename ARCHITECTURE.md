@@ -1,5 +1,15 @@
 # Sentrix Architecture
 
+## M7.3.1 runtime acceptance separation
+
+The standalone Django WSGI probe is a **different Python/Django process** from
+Sentrix's control plane. It uses an SDK provider/exporter to send OTLP protobuf
+and a manually instrumented server request. A separate CLI authenticates a
+temporary project key against PostgreSQL and resolves tenant UUIDs **before**
+a typed, time-bounded ClickHouse lookup of one exact span and run marker.
+No data-plane write bypass, new table, production package, browser secret,
+generic network probe or SDK auto-instrumentation claim is introduced.
+
 ## M7.2 guided exporter onboarding (frontend-only candidate)
 
 Project Settings renders static Django/Node server recipes from strictly

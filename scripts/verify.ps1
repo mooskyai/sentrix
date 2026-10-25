@@ -7,15 +7,17 @@ try {
     docker compose config --quiet
     if ($LASTEXITCODE -ne 0) { throw "Docker Compose configuration validation failed." }
 
-    Write-Host "== Backend =="
-    docker compose exec -T api /opt/venv/bin/python -m pytest
-    if ($LASTEXITCODE -ne 0) { throw "Backend tests failed." }
+    Write-Host "== Backend static preflight =="
     docker compose exec -T api /opt/venv/bin/ruff check .
     if ($LASTEXITCODE -ne 0) { throw "Ruff lint failed." }
     docker compose exec -T api /opt/venv/bin/ruff format --check .
     if ($LASTEXITCODE -ne 0) { throw "Ruff format check failed." }
     docker compose exec -T api /opt/venv/bin/mypy .
     if ($LASTEXITCODE -ne 0) { throw "mypy failed." }
+
+    Write-Host "== Backend =="
+    docker compose exec -T api /opt/venv/bin/python -m pytest
+    if ($LASTEXITCODE -ne 0) { throw "Backend tests failed." }
     docker compose exec -T api /opt/venv/bin/python manage.py check
     if ($LASTEXITCODE -ne 0) { throw "Django system check failed." }
     docker compose exec -T api /opt/venv/bin/python manage.py makemigrations --check --dry-run

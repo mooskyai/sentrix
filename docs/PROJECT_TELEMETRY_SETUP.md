@@ -1,5 +1,14 @@
 # Connect a Sentrix project to OpenTelemetry
 
+## M7.3.1 Django runtime smoke
+
+For a real Django WSGI HTTP request with one manually instrumented upstream
+OTel trace and independent persistence verification, see
+[M7 Django runtime acceptance](M7_DJANGO_RUNTIME_ACCEPTANCE.md).
+This sample is not a Django auto-instrumentation product, nor proof of
+continuous traces, metrics or logs. Use a short-lived server-held key and
+revoke it after the operator test.
+
 ## M7.2: guided server integration — candidate
 
 In the target project's **Settings → Connect an application**, select the

@@ -1,5 +1,53 @@
 # Sentrix V1 M7 — Integration Testing and Acceptance
 
+## M7.3.1 runtime/persistence evidence — VERIFIED, full acceptance OPEN
+
+- **DJ-009:** Known UTC ClickHouse `DateTime64(9)` naive datetime results
+  are interpreted as UTC only for the defined span columns, preserving the
+  exact bounded evidence window and increasing endpoint order.
+- **DJ-010:** Regression tests reject out-of-window, non-datetime, duplicate
+  and mismatched spans; after correcting the first read-back's naive UTC
+  handling, the operator independently reran it and received **persistence
+  VERIFIED** for the actual stored Django WSGI server span.
+- **Run evidence (2026-10-25):** project
+  `07e54c2a-7cb5-4ff1-8c50-09f7a3a4fc4d`, run
+  `3ac7ac6765ea487cbd5de61b32bb1090`, trace
+  `06b5945cf479625c5a7a051bb748ca3a`, producer time
+  `2026-10-25T08:18:57.946820+00:00`, service/environment
+  `m7-django-runtime` / `integration`.
+- **Full operator release gate:** 250 backend pytest and 102 frontend Vitest
+  passed; Ruff lint/format, strict mypy (120 files), Django and ClickHouse
+  checks, ESLint, TypeScript and production build passed.
+- **Still NOT RUN / NOT RECORDED:** foreign-user browser 404, same-trace UI
+  evidence, keyboard/mobile, temporary credential revocation, other frameworks,
+  exact pushed-SHA CI and final operator sign-off. M6 and M7.1/M7.2 manual
+  gates remain open independently.
+
+## M7.3.1 test and operator acceptance — AUTOMATED PASS; OPERATOR PARTIAL
+
+- **DJ-001:** Dedicated Django WSGI subprocess serves `/checkout/` over real
+  HTTP, emits one manually instrumented SDK `SERVER` span with nonzero trace ID.
+- **DJ-002:** Local fake OTLP receiver observes actual POST protobuf at
+  `/v1/traces`, correct service/environment/run labels and Bearer header.
+- **DJ-003:** Read-back SQL derives typed org/project IDs from authenticated
+  key; enforces exact service/env/run/time and a strict 2-row cap.
+- **DJ-004:** Missing, repeated, malformed, unrelated span, trace ID, timing
+  or run marker fails closed; wrong project cannot pass the read-back.
+- **DJ-005:** Reject nonlocal cleartext origin, URL userinfo/query and leaked
+  secrets; no browser ingestion key or unmanaged control-plane session.
+- **DJ-006 (operator):** Run Django SDK producer with masked temporary key;
+  verify the same trace via independent ClickHouse read-back and in Services/
+  Traces browser; record sanitized IDs, versions and timestamp.
+- **DJ-007 (operator):** Separate user without membership gets 404 before
+  ClickHouse, empty/failure/timeout outcomes are truthful, key is revoked.
+- **DJ-008:** Full Docker `scripts/verify.ps1` + exact-SHA CI, documentation
+  synchronization, clean commit/push and evidence sign-off recorded.
+
+Focused command: `docker compose exec -T api /opt/venv/bin/python -m pytest
+apps/telemetry/tests/test_m7_django_runtime.py -v`.
+See `docs/M7_DJANGO_RUNTIME_ACCEPTANCE.md`. Manual M6 and M7.1/M7.2 checks
+stay open until independently observed; no automatic SDK certification.
+
 ## M7.2 automated and operator acceptance — NOT RUN
 
 | Case | Expected result |

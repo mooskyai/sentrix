@@ -1,5 +1,14 @@
 # Sentrix — Product Requirements Document
 
+## M7.3.1 — Django SDK runtime acceptance slice
+
+A developer can generate one real Django request through a minimal isolated
+WSGI application with manual OTel trace instrumentation, receive a safe run
+and trace ID, then run independent scoped ClickHouse read-back. A 200 HTTP
+export is not proof of persistence; missing, mismatched or wrong-tenant spans
+must not pass. The sample does not certify automatic Django middleware
+instrumentation, an existing application deployment or complete M7 acceptance.
+
 ## M7.2 user journey — guided Django and Node exports (candidate)
 
 An authenticated project member selects a Python/Django or Node server recipe

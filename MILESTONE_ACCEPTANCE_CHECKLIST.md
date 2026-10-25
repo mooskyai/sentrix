@@ -1,5 +1,19 @@
 # Sentrix — Master Milestone Acceptance Checklist (M1–M12)
 
+## M7.3.1 — isolated Django runtime (NOT ACCEPTED)
+
+- [ ] **M7.3.1-D01:** Independent real Django WSGI request posts upstream
+  SDK OTLP protobuf with a server-held temporary credential.
+- [ ] **M7.3.1-D02:** Authenticated key-derived tenant read-back finds the exact
+  unique server span and rejects wrong run/trace/project; record nonsecret IDs.
+- [ ] **M7.3.1-D03:** Foreign-user 404, browser service/trace view and negative
+  network/failure checks are independently recorded.
+- [ ] **M7.3.1-D04:** Full tests/CI, SDK/Django versions, credential revocation,
+  cleanup, updated documentation and explicit acceptance sign-off recorded.
+
+This is manual span instrumentation, not zero-code or general Django
+compatibility certification; M6 and earlier M7 gates remain open.
+
 ## M7.2 guided integrations candidate gate — NOT ACCEPTED
 
 - [ ] **M7.2-G01:** Django and Node server instructions generated for the

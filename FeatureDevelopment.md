@@ -1,5 +1,15 @@
 # Sentrix — Feature Development Playbook
 
+## M7.3.1 — instrumented Django WSGI smoke
+
+Use a separate process with a minimal Django settings module and HTTP request;
+create a manual server span using upstream OTel SDK, send real protobuf, and
+verify persisted rows using temporary key-derived tenant predicates. Mocked
+SDK-to-HTTP transport tests are not durable-storage proof. Keep WSGI smoke
+separate from the production API, sanitize errors and never print credentials.
+Do not imply zero-code instrumentation; defer live operator/browser, separate-user
+and cleanup evidence until independently recorded.
+
 ## M7.2 verified-resource onboarding contract
 
 The settings integration guide must validate URL and resource identity inputs

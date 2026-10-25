@@ -1,5 +1,42 @@
 # Sentrix — Project Implementation Register
 
+## M7.3.1 — Django SDK and ClickHouse run evidence (2026-10-25)
+
+**Verified scope:** the isolated Django WSGI process handled a real HTTP request;
+its OpenTelemetry Python SDK exporter returned OTLP success, and the corrected
+independent ClickHouse verifier reported `Django runtime persistence VERIFIED:
+real Django WSGI server span in key's project.` for the exact authenticated
+project. The UTC timestamp correction preserves the strict run/window checks.
+
+- Baseline before implementation: `a37b86d08af4da9fb3c3c725eb738bdcc45aee09`.
+- Project: `07e54c2a-7cb5-4ff1-8c50-09f7a3a4fc4d`.
+- Run: `3ac7ac6765ea487cbd5de61b32bb1090`.
+- Trace: `06b5945cf479625c5a7a051bb748ca3a`.
+- Producer UTC time: `2026-10-25T08:18:57.946820+00:00`.
+- Service/environment: `m7-django-runtime` / `integration`.
+- Operator full release gate after correction: **250 backend tests, 102
+  frontend tests**, Ruff check/format, strict mypy (120 files), Django checks,
+  ClickHouse schema, frontend static checks and build **passed**.
+
+**Still unverified:** Services/Traces browser proof; independent signed-in
+foreign-user 404 before ClickHouse; key revocation/cleanup; other runtimes;
+GitHub CI and clean pushed SHA for this implementation. Previous evidence of
+the initial timezone rejection is superseded by the successful corrected
+read-back above. Do not mark overall M7.3.1/M7 or outstanding M6 manual
+acceptance complete.
+
+## M7.3.1 — Django/Python runtime implementation candidate (2026-10-25)
+
+Source baseline: pushed GitHub `main` at
+`a37b86d08af4da9fb3c3c725eb738bdcc45aee09`. Add independent
+`m7_django_runtime.py` and `m7_django_readback.py` plus subprocess protobuf,
+bounded ClickHouse read-back and negative tests. No migration, production
+Django/SDK dependency or new backend endpoint. The producer launches a real
+Django WSGI HTTP handler using manual spans; it does not auto-instrument an
+external customer's Django app. The operator Docker release gate, actual Django export and ClickHouse read-back
+were subsequently verified; see the dated evidence record above.
+Existing M6 and M7.1/M7.2 manual acceptance is not changed.
+
 ## M7.2 — guided server integration candidate (2026-10-25)
 
 Baseline `4116f087127575a8218d85708932ef1448262361` (M7.1 committed,

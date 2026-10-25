@@ -1,5 +1,15 @@
 # Sentrix
 
+## M7.3.1 — isolated Django/Python runtime export (candidate)
+
+Use [the Django runtime acceptance runbook](docs/M7_DJANGO_RUNTIME_ACCEPTANCE.md)
+for a separate-process Django WSGI application with manually instrumented
+OpenTelemetry HTTP request, real SDK OTLP/protobuf export and independent
+ClickHouse read-back against the same project's temporary credential. The
+producer plus verifier are **not** a certified Django auto-instrumentation,
+real external deployment or M7 acceptance. M6 and M7.1/M7.2 manual gates
+remain open; run the full release gate and record operator evidence.
+
 ## M7.2 — guided Django and Node server onboarding (candidate)
 
 Project **Settings → Connect an application** offers Django/Python and Node.js

@@ -1,5 +1,14 @@
 # Sentrix — HTTP and Worker API Reference
 
+## M7.3.1 runtime example — no new HTTP API
+
+The isolated Django runtime smoke sends standard `POST /v1/traces`
+`application/x-protobuf` with a server-held `telemetry:write` Bearer key.
+The read-back CLI uses Django's project-key authentication and tenant-scoped
+ClickHouse queries; it creates **no** new browser session API or storage table.
+The receipt verifies one exact `m7.django.checkout` span only after read-back;
+it does not represent a service-health signal or an SDK compatibility guarantee.
+
 ## M7.2 exact service verification (reuse existing GET)
 
 The guided Settings check calls the already shipped session-protected
