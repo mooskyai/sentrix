@@ -1,5 +1,15 @@
 # Sentrix — Product Roadmap (Core Observability Platform)
 
+## M7.1 bounded diagnostic candidate — M6 operator closeout remains open
+
+M7.1 starts with a session-authenticated, project-scoped first-telemetry
+observation API and Settings panel, with no new exporter or SDK. A zero count
+means only *no stored samples in the previous 24 hours*, not a failed or
+disconnected exporter. Connection diagnostics do not substitute for live
+instrumented framework tests. Implement/test as an unaccepted candidate while
+M6.2/M6.3/M6.4 manual browser, foreign-user, failure-state and external-app
+acceptance remain outstanding. Use `V1_M7_MILESTONE.md` for the ordered plan.
+
 ## Master acceptance checklist — documentation index
 
 Use [MILESTONE_ACCEPTANCE_CHECKLIST.md](MILESTONE_ACCEPTANCE_CHECKLIST.md)

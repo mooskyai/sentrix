@@ -1,5 +1,14 @@
 # Sentrix — Feature Development Playbook
 
+## M7.1 first-telemetry candidate workflow
+
+Implement a narrow read-only diagnostic before broader integration helpers.
+Test project membership before any ClickHouse query, explicit 24h window,
+three typed signal queries, empty vs 503, and browser read-only/refetch states.
+Run focused/backend/frontend/full gate; then record real OTLP/operator proof
+before any acceptance. Updating documentation and master checklist is required.
+Do not infer exporter health from stored historical samples.
+
 ## M6 live operator smoke tool — release gate preparation
 
 `backend/scripts/m6_acceptance_smoke.py` sends genuine OTLP/HTTP protobuf in a

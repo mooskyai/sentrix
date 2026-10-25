@@ -1,5 +1,16 @@
 # Sentrix — Authentication, Authorization and Security
 
+## M7.1 diagnostic trust boundary — candidate
+
+`GET /api/v1/projects/{project_id}/integrations/connection-status/` requires
+a Django session and project membership. Resolve foreign/unknown UUIDs as 404
+*before* opening ClickHouse. The browser never sends a machine credential,
+queries telemetry outside its authorized `(organization_id, project_id)`, or
+receives raw payloads/key metadata from this endpoint. Dependency exceptions
+are sanitized to 503. Fixed server-side time and read budgets prevent the
+browser from requesting unbounded history; no active credential validation is
+claimed. Retain negative foreign-user and no-data checks during acceptance.
+
 ## Browser workspace preference is not authentication — candidate
 
 `sentrix.workspace.v2.<userId>` holds only schema version, organization ID,

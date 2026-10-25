@@ -1,5 +1,20 @@
 # Sentrix
 
+## M7.1 first-telemetry diagnostics — implementation candidate
+
+Project **Settings** now has an on-demand **First telemetry check** that reads
+actual project-scoped ClickHouse observations in the previous 24 hours for
+metrics, logs and traces. It exposes counts and latest timestamps, with honest
+not-observed and 503 states. It does not test live exporter connectivity,
+certificate validation, project-key usability or service health. The browser
+uses its authenticated session and never sees the ingestion key. See
+[`V1_M7_MILESTONE.md`](V1_M7_MILESTONE.md) and
+[`V1_M7_MILESTONE_TESTING.md`](V1_M7_MILESTONE_TESTING.md).
+
+**Status:** candidate based on GitHub `main` `16c94af` (2026-10-25), not
+operator-accepted. The full local release gate, real onboarding runtime and
+M6 manual closeout are separate outstanding work.
+
 ## Milestone acceptance — M1 through planned M12
 
 The [master milestone acceptance checklist](MILESTONE_ACCEPTANCE_CHECKLIST.md)

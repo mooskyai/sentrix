@@ -1,5 +1,20 @@
 # Sentrix — Master Milestone Acceptance Checklist (M1–M12)
 
+## M7.1 candidate sub-gate — NOT ACCEPTED
+
+- [ ] **M7.1-D01:** A signed-in member reads only the correct project's
+  24h metrics/logs/traces observations; verify rows and timestamps against
+  independent ClickHouse/OTLP evidence.
+- [ ] **M7.1-D02:** Different unauthorized user and unknown project return
+  nondisclosing 404 without opening ClickHouse.
+- [ ] **M7.1-D03:** No-data, 503, partial-signal, keyboard/mobile and
+  project-switching behavior observed in browser, without invented health.
+- [ ] **M7.1-D04:** Instrument a real server/Collector externally and confirm
+  the expected signal in the correct project without browser-side write keys.
+- [ ] **M7.1-D05:** Focused/full verification, CI, operator/date/run evidence,
+  affected documentation, commit and clean `main` recorded. M6 acceptance
+  remains independently open.
+
 **Type:** Release and operator-evidence checklist; **not** a claim that any unchecked feature has shipped.
 **Reference baseline:** GitHub `main` at `61161bd3fb2da859ac1f6636a71e5daccbff6e02` (2026-10-25).
 **Sources of truth:** existing `V1_MILESTONE*.md`, `V1_M2_MILESTONE*.md` through

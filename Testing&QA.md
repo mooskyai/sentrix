@@ -1,5 +1,18 @@
 # Sentrix — Testing and Quality Assurance
 
+## M7.1 first-telemetry diagnostics gate — candidate
+
+Run `docker compose exec -T api /opt/venv/bin/python -m pytest
+apps/telemetry/tests/test_connection_diagnostics_api.py -v`, and
+`docker compose exec -T web npm run test -- --run
+src/components/ConnectionDiagnosticsPanel.test.tsx` (or the repository's
+Vitest command). Then run `./scripts/verify.ps1`. Backend tests assert
+membership before ClickHouse, typed tenant predicates, fixed 24h bounds,
+real signal counts, safe empty/503 behavior and client closure. Frontend tests
+cover observed, missing, failed and manual refresh states without credential
+exposure. Operator must also test another user and separate real exporter.
+No M6 acceptance record is closed by this candidate.
+
 ## Master milestone proof and operator status
 
 The [M1–M12 acceptance checklist](MILESTONE_ACCEPTANCE_CHECKLIST.md) links

@@ -1,5 +1,16 @@
 # Framework setup quickstart for Sentrix
 
+## M7.1 stored-telemetry check — implementation candidate
+
+After triggering a real server request, choose the same project and open
+**Settings → First telemetry check**. The on-demand check shows per-signal
+sample counts and latest observed timestamps for a 24-hour UTC window.
+A zero result means no stored sample in that window, not a failed key or
+unreachable exporter; a query error is displayed separately. Use the existing
+Services/Traces/Logs explorers for detail. This diagnostic is **not** proof
+that a Laravel, Node, Next.js, Django or Collector recipe has been
+independently verified in a running application. Keep project keys server-only.
+
 ## Roadmap and evidence status (2026-10-24)
 
 The in-app framework choices are **onboarding recipes**, not a certified SDK

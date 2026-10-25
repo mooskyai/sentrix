@@ -1,5 +1,14 @@
 # Sentrix — Product Requirements Document
 
+## M7.1 — project first-telemetry diagnostics (candidate)
+
+The first M7 slice exposes telemetry-backed onboarding evidence from the
+selected authorized project. It must be read-only, bounded to 24h, distinguish
+observed versus not-observed versus query unavailable, and preserve secret/
+tenant boundaries. It does not validate API keys, network connectivity,
+exporter liveness or framework certification. Live application integration
+and unfinished M6 operator acceptance remain explicit release conditions.
+
 ## M6.4 candidate user journey
 
 A project member opens **Services → Show observed relationships** and sees only

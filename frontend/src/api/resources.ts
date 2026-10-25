@@ -279,3 +279,11 @@ export function getServiceMap(
     `/projects/${encodeURIComponent(projectId)}/services/map/?${params}`,
   );
 }
+
+export function getConnectionDiagnostics(
+  projectId: string,
+): Promise<import("../types").ConnectionDiagnosticsResponse> {
+  return api<import("../types").ConnectionDiagnosticsResponse>(
+    `/projects/${encodeURIComponent(projectId)}/integrations/connection-status/`,
+  );
+}

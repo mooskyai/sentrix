@@ -1,5 +1,15 @@
 # Connect a Sentrix project to OpenTelemetry
 
+## First-telemetry read-back (M7.1 candidate)
+
+Under the authorized project's **Settings**, use **First telemetry check**
+after exporting a real request. It reports per-signal stored samples and
+latest timestamps over 24 hours without needing a key in browser JavaScript.
+If no data is observed, first confirm exporter/network endpoint, one-time
+project key, activity, flush, server clock and query window. A 503 indicates
+query dependency failure and is not a successful empty result. Full framework
+integration/credential diagnostics remain future acceptance work.
+
 ## Optional M6 evidence smoke (development only)
 
 For a reproducible three-service OTLP/HTTP protobuf test from a distinct

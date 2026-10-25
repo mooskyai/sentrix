@@ -1,5 +1,6 @@
 from django.urls import path
 
+from .connection_diagnostics_views import ConnectionDiagnosticsView
 from .infrastructure_views import InfrastructureView
 from .logs_views import LogSearchView
 from .metrics_views import MetricCatalogView, MetricSeriesView
@@ -9,6 +10,11 @@ from .service_map_views import ServiceMapView
 from .traces_views import TraceDetailView
 
 urlpatterns = [
+    path(
+        "projects/<uuid:project_id>/integrations/connection-status/",
+        ConnectionDiagnosticsView.as_view(),
+        name="project-connection-status",
+    ),
     path(
         "projects/<uuid:project_id>/infrastructure/",
         InfrastructureView.as_view(),

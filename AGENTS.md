@@ -1,5 +1,15 @@
 # Sentrix — repository contributor and agent instructions
 
+## M7.1 candidate guardrails
+
+The first-telemetry endpoint is a read-only, session-authenticated observation
+summary, not a project-key validation API, connection health signal, active
+network probe or runtime integration certificate. Resolve project membership
+before ClickHouse. Use server-derived tenant predicates, fixed 24-hour bounds
+and read budgets; return sanitized 503 for query failure. Never send, store,
+log or copy an ingestion secret to the frontend. Do not mark M6 accepted or
+M7.1 live-certified solely because automated tests pass.
+
 ## Master milestone acceptance index — documentation-only coordination
 
 `MILESTONE_ACCEPTANCE_CHECKLIST.md` is the cross-milestone M1–M12 proof index.

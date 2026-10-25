@@ -1,5 +1,16 @@
 # Sentrix — Integrations and External Protocols
 
+## M7.1 read-only first-signal check — candidate
+
+Project Settings can display stored metric/log/span counts and latest UTC
+timestamps over the prior 24 hours using a session-authenticated query.
+This is a *first-telemetry observation*, not an OTLP connectivity/credential
+probe, real framework certification, network diagnosis or proof of continuous
+collection. The independent OTLP/HTTP protobuf ingestion contract and
+server-only API-key placement remain unchanged. Future M7 slices must
+exercise each framework/Collector in a real process and verify security,
+errors, environment selection and multi-signal evidence.
+
 ## Integration roadmap and current contract — 2026-10-24
 
 Current contract: project-scoped `telemetry:write` Bearer key,

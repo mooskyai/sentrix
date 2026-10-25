@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 
 import { getOrganizations, getProjects } from "../api/resources";
 import { AlertsWorkspace } from "../components/AlertsWorkspace";
+import { ConnectionDiagnosticsPanel } from "../components/ConnectionDiagnosticsPanel";
 import { DashboardPanels } from "../components/DashboardPanels";
 import { InfrastructureWorkspace } from "../components/InfrastructureWorkspace";
 import { LogsExplorer } from "../components/LogsExplorer";
@@ -190,11 +191,14 @@ export function ProjectWorkspacePage() {
             canManage={writable}
           />
         ) : activeSection === "settings" ? (
-          <ProjectApiKeysPanel
-            key={`${workspace.project.id}:${writable ? "manage" : "read"}`}
-            projectId={workspace.project.id}
-            canManage={writable}
-          />
+          <>
+            <ConnectionDiagnosticsPanel key={`diagnostics:${workspace.project.id}`} projectId={workspace.project.id} />
+            <ProjectApiKeysPanel
+              key={`${workspace.project.id}:${writable ? "manage" : "read"}`}
+              projectId={workspace.project.id}
+              canManage={writable}
+            />
+          </>
         ) : (
           <div className="empty-feature">
             <strong>Explorer UI is not connected yet.</strong>

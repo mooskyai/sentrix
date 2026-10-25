@@ -314,3 +314,17 @@ export interface ServiceMapResponse {
   scanned_spans: number;
   relationships: ObservedServiceRelationship[];
 }
+
+export interface ConnectionDiagnosticSignal {
+  observed: boolean;
+  count: number;
+  last_seen: string | null;
+}
+
+export interface ConnectionDiagnosticsResponse {
+  project_id: string;
+  start: string;
+  end: string;
+  observation_state: "observed" | "not_observed";
+  signals: Record<"metrics" | "logs" | "traces", ConnectionDiagnosticSignal>;
+}

@@ -1,5 +1,17 @@
 # Sentrix — Project Implementation Register
 
+## M7.1 — first-telemetry diagnostics implementation candidate (2026-10-25)
+
+GitHub baseline: `16c94afdbbc5d5cfaf107760d3559ecc795d6143`, clean
+`main` as operator-reported. This patch adds a project-session, member-only
+observation endpoint, on-demand Settings panel and negative tests for foreign
+users, empty data, invalid read-back and query failure. Django derives tenant
+IDs from membership before ClickHouse; browser receives no ingestion secrets.
+**Not yet executed on operator Compose:** focused tests, full `verify.ps1`,
+real first-telemetry smoke, browser review, CI, commit/push. M6 manual
+acceptance and M7.1 live onboarding sign-off both remain open. Check
+`V1_M7_MILESTONE_TESTING.md` and the master checklist before acceptance.
+
 ## M1–M12 master acceptance index — documentation-only candidate (2026-10-25)
 
 Added `MILESTONE_ACCEPTANCE_CHECKLIST.md` as the evidence index for historical

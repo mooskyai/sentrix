@@ -1,5 +1,19 @@
 # Sentrix — HTTP and Worker API Reference
 
+## M7.1 — first-telemetry observation endpoint (candidate)
+
+`GET /api/v1/projects/{project_id}/integrations/connection-status/` uses a
+Django browser session; authenticated project viewers and writers may read it.
+The key-scoped OTLP Bearer credential cannot authorize this route. For a fixed
+server-selected half-open 24h UTC window, three bounded, typed ClickHouse
+queries return `{project_id, start, end, observation_state, signals}`. Each
+signal (`metrics`, `logs`, `traces`) returns `{observed, count, last_seen}`.
+`not_observed` means *zero stored rows in that window*, never a claim of
+failed connectivity. Foreign/missing projects return 404 before opening
+ClickHouse; anonymous callers return 401/403; query failures return a sanitized
+503 rather than a misleading empty state. No user-controlled tenant IDs,
+window or table names, secret values or raw telemetry are accepted/returned.
+
 ## M6.4 observed service map — candidate API
 
 `GET /api/v1/projects/{project_id}/services/map/?start=RFC3339&end=RFC3339&limit=100`

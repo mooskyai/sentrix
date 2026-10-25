@@ -1,5 +1,15 @@
 # Sentrix Architecture
 
+## M7.1 first-telemetry read boundary (candidate)
+
+Settings requests a non-mutating Django session GET for its authorized project.
+Django verifies membership first, then queries existing ClickHouse metrics,
+logs and spans tables with server-owned organization/project UUIDs and a fixed
+24h UTC window. Each query has execution/read budgets and the client is closed
+on success or failure. The browser shows only per-signal counts and last-seen
+UTC timestamps. No new persistence, migrations, collector, worker or API-key
+exchange is introduced. The result is evidence of stored telemetry only.
+
 ## M6.4 observed service map — candidate data path
 
 The signed-in browser selects an authorized project and bounded UTC window. DRF
