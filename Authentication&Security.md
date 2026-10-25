@@ -9,6 +9,16 @@ or select a project absent from server-returned membership. Invalid explicit
 URLs do not fall back to a different tenant; no credential or sensitive
 telemetry is stored. A blocked storage API degrades to an in-memory choice.
 
+## Temporary M6 acceptance credentials
+
+The optional `scripts/m6_acceptance_smoke.py` reads one `telemetry:write` key
+from stdin, not an argument or URL. Only a local HTTP origin or HTTPS origin is
+allowed; emitted receipts contain nonsecret run/trace/service identifiers only.
+Use a dedicated temporary project credential, never commit/paste the key, and
+revoke it after verification. Smoke telemetry and localStorage preferences
+are not authorization evidence; verify a separate foreign browser user gets
+404 before declaring tenant isolation accepted.
+
 ## M6.4 observed map trust boundary — candidate
 
 Session-authenticated membership lookup precedes the ClickHouse client. Both

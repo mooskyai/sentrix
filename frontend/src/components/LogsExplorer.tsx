@@ -1,9 +1,10 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import { getLogs } from "../api/resources";
 import { DetailDrawer } from "./DetailDrawer";
+import { linkedRange, linkedService } from "../serviceNavigation";
 import type { LogSearchRow } from "../types";
 
 const RANGE_MS = {
@@ -63,15 +64,16 @@ function traceHref(tracePath: string, traceId: string, start: string, end: strin
 }
 
 export function LogsExplorer({ projectId, tracePath }: { projectId: string; tracePath: string }) {
-  const [range, setRange] = useState<LogTimeRange>("1h");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [range, setRange] = useState<LogTimeRange>(() => linkedRange(searchParams, "1h"));
   const [limit, setLimit] = useState<ResultLimit>(200);
   const [anchorMs, setAnchorMs] = useState(() => Date.now());
-  const [serviceInput, setServiceInput] = useState("");
-  const [environmentInput, setEnvironmentInput] = useState("");
+  const [serviceInput, setServiceInput] = useState(() => linkedService(searchParams)?.service_name ?? "");
+  const [environmentInput, setEnvironmentInput] = useState(() => linkedService(searchParams)?.environment ?? "");
   const [severityInput, setSeverityInput] = useState("");
   const [bodyInput, setBodyInput] = useState("");
   const [traceInput, setTraceInput] = useState("");
-  const [filters, setFilters] = useState<AppliedFilters>({});
+  const [filters, setFilters] = useState<AppliedFilters>(() => linkedService(searchParams) ?? {});
   const [inspectedLog, setInspectedLog] = useState<LogSearchRow | null>(null);
 
   const window = useMemo(
@@ -106,13 +108,22 @@ export function LogsExplorer({ projectId, tracePath }: { projectId: string; trac
     const environment = environmentInput.trim();
     const bodyContains = bodyInput.trim();
     const traceId = traceInput.trim().toLowerCase();
+    const matchEmptyEnvironment = environment === "" && filters.environment === "" &&
+      serviceName === filters.service_name;
     setFilters({
       ...(serviceName ? { service_name: serviceName } : {}),
-      ...(environment ? { environment } : {}),
+      ...(environment || matchEmptyEnvironment ? { environment } : {}),
       ...(severityInput ? { min_severity_number: Number(severityInput) } : {}),
       ...(bodyContains ? { body_contains: bodyContains } : {}),
       ...(traceId ? { trace_id: traceId } : {}),
     });
+    const params = new URLSearchParams();
+    if (serviceName) {
+      params.set("service_name", serviceName);
+      if (environment || matchEmptyEnvironment) params.set("environment", environment);
+    }
+    params.set("range", range);
+    setSearchParams(params, { replace: true });
     setAnchorMs(Date.now());
   }
 
@@ -124,6 +135,7 @@ export function LogsExplorer({ projectId, tracePath }: { projectId: string; trac
     setBodyInput("");
     setTraceInput("");
     setFilters({});
+    setSearchParams({}, { replace: true });
     setAnchorMs(Date.now());
   }
 

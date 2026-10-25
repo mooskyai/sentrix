@@ -67,12 +67,12 @@ const logResponse: LogSearchResponse = {
   truncated: false,
 };
 
-function renderExplorer() {
+function renderExplorer(initialEntry = "/logs") {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[initialEntry]}>
       <QueryClientProvider client={queryClient}>
         <LogsExplorer projectId="project-a" tracePath="/orgs/acme/projects/shop/traces" />
       </QueryClientProvider>
@@ -135,6 +135,20 @@ describe("LogsExplorer", () => {
         }),
       );
     });
+  });
+
+  it("automatically applies linked service context including empty environment", async () => {
+    renderExplorer("/logs?service_name=worker&environment=&range=24h");
+    expect(screen.getByLabelText("Log service")).toHaveValue("worker");
+    expect(screen.getByLabelText("Log environment")).toHaveValue("");
+    expect(screen.getByLabelText("Log time range")).toHaveValue("24h");
+    await waitFor(() => expect(mockedGetLogs).toHaveBeenCalledWith(
+      "project-a", expect.objectContaining({ service_name: "worker", environment: "" }),
+    ));
+    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+    await waitFor(() => expect(mockedGetLogs).toHaveBeenLastCalledWith(
+      "project-a", expect.not.objectContaining({ service_name: "worker" }),
+    ));
   });
 
   it("shows a healthy empty result separately from a query failure", async () => {

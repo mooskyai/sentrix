@@ -91,7 +91,8 @@ interface MetricSeriesQuery extends MetricWindowQuery {
 function metricQueryString(query: Record<string, string | number | undefined>): string {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(query)) {
-    if (value !== undefined && value !== "") params.set(key, String(value));
+    // An explicitly empty environment matches the no-environment service identity.
+    if (value !== undefined && (value !== "" || key === "environment")) params.set(key, String(value));
   }
   return params.toString();
 }

@@ -1,5 +1,16 @@
 # Sentrix V1 M6 — Service Catalog & Infrastructure Observability Test and Acceptance Plan
 
+## Repeatable OTLP signal evidence helper — candidate
+
+For a fresh independent-process OTLP/HTTP request, use
+`docs/M6_ACCEPTANCE_PRODUCER.md` and `scripts/m6_acceptance_smoke.py` in the
+backend. It sends three correlated service spans (two explicit parent-child
+edges), a metric and log per service, and observed host/Kubernetes labels.
+Operator must verify query persistence, project switch/foreign user, actual
+browser states and a separately instrumented application or Collector before
+accepting the relevant M6 checklists. This candidate adds focused unit tests;
+the complete release gate and manual checks remain unreported for it.
+
 ## Global workspace selector regression (candidate, not M6 acceptance)
 
 Verify with two real authorized organizations/projects: initial header auto-

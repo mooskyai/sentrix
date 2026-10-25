@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createProjectDashboardPanel, getMetricCatalog, getMetricSeries } from "../api/resources";
@@ -91,14 +92,16 @@ const pinnedPanel: ProjectDashboardPanel = {
   updated_at: "2026-10-09T05:00:00Z",
 };
 
-function renderExplorer(canManageDashboard = false) {
+function renderExplorer(canManageDashboard = false, initialEntry = "/metrics") {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   return render(
-    <QueryClientProvider client={queryClient}>
-      <MetricsExplorer projectId="project-a" canManageDashboard={canManageDashboard} />
-    </QueryClientProvider>,
+    <MemoryRouter initialEntries={[initialEntry]}>
+      <QueryClientProvider client={queryClient}>
+        <MetricsExplorer projectId="project-a" canManageDashboard={canManageDashboard} />
+      </QueryClientProvider>
+    </MemoryRouter>,
   );
 }
 
@@ -152,6 +155,27 @@ describe("MetricsExplorer", () => {
         }),
       );
     });
+  });
+
+  it("prefills and applies linked service filters and metric on first render", async () => {
+    renderExplorer(false, "/metrics?service_name=checkout&environment=production&range=24h&metric_name=http.server.duration");
+    expect(await screen.findByLabelText("Service")).toHaveValue("checkout");
+    expect(screen.getByLabelText("Environment")).toHaveValue("production");
+    expect(screen.getByLabelText("Time range")).toHaveValue("24h");
+    await waitFor(() => expect(mockedGetMetricSeries).toHaveBeenCalledWith(
+      "project-a", expect.objectContaining({ service_name: "checkout", environment: "production" }),
+    ));
+    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+    await waitFor(() => expect(mockedGetMetricSeries).toHaveBeenLastCalledWith(
+      "project-a", expect.not.objectContaining({ service_name: "checkout" }),
+    ));
+  });
+
+  it("preserves an explicitly empty environment filter on a linked metric view", async () => {
+    renderExplorer(false, "/metrics?service_name=worker&environment=&range=1h");
+    await waitFor(() => expect(mockedGetMetricSeries).toHaveBeenCalledWith(
+      "project-a", expect.objectContaining({ service_name: "worker", environment: "" }),
+    ));
   });
 
   it("pins the current numeric query to the project dashboard for writers", async () => {

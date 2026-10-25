@@ -1,5 +1,13 @@
 # Connect a Sentrix project to OpenTelemetry
 
+## Optional M6 evidence smoke (development only)
+
+For a reproducible three-service OTLP/HTTP protobuf test from a distinct
+Python process, follow [M6 acceptance producer](M6_ACCEPTANCE_PRODUCER.md).
+It requires a temporary project key read from stdin and prints only nonsecret
+correlation identifiers. Use it to aid browser diagnosis, **not** to claim
+full integration certification, live Kubernetes inventory or operator acceptance.
+
 This guide describes the **implemented** Sentrix OTLP/HTTP binary-protobuf interface. Open **Documentation** in the left sidebar after signing in, or use the Settings → Telemetry setup guide link. Choose Laravel, Node.js, React or Next.js in the interactive quickstart. API reference remains available at its direct route but is hidden from navigation. See [FRAMEWORK_QUICKSTART.md](FRAMEWORK_QUICKSTART.md) for the framework recipes and safety notes.
 
 ## 1. Create the project key

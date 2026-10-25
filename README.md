@@ -1,5 +1,16 @@
 # Sentrix
 
+## M6 browser acceptance evidence producer — candidate
+
+`backend/scripts/m6_acceptance_smoke.py` is an opt-in **independent Python
+process** sending actual three-service OTLP/HTTP protobuf metrics, logs and
+trace spans with exact parentage and `host.name`/`k8s.*` resource labels.
+See [operator runbook](docs/M6_ACCEPTANCE_PRODUCER.md). It reads a temporary
+project write key from stdin and prints nonsecret run/trace identifiers.
+A successful HTTP response is not proof of ClickHouse read-back, real
+Kubernetes inventory or M6 browser acceptance. M6.2–M6.4 operator records
+remain open until independently observed and committed; M6.5 is not started.
+
 ## Automatic workspace selection and stale preference recovery — 2026-10-24 candidate
 
 When the API lists an authorized organization and project, the header selects the
@@ -1134,3 +1145,14 @@ See `UI_DENSITY_AND_DRAWERS.md`.
 Project **Settings** now has two plain links, **Telemetry setup guide** (`/docs/telemetry-setup`) and **API reference** (`/docs/api-reference`). They open read-only guidance inside the current app without adding a project navigation tab. The setup guide covers project API-key creation, the one-time secret, protobuf OTLP/HTTP trace export from Python, endpoint and auth configuration, and troubleshooting. The API reference distinguishes session/CSRF-protected management and query APIs from bearer-key telemetry ingestion. Repository mirrors: [`docs/PROJECT_TELEMETRY_SETUP.md`](docs/PROJECT_TELEMETRY_SETUP.md) and [`docs/API_REFERENCE.md`](docs/API_REFERENCE.md).
 
 These links add no telemetry capability, do not authorize a project, and never transmit a raw key to a documentation route. Existing M6.2 and M6.3 operator acceptance gates remain unchanged.
+
+## Service detail → telemetry explorer context (pending browser acceptance)
+
+Inspecting an observed service now provides project-scoped deep links to Metrics,
+Logs and Traces with the exact service/environment and observation range. Metrics
+and Logs automatically apply these filters on arrival; Traces opens a real
+observed trace reference when available, retaining the complete distributed
+trace. Empty environments remain distinct from missing dimension filters.
+See `docs/SERVICE_EXPLORER_NAVIGATION.md` for semantics and regression checks.
+This UI correction requires browser verification and the full release gate;
+it does not close the existing M6 acceptance checklists.

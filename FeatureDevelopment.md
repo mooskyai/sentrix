@@ -1,5 +1,15 @@
 # Sentrix — Feature Development Playbook
 
+## M6 live operator smoke tool — release gate preparation
+
+`backend/scripts/m6_acceptance_smoke.py` sends genuine OTLP/HTTP protobuf in a
+separate process with one parent/child chain and matched logs/metrics/resource
+attributes. Tests cover payload parentage, allowed TLS/loopback origins, secret
+handling and sanitized transport failures. See `docs/M6_ACCEPTANCE_PRODUCER.md`;
+operator browser/foreign-user checks and external application instrumentation
+must still be recorded independently. Do not start the M6.5 feature slice from
+this tool's presence alone.
+
 ## Global workspace selection maintenance — candidate
 
 Use `workspacePersistence.ts` to reconcile server-listed organization/project

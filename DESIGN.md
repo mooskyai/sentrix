@@ -167,3 +167,12 @@ remain visually flat. Do not remove all cards; avoid nested cards.
 ## Linked documentation in Settings
 
 Show two inline links (Telemetry setup guide and API reference) near the API-key controls, including read-only roles. Linked pages use the shared app header and a single readable content surface; do not add a Documentation section to project navigation, nested panels, or a tab bar. Links must not include raw API keys in their URLs.
+
+## Service-to-explorer context correction (browser acceptance open)
+
+Links in the Services inspector preserve the exact project, service identity,
+including an explicit empty environment, and the selected time-range preset.
+Metrics/Logs pre-apply exact filters rather than asking the user to retype them.
+For Traces, navigate only with observed trace IDs and preserve the full returned
+trace while identifying spans of the selected service. See
+`docs/SERVICE_EXPLORER_NAVIGATION.md`; no new trace search API or health inference.

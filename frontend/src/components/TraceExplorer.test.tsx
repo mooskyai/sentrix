@@ -122,6 +122,14 @@ describe("TraceExplorer", () => {
     });
   });
 
+  it("identifies the selected service without hiding other services in a real trace", async () => {
+    renderExplorer(`/traces?trace_id=${traceId}&service_name=checkout&environment=production`);
+    expect(await screen.findByText("POST /checkout")).toBeInTheDocument();
+    expect(screen.getByText("Selected service:", { exact: false })).toBeInTheDocument();
+    expect(screen.getByText("authorize payment")).toBeInTheDocument();
+    expect(screen.getAllByText("Selected service")).toHaveLength(1);
+  });
+
   it("validates lookup input before querying and queries only after submit", async () => {
     renderExplorer();
     expect(mockedGetTrace).not.toHaveBeenCalled();

@@ -1,5 +1,15 @@
 # Sentrix — Debugging and Incident Diagnosis
 
+## M6 live producer and browser-window troubleshooting
+
+Use `docs/M6_ACCEPTANCE_PRODUCER.md` to send a fresh OTLP/HTTP protobuf batch
+from a separate Python process. A `200` response confirms ingestion acceptance,
+not durable/query-visible data. If Services is empty, verify the exact selected
+project, UTC observation window and ClickHouse query dependency first; do not
+infer downtime or missing inventory. Record nonsecret run/trace IDs in M6
+checklists. `401`/`403` means credentials/scope failure, `415` means unsupported
+payload content type, and `503` indicates a persistence dependency issue.
+
 ## M6.4 observed relationships diagnostic guide — candidate
 
 When Services shows no links, verify that both parent and child spans were

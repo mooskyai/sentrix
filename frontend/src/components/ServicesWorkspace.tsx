@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { getServiceCatalog, getServiceDetail } from "../api/resources";
+import { serviceExplorerHref } from "../serviceNavigation";
 import { DetailDrawer } from "./DetailDrawer";
 import { ServiceMapPanel } from "./ServiceMapPanel";
 import type { ObservedService } from "../types";
@@ -85,7 +86,9 @@ export function ServicesWorkspace({
   });
 
   function traceHref(traceId: string): string {
-    return `${tracesPath}?${new URLSearchParams({ trace_id: traceId, ...window }).toString()}`;
+    return serviceExplorerHref(tracesPath, serviceName ?? "", environment ?? "", range, {
+      trace_id: traceId, ...window,
+    });
   }
 
   function selectService(item: ObservedService) {
@@ -230,13 +233,24 @@ export function ServicesWorkspace({
                 throughput, or a complete inventory.
               </p>
               <nav aria-label="Service explorer links" className="services-links flex flex-wrap gap-2">
-                <Link className="button secondary" to={metricsPath}>Open Metrics</Link>
-                <Link className="button secondary" to={logsPath}>Open Logs</Link>
-                <Link className="button secondary" to={tracesPath}>Open Traces</Link>
+                <Link className="button secondary" to={serviceExplorerHref(
+                  metricsPath, selected.service_name, selected.environment, range,
+                  detail.data?.metric_names[0] ? { metric_name: detail.data.metric_names[0].name } : {},
+                )}>Open Metrics</Link>
+                <Link className="button secondary" to={serviceExplorerHref(
+                  logsPath, selected.service_name, selected.environment, range,
+                )}>Open Logs</Link>
+                <Link className="button secondary" to={serviceExplorerHref(
+                  tracesPath, selected.service_name, selected.environment, range,
+                  detail.data?.trace_references[0] ? {
+                    trace_id: detail.data.trace_references[0].trace_id, ...window,
+                  } : {},
+                )}>Open Traces</Link>
               </nav>
               <p className="muted">
-                Explorer links retain this project. Metrics and Logs links do not prefilter data;
-                apply exact service/environment filters there. Trace links below include an observed ID.
+                Metrics and Logs open with exact service/environment filters already applied.
+                Traces opens an observed sample when available and retains the entire trace, including
+                related services. No trace is invented when this service has no reference.
               </p>
               {detail.isPending ? <p role="status">Loading service references…</p> : null}
               {detail.isError ? (

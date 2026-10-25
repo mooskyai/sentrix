@@ -1,8 +1,10 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 
 import { createProjectDashboardPanel, getMetricCatalog, getMetricSeries } from "../api/resources";
 import type { MetricCatalogItem, MetricSeriesPoint } from "../types";
+import { linkedRange, linkedService } from "../serviceNavigation";
 
 const RANGE_MS = {
   "1h": 60 * 60 * 1000,
@@ -114,12 +116,13 @@ export function MetricsExplorer({
   projectId: string;
   canManageDashboard?: boolean;
 }) {
-  const [range, setRange] = useState<MetricTimeRange>("1h");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [range, setRange] = useState<MetricTimeRange>(() => linkedRange(searchParams, "1h"));
   const [anchorMs, setAnchorMs] = useState(() => Date.now());
-  const [requestedMetric, setRequestedMetric] = useState("");
-  const [serviceInput, setServiceInput] = useState("");
-  const [environmentInput, setEnvironmentInput] = useState("");
-  const [filters, setFilters] = useState<AppliedFilters>({});
+  const [requestedMetric, setRequestedMetric] = useState(() => searchParams.get("metric_name") ?? "");
+  const [serviceInput, setServiceInput] = useState(() => linkedService(searchParams)?.service_name ?? "");
+  const [environmentInput, setEnvironmentInput] = useState(() => linkedService(searchParams)?.environment ?? "");
+  const [filters, setFilters] = useState<AppliedFilters>(() => linkedService(searchParams) ?? {});
   const queryClient = useQueryClient();
 
   const window = useMemo(
@@ -182,16 +185,27 @@ export function MetricsExplorer({
     event.preventDefault();
     const serviceName = serviceInput.trim();
     const environment = environmentInput.trim();
+    const matchEmptyEnvironment = environment === "" && filters.environment === "" &&
+      serviceName === filters.service_name;
     setFilters({
       ...(serviceName ? { service_name: serviceName } : {}),
-      ...(environment ? { environment } : {}),
+      ...(environment || matchEmptyEnvironment ? { environment } : {}),
     });
+    const params = new URLSearchParams();
+    if (serviceName) {
+      params.set("service_name", serviceName);
+      if (environment || matchEmptyEnvironment) params.set("environment", environment);
+    }
+    params.set("range", range);
+    if (selectedMetric) params.set("metric_name", selectedMetric);
+    setSearchParams(params, { replace: true });
   }
 
   function clearFilters() {
     setServiceInput("");
     setEnvironmentInput("");
     setFilters({});
+    setSearchParams({}, { replace: true });
   }
 
   const tablePoints = series.data?.points.slice(-100).reverse() ?? [];

@@ -87,13 +87,13 @@ def _required_metric_name(request: Request) -> str:
     return value
 
 
-def _optional_dimension(request: Request, name: str) -> str | None:
+def _optional_dimension(request: Request, name: str, *, allow_empty: bool = False) -> str | None:
     raw = request.query_params.get(name)
     if raw is None:
         return None
     value = raw.strip()
     if not value:
-        return None
+        return "" if allow_empty else None
     if len(value) > 512:
         raise ValidationError({name: f"{name} may not exceed 512 characters."})
     return value
@@ -147,7 +147,7 @@ class MetricSeriesView(APIView):
             maximum=SERIES_MAX_LIMIT,
         )
         service_name = _optional_dimension(request, "service_name")
-        environment = _optional_dimension(request, "environment")
+        environment = _optional_dimension(request, "environment", allow_empty=True)
         try:
             points, truncated = query_numeric_metric_series(
                 organization_id=project.organization_id,

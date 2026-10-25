@@ -1,5 +1,13 @@
 # Sentrix M6.3 Infrastructure — operational and browser acceptance
 
+## Optional co-observed resource smoke — still NOT RUN
+
+`docs/M6_ACCEPTANCE_PRODUCER.md` describes an OTLP producer that sends unique
+host, cluster, namespace, pod and container **attributes** together on each
+resource. Manually verify actual values and signal counts in Infrastructure;
+these are controlled labels, not proof of a live Kubernetes cluster.
+Independent foreign-user denial and IR-001–IR-008 operator records remain open.
+
 ## Documentation sidebar follow-up (not accepted)
 
 For the separate framework onboarding patch, confirm the Documentation sidebar entry works

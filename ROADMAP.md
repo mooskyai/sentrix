@@ -1,5 +1,15 @@
 # Sentrix — Product Roadmap (Core Observability Platform)
 
+## M6 release evidence update — 2026-10-24
+
+M6.4 code and UI were pushed at `41ed210`; the workspace selection enhancement
+was pushed at `f84f0bc`. Local 194-backend/74-frontend verification and hosted
+CI at `f84f0bc` passed. These supersede stale implementation-state assertions
+below, but **do not** close the M6.2/M6.3/M6.4 operator browser, independent
+user isolation or external application-instrumentation gates. An optional
+separate-process acceptance smoke tool is documented at
+`docs/M6_ACCEPTANCE_PRODUCER.md`. M6.5 is not started.
+
 ## M6.4 observed service map implementation candidate
 
 The next technical slice reads trace-proven parent/child service relationships

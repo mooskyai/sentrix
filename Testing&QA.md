@@ -1,5 +1,16 @@
 # Sentrix — Testing and Quality Assurance
 
+## M6 operator OTLP producer — candidate validation
+
+Focused test: `docker compose exec -T api /opt/venv/bin/python -m pytest
+apps/telemetry/tests/test_m6_acceptance_smoke.py -v`. It asserts three real
+protobuf signal shapes, strict same-trace parent/child IDs, co-observed
+resource attributes, sanitized failure handling and safe HTTP origins.
+Run full `scripts/verify.ps1` afterwards. `docs/M6_ACCEPTANCE_PRODUCER.md`
+requires actual browser read-back and a separate real application/Collector
+producer before claiming external instrumentation. Hosted CI for baseline
+`f84f0bc` passed; this candidate patch is not yet verified there.
+
 ## Auto-selection/localStorage regression gate — candidate
 
 Run `docker compose exec -T web npm test -- --run src/components/AppShell.test.tsx

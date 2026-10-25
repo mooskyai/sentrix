@@ -76,13 +76,15 @@ def _bounded_limit(raw: str | None) -> int:
     return value
 
 
-def _optional_text(request: Request, name: str, *, maximum: int = 512) -> str | None:
+def _optional_text(
+    request: Request, name: str, *, maximum: int = 512, allow_empty: bool = False
+) -> str | None:
     raw = request.query_params.get(name)
     if raw is None:
         return None
     value = raw.strip()
     if not value:
-        return None
+        return "" if allow_empty else None
     if len(value) > maximum:
         raise ValidationError({name: f"{name} may not exceed {maximum} characters."})
     return value
@@ -131,7 +133,7 @@ class LogSearchView(APIView):
         start, end = _query_window(request)
         limit = _bounded_limit(request.query_params.get("limit"))
         service_name = _optional_text(request, "service_name")
-        environment = _optional_text(request, "environment")
+        environment = _optional_text(request, "environment", allow_empty=True)
         min_severity_number = _optional_min_severity(request)
         body_contains = _optional_text(request, "body_contains", maximum=512)
         trace_id = _optional_trace_id(request)

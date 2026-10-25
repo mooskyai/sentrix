@@ -1,5 +1,15 @@
 # Sentrix — repository contributor and agent instructions
 
+## M6 closeout evidence — candidate at `f84f0bc`
+
+`backend/scripts/m6_acceptance_smoke.py` provides a controlled, independent-process
+OTLP/HTTP protobuf producer with three services/signals; see
+`docs/M6_ACCEPTANCE_PRODUCER.md`. It does not establish actual Kubernetes
+inventory, external framework certification, foreign-user isolation, UI
+acceptance, or a successful ClickHouse read. Never silently mark M6.2–M6.4
+checklist items accepted from its stdout or a passing pytest suite. Operator
+proof, revocation of the temporary key, and clean committed records precede M6.5.
+
 ## Per-user workspace selection persistence contract — candidate
 
 The UI may store only organization/project identifiers, a schema version, and a

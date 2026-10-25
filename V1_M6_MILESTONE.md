@@ -11,6 +11,14 @@ visible incompleteness. No graph storage, new collectors, inference or status.
 **Status: candidate only.** M6.2/M6.3 browser acceptance is still open.
 M6.4 must also pass `M6_4_BROWSER_ACCEPTANCE.md` before release.
 
+## Operator closeout tool — M6.2 through M6.4 still open
+
+`docs/M6_ACCEPTANCE_PRODUCER.md` describes a reproducible producer for fresh
+correlated logs, metrics, spans and co-observed resource attributes. It does not
+provide a new M6.5 capability, invent topology, or close manual acceptance.
+Record independent browser results, tenant denial and real application signals
+in M6.2–M6.4 checklists before approving the M6.5 implementation sequence.
+
 ## Current M6 execution order (2026-10-24)
 
 The longer-term Sentrix product strategy is in [ROADMAP.md](ROADMAP.md).

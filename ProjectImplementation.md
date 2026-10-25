@@ -1,5 +1,21 @@
 # Sentrix — Project Implementation Register
 
+## M6.2–M6.4 operator evidence enabler — candidate 2026-10-24
+
+Baseline GitHub `main` `f84f0bc8090d3dbf6827fa99370724a67d49ee86`.
+Verified hosted GitHub Actions run for this baseline:
+https://github.com/mooskyai/sentrix/actions/runs/40067501609 (`success`).
+The operator-reported last Windows/Docker gate passed 194 backend and 74
+frontend tests before this candidate. Add a standalone three-service OTLP/HTTP
+smoke producer with correlation, infrastructure attributes, safe stdin key
+handling and focused tests; update operator instructions and checklists without
+marking them passed. No model, schema, API route, permission or UI change.
+This candidate's Docker/full gate and actual manual acceptance are **not run**.
+Review areas: README, PRD, DESIGN, ARCHITECTURE, DATABASE, API, AGENTS,
+implementation, setup, feature development, auth/security, integrations,
+QA, debugging and M6 plans. Only materially affected docs are changed.
+M6.5 remains blocked on recorded M6.2–M6.4 acceptance.
+
 ## Workspace auto-default and stale localStorage preference — 2026-10-24 candidate
 
 Starting from verified pushed `main` `41ed2104aa493aeb480803e0716fbedacfe4efe9`,

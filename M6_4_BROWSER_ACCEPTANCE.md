@@ -1,5 +1,14 @@
 # Sentrix M6.4 — Observed service relationships operator acceptance
 
+## Optional three-service OTLP relationship smoke — still NOT RUN
+
+Run `backend/scripts/m6_acceptance_smoke.py` as described in
+`docs/M6_ACCEPTANCE_PRODUCER.md`. Its three explicit span IDs create exactly
+two trace-proven directed edges in the fresh run. Record the run/trace IDs,
+actual browser view, time window, project switch, deep links and empty/error
+states; **HTTP 200 or pytest do not prove browser acceptance**. Do not close
+SM-001–SM-008 or the separate M6.2/M6.3 gates without operator evidence.
+
 ## Global header selection regression — added after M6.4 commit, NOT RUN
 
 With two authorized organizations/projects and a real browser, verify initial

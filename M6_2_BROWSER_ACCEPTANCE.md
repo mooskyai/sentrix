@@ -1,5 +1,14 @@
 # Sentrix M6.2 browser acceptance — operator checklist
 
+## Optional fresh OTLP run identifier (not acceptance evidence by itself)
+
+For a fresh trace/metric/log set, execute the separate-process producer using
+`docs/M6_ACCEPTANCE_PRODUCER.md`, record its nonsecret run ID and time, then
+verify actual received records in the browser. This script's controlled
+fixtures do **not** replace external instrumented application evidence, real
+foreign-user denial, visual inspection or manually observed error states.
+All unchecked cases below remain **Not run**.
+
 **Status: AUTOMATED GATE PASSED; MANUAL BROWSER ACCEPTANCE OPEN.**
 M6.2 code was pushed at `a0e7881`, the seeder at `4b34f3c`, and the
 approved UI at `a4bcb4c`. The final UI `scripts/verify.ps1` run passed

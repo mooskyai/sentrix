@@ -78,11 +78,18 @@ describe("ServicesWorkspace", () => {
     expect(screen.getByRole("dialog", { name: "Service: checkout" })).toBeInTheDocument();
     expect(screen.getByText("First observed:", { exact: false })).toBeInTheDocument();
     expect(screen.getByText(/not health, ownership, SLO/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open Metrics" })).toHaveAttribute("href", "/orgs/alpha/projects/shop/metrics");
-    expect(screen.getByRole("link", { name: "Open Logs" })).toHaveAttribute("href", "/orgs/alpha/projects/shop/logs");
-    expect(screen.getByRole("link", { name: "Open Traces" })).toHaveAttribute("href", "/orgs/alpha/projects/shop/traces");
-    expect(screen.getByText(/links do not prefilter data/i)).toBeInTheDocument();
+    const metricsHref = screen.getByRole("link", { name: "Open Metrics" }).getAttribute("href") ?? "";
+    const logsHref = screen.getByRole("link", { name: "Open Logs" }).getAttribute("href") ?? "";
+    expect(metricsHref).toContain("service_name=checkout&environment=production&range=24h");
+    expect(logsHref).toContain("service_name=checkout&environment=production&range=24h");
+    expect(screen.getByText(/filters already applied/i)).toBeInTheDocument();
     expect(await screen.findByText(/requests: 8 points/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open Traces" })).toHaveAttribute(
+      "href", expect.stringContaining(`trace_id=${"a".repeat(32)}`),
+    );
+    expect(screen.getByRole("link", { name: "Open Metrics" })).toHaveAttribute(
+      "href", expect.stringContaining("metric_name=requests"),
+    );
     expect(screen.getByText(/outage/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "a".repeat(32) })).toHaveAttribute(
       "href", expect.stringMatching(/trace_id=aaaaaaaa/),
@@ -90,6 +97,14 @@ describe("ServicesWorkspace", () => {
     expect(mockedDetail).toHaveBeenCalledWith("project-a", expect.objectContaining({
       service_name: "checkout", environment: "production",
     }));
+  });
+
+  it("links empty-environment services without losing the exact identity", async () => {
+    renderServices();
+    fireEvent.click(await screen.findByRole("button", { name: "Inspect worker, environment empty" }));
+    expect(screen.getByRole("link", { name: "Open Logs" })).toHaveAttribute(
+      "href", expect.stringContaining("service_name=worker&environment=&range=24h"),
+    );
   });
 
   it("distinguishes empty data from telemetry failure", async () => {

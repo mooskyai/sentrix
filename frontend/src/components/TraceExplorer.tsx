@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 
 import { getTrace } from "../api/resources";
+import { linkedRange, linkedService } from "../serviceNavigation";
 import { DetailDrawer } from "./DetailDrawer";
 import type { TraceSpan } from "../types";
 
@@ -86,10 +87,11 @@ function parentLabel(span: TraceSpan, returnedSpanIds: ReadonlySet<string>): str
 
 export function TraceExplorer({ projectId }: { projectId: string }) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const serviceContext = linkedService(searchParams);
   const activeTraceId = (searchParams.get("trace_id") ?? "").trim().toLowerCase();
   const [traceInput, setTraceInput] = useState(activeTraceId);
   const [range, setRange] = useState<TraceTimeRange>(() =>
-    rangeForWindow(searchParams.get("start"), searchParams.get("end")),
+    linkedRange(searchParams, rangeForWindow(searchParams.get("start"), searchParams.get("end"))),
   );
   const [anchorMs, setAnchorMs] = useState(() => Date.now());
   const [inputError, setInputError] = useState<string | null>(null);
@@ -115,7 +117,7 @@ export function TraceExplorer({ projectId }: { projectId: string }) {
     setAnchorMs(nextAnchorMs);
     if (!validActiveTrace) return;
     const nextWindow = traceWindow(nextRange, nextAnchorMs);
-    setSearchParams({ trace_id: activeTraceId, ...nextWindow });
+    setSearchParams({ ...(serviceContext ?? {}), trace_id: activeTraceId, ...nextWindow });
   }
 
   function lookupTrace(event: FormEvent<HTMLFormElement>) {
@@ -131,7 +133,7 @@ export function TraceExplorer({ projectId }: { projectId: string }) {
     setInputError(null);
     setAnchorMs(now);
     setTraceInput(normalized);
-    setSearchParams({ trace_id: normalized, ...nextWindow });
+    setSearchParams({ ...(serviceContext ?? {}), trace_id: normalized, ...nextWindow });
   }
 
   function clearTrace() {
@@ -157,6 +159,13 @@ export function TraceExplorer({ projectId }: { projectId: string }) {
 
   return (
     <div className="trace-explorer">
+      {serviceContext ? (
+        <p className="notice" role="status">
+          Selected service: <strong>{serviceContext.service_name}</strong> · environment:
+          {" "}<strong>{serviceContext.environment || "(empty)"}</strong>.
+          Trace lookup preserves the complete distributed trace; matching service spans are identified below.
+        </p>
+      ) : null}
       <form className="trace-controls" onSubmit={lookupTrace}>
         <label className="trace-id-field">
           <span>Trace ID</span>
@@ -198,7 +207,7 @@ export function TraceExplorer({ projectId }: { projectId: string }) {
       {inputError ? <p className="error trace-state">{inputError}</p> : null}
       {!activeTraceId ? (
         <div className="empty-feature trace-state">
-          <strong>Enter a trace ID to inspect project spans.</strong>
+          <strong>{serviceContext ? "No observed trace ID linked for this service." : "Enter a trace ID to inspect project spans."}</strong>
           <p className="muted">
             Trace lookup is bounded to the selected UTC window and remains authorized by project membership.
           </p>
@@ -279,6 +288,10 @@ export function TraceExplorer({ projectId }: { projectId: string }) {
                     <td>
                       <strong className="trace-service">{span.service_name || "—"}</strong>
                       <span className="trace-environment">{span.environment || "—"}</span>
+                      {serviceContext && span.service_name === serviceContext.service_name &&
+                        span.environment === serviceContext.environment ? (
+                          <small>Selected service</small>
+                        ) : null}
                     </td>
                     <td className="trace-span-name">
                       <strong>{span.span_name || "—"}</strong>
