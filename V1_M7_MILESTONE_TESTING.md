@@ -1,5 +1,37 @@
 # Sentrix V1 M7 — Integration Testing and Acceptance
 
+## M7.3.3a Next.js — local functional/security acceptance COMPLETE; release CI PENDING (2026-10-27)
+
+Real Next.js App Router `GET /api/checkout` exported a manually instrumented
+OTLP `SERVER` span to the authenticated project's ClickHouse store. Independent
+read-back verified trace `406fa3db23e9f4c8c98e975424a6179d`, run
+`49a30251d0c749ceb75cd56b9e6406ce` at `2026-10-27T06:17:16.097Z`, service
+`m7-nextjs-node-runtime`, environment `integration`. Owner trace/Services API
+reads returned HTTP 200; foreign-user requests returned HTTP 404. The operator
+confirmed all three browser checks and attested the *same* temporary export
+credential was subsequently revoked and rejected by live OTLP HTTP 401.
+Local verification: **308 backend**, **103 frontend**, **18 focused Next.js
+backend** and **4 Next.js real-process** tests passed; npm audit reported zero
+vulnerabilities. **Lockfile and staged-change review, final commit/push and
+exact-SHA GitHub Actions CI remain OPEN.** See
+`docs/M7_3_3A_LOCAL_EVIDENCE_2026_10_27.md`. The broader M7.3 runtime matrix,
+M7.4 and production readiness are not accepted by this isolated slice.
+
+## M7.3.3a — Next.js Node candidate testing (OPEN)
+
+Starting GitHub baseline `5427d4f` already has passing M7.3.2 CI. For the
+new Next.js candidate: run `npm install --package-lock-only` and review the
+generated lock; `npm ci`, `npm run build`, `npm test`, `npm audit` in
+`integrations/m7-nextjs-node`. Verify true Next.js App Router request and
+real OTel SERVER span against fake protobuf receiver; reject 401, invalid
+origin, CLI keys and missing stdin. Run strict Django tests for the bounded
+`m7_next_readback` query, then perform a separate live direct exporter and
+exact key-derived ClickHouse read-back; capture nonsecret run/trace/UTC.
+Owner/nonmember HTTP 200/404, browser isolation, same-key revocation 401 and
+`./scripts/verify.ps1` now passed as recorded above. Exact new CI remains OPEN.
+Never substitute the Node/Express acceptance for Next.js evidence. See
+`docs/M7_NEXT_RUNTIME_ACCEPTANCE.md`.
+
 ## M7.3.2 current acceptance checkpoint (2026-10-27; exact-SHA CI OPEN)
 
 - [x] Direct real Node/Express SDK → authenticated OTLP → independent

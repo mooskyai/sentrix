@@ -1,5 +1,35 @@
 # Sentrix V1 M7 — Guided Integrations and Verified Onboarding
 
+## M7.3.3a Next.js — local functional/security acceptance COMPLETE; release CI PENDING (2026-10-27)
+
+Real Next.js App Router `GET /api/checkout` exported a manually instrumented
+OTLP `SERVER` span to the authenticated project's ClickHouse store. Independent
+read-back verified trace `406fa3db23e9f4c8c98e975424a6179d`, run
+`49a30251d0c749ceb75cd56b9e6406ce` at `2026-10-27T06:17:16.097Z`, service
+`m7-nextjs-node-runtime`, environment `integration`. Owner trace/Services API
+reads returned HTTP 200; foreign-user requests returned HTTP 404. The operator
+confirmed all three browser checks and attested the *same* temporary export
+credential was subsequently revoked and rejected by live OTLP HTTP 401.
+Local verification: **308 backend**, **103 frontend**, **18 focused Next.js
+backend** and **4 Next.js real-process** tests passed; npm audit reported zero
+vulnerabilities. **Lockfile and staged-change review, final commit/push and
+exact-SHA GitHub Actions CI remain OPEN.** See
+`docs/M7_3_3A_LOCAL_EVIDENCE_2026_10_27.md`. The broader M7.3 runtime matrix,
+M7.4 and production readiness are not accepted by this isolated slice.
+
+## M7.3.3a candidate — real Next.js App Router Node request
+
+M7.3.2 is now pushed on `main` at `5427d4f` and exact-SHA GitHub Actions
+workflow `40451690954` concluded successfully on 2026-10-27. The next isolated
+work is a Next.js 16.4.3 Node App Router fixture (no Edge/browser key), manual
+OTel SERVER span, real binary protobuf SDK export, fake receiver negative cases
+and bounded authenticated ClickHouse read-back. No new Sentrix API, migrations,
+React write key, or storage. Real Next.js SDK/ClickHouse proof, owner/nonmember authorization, browser
+attestation, key revocation and local verification have since passed. The
+fixture remains **unreleased** until lockfile review, commit and own CI pass.
+See `docs/M7_NEXT_RUNTIME_ACCEPTANCE.md`. Laravel/PHP and Collector follow
+as distinct implementation and acceptance slices.
+
 ## M7.3.2 local Node.js runtime/security acceptance (2026-10-27)
 
 Direct Node.js/Express runtime persistence, independent tenant read-back,

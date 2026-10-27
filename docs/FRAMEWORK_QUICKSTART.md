@@ -1,5 +1,18 @@
 # Framework setup quickstart for Sentrix
 
+## M7.3.3a Next.js server fixture — local acceptance verified (CI open)
+
+The isolated Next.js App Router Node fixture at `integrations/m7-nextjs-node`
+performs a real server request and a manually instrumented OpenTelemetry
+`SERVER` span. See [Next.js runtime acceptance](M7_NEXT_RUNTIME_ACCEPTANCE.md)
+for a secret-safe stdin probe, fake receiver checks, independently scoped
+ClickHouse verifier and outstanding operator gates. It is not Edge/browser
+instrumentation or proof of automatic framework tracing. Do not mark Next.js
+released until lockfile review, final commit and exact-SHA CI pass.
+All three browser checks and same-key revocation were operator-confirmed.
+Local producer/read-back and API isolation results are in
+[M7.3.3a evidence](M7_3_3A_LOCAL_EVIDENCE_2026_10_27.md).
+
 ## M7.3.2 Node runtime proof (candidate)
 
 A separate runnable Node.js/Express HTTP+OpenTelemetry SDK example and

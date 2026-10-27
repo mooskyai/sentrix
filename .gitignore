@@ -1,5 +1,8 @@
 .env
 integrations/m7-node-express/node_modules/
+integrations/m7-nextjs-node/node_modules/
+integrations/m7-nextjs-node/.next/
+integrations/m7-nextjs-node/.env*
 .venv/
 __pycache__/
 *.py[cod]

@@ -96,3 +96,23 @@ jobs:
         run: npm run test
       - working-directory: frontend
         run: npm run build
+
+  nextjs-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install locked Next.js fixture dependencies
+        working-directory: integrations/m7-nextjs-node
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Build Next.js Node App Router fixture
+        working-directory: integrations/m7-nextjs-node
+        run: npm run build
+      - name: Verify real Next.js route and fake OTLP protobuf receiver
+        working-directory: integrations/m7-nextjs-node
+        run: npm test
+      - name: Audit production Next.js fixture dependencies
+        working-directory: integrations/m7-nextjs-node
+        run: npm audit --omit=dev --audit-level=moderate
