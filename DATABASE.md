@@ -1,5 +1,12 @@
 # Sentrix — Data Models and Persistence
 
+## M7.3.2 — existing `sentrix_spans` read-back
+
+No table, migration, index or control-plane model change. The Express
+verifier uses existing project/organization UUIDs, span IDs, name, kind,
+resource and span attribute maps and UTC DateTime64(9) columns. The query
+is server-credential-derived, typed, bounded, and capped to detect duplicates.
+
 ## M6.4 span relationship query — candidate
 
 Read existing `sentrix_spans.trace_id`, `span_id`, `parent_span_id`,

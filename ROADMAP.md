@@ -1,5 +1,13 @@
 # Sentrix — Product Roadmap (Core Observability Platform)
 
+## M7.3.2 — Node/Express runtime candidate
+
+From verified `2f6b46c`, implement an isolated Express HTTP SDK probe,
+protobuf fake-receiver tests, exact project-scoped read-back and operator
+runbook. Live persistence, browser/foreign-user checks, reviewed npm lockfile,
+full CI and credential cleanup are pending. M7.3.3 Next.js/Laravel/Collector
+remains planned, not started.
+
 ## M7.3.1 Django SDK runtime — implementation candidate
 
 Add an isolated runnable Django WSGI request with manual OTel server-span

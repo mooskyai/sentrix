@@ -1,5 +1,14 @@
 # Framework setup quickstart for Sentrix
 
+## M7.3.2 Node runtime proof (candidate)
+
+A separate runnable Node.js/Express HTTP+OpenTelemetry SDK example and
+project-scoped persistence verifier are documented at
+[M7 Node runtime acceptance](M7_NODE_RUNTIME_ACCEPTANCE.md). It tests
+manual server spans only. Do not assume existing Node/Next.js quickstart
+recipes are production-certified; remote export requires HTTPS and server-held
+API keys, with `application/x-protobuf` at `/v1/traces`.
+
 ## M7.3.1 Django runtime example — manual tracing
 
 Use [the isolated Django WSGI runtime acceptance guide](M7_DJANGO_RUNTIME_ACCEPTANCE.md)

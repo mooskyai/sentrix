@@ -1,5 +1,6 @@
-"""Opt-in demo data for the implemented Sentrix V1 M1–M6.2 features.
+"""Opt-in synthetic demo data for Sentrix V1 and M7 UI walkthroughs.
 
+Synthetic Node-shaped rows are not evidence of a real Node SDK export.
 Runs entirely inside the Django process but posts binary OTLP to Sentrix's
 normal authenticated ingest views, so the usual tenant and sink paths apply.
 """
@@ -52,6 +53,11 @@ PRIMARY = (
     ("demo-worker", "", (("demo.queue.depth", 42.0),)),
     ("demo-batch", "production", (("demo.jobs.completed", 15.0),)),
     ("demo-archive", "production", (("demo.jobs.completed", 100.0),)),
+    (
+        "demo-node-express",
+        "integration",
+        (("demo.node.http.requests", 14.0), ("demo.node.http.duration_ms", 24.0)),
+    ),
 )
 SECONDARY = (
     (
@@ -150,6 +156,27 @@ def demo_payloads(*, secondary: bool, anchor_ns: int, run_id: str) -> tuple[dict
         span.start_time_unix_nano = anchor_ns - 45 * 1_000_000_000 + index * 5_000_000
         span.end_time_unix_nano = span.start_time_unix_nano + 30_000_000
         _attribute(span, DEMO_SCOPE, run_id)
+
+    # A separate, explicitly synthetic Node-shaped HTTP span supports M7 UI
+    # walkthroughs. Never reuse the real M7.3.2 service or acceptance marker:
+    # these bytes are built by the demo seeder, NOT exported by a Node SDK.
+    if not secondary:
+        node_resource = traces.resource_spans.add()
+        _resource(node_resource.resource, "demo-node-express", "integration", run_id)
+        _attribute(node_resource.resource, "sentrix.demo.synthetic", "true")
+        node_scope = node_resource.scope_spans.add()
+        node_scope.scope.name = "sentrix.demo.synthetic.node"
+        node_span = node_scope.spans.add()
+        node_span.trace_id = uuid4().bytes
+        node_span.span_id = uuid4().bytes[:8]
+        node_span.name = "demo.node.checkout"
+        node_span.kind = 2  # OTLP SERVER; synthetic, not real Express runtime evidence
+        node_span.start_time_unix_nano = anchor_ns - 20_000_000_000
+        node_span.end_time_unix_nano = node_span.start_time_unix_nano + 30_000_000
+        _attribute(node_span, "http.request.method", "GET")
+        _attribute(node_span, "http.route", "/checkout")
+        _attribute(node_span, "sentrix.demo.synthetic", "true")
+        _attribute(node_span, DEMO_SCOPE, run_id)
 
     return {
         "metrics": metrics.SerializeToString(),

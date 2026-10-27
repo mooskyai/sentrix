@@ -1,5 +1,14 @@
 # Sentrix — Authentication, Authorization and Security
 
+## M7.3.2 Node runtime credential handling (candidate)
+
+Only stdin supplies the short-lived `telemetry:write` key to the Node server
+probe and independent Django read-back. The exporter accepts only localhost/
+trusted `api` cleartext HTTP or remote HTTPS origins without URL secrets.
+The verifier authenticates PostgreSQL scope, derives both tenant UUIDs, and
+uses a typed bounded ClickHouse read. The Node fake-receiver key is synthetic;
+real key revocation and separate foreign-session 404 remain manual gates.
+
 ## M7.3.1 runtime probe secret/tenant boundary
 
 The independent Django example accepts a `telemetry:write` credential only

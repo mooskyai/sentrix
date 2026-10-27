@@ -1,5 +1,123 @@
 # Sentrix — Project Implementation Register
 
+## M7.3.2 final local closeout evidence — CI pending (2026-10-27)
+
+Real direct SDK persistence, owner/nonmember authorization, revoked-key 401
+and three operator-reported browser checks passed on the recreated demo
+project. `seed_demo_year` successfully wrote 365 days of separate synthetic
+history for both demo projects. Full gate passed 290 backend / 103 frontend.
+**Do not close the release before the final commit and exact-SHA CI pass.**
+See `docs/M7_3_2_FINAL_ACCEPTANCE_2026_10_27.md`; previous snapshots below
+are retained as dated technical history.
+
+## Opt-in development-only year-history fixture
+
+`manage.py seed_demo_year --username admin --days 365 --create-nonmember`
+reuses the protected `seed_demo` control plane, adds resumable OTLP-backed
+365-day synthetic historical observations, and creates an unprivileged nonmember
+fixture for M7 authorization checks. It does not change service query limits or
+count as runtime SDK evidence. Runbook: `docs/DEMO_YEAR_SEED.md`.
+
+## M7.3.2 — direct SDK storage proof and closeout follow-up (2026-10-26)
+
+**VERIFIED technical slice:** the original Node Express `probe.cjs` SDK export,
+now reaching the Uvicorn ASGI receiver via a chunked HTTP request without
+Content-Length, persisted one exact server span in project
+`07e54c2a-7cb5-4ff1-8c50-09f7a3a4fc4d` at
+`2026-10-26T08:25:53.243Z` (run `ddbaab4290524f2092254fb23ff01613`,
+trace `2f06c0b95492feea6379d231993c5b5d`). A separate read-back using the
+same temporary write key printed `Node Express persistence VERIFIED`. The
+operator's after-rebuild verification on Python 3.14.9/Django 6.1.2 passed
+277 backend tests (1 warning), 103 frontend tests, four Node regression tests,
+Ruff, strict mypy (124 files), schema checks, build and npm audit (0 moderate+
+vulnerabilities). This also establishes the ASGI framing correction locally.
+
+**NOT YET VERIFIED:** real browser/foreign-user authorization, revoked-key
+HTTP 401, secret cleanup, post-change release gate, review/sign-off, committed
+SHA and exact-SHA CI. The optional read-only, two-real-user API smoke tool is
+`backend/scripts/m7_node_auth_smoke.py`; the separate network-level empty-body
+revoked-key probe is `backend/scripts/m7_node_revoked_key_probe.py`. Neither substitutes for an actual
+browser login. Source baseline before uncommitted M7.3.2 changes:
+`2f6b46c0daf7119dddf66c416fc1c992f943972e`. See
+`docs/M7_NODE_CLOSEOUT_EVIDENCE.md`; M7.3.3 must not start yet.
+
+## M7.3.2 — direct Node OTLP request framing correction candidate (2026-10-26)
+
+**Observed:** the SDK in-memory relay forwarded one real Express protobuf
+span to the authenticated Django receiver with an explicit Content-Length;
+ClickHouse independently confirmed run `41e07e34adc641ce822d39649914ccac`,
+trace `a42429c7f2c9d8209ee9919057646e76`, project
+`07e54c2a-7cb5-4ff1-8c50-09f7a3a4fc4d`. The subsequent original direct
+SDK exporter still returned 200 with no stored row for run
+`3abe18c8d7594ac6b478ef66e5011b75`, trace
+`34180aba65cf5ccd47973c2c964d0168`. Prior gates: 275 backend, 103
+frontend and four Node tests passed. **This patch is a candidate, untested on
+operator Docker:** move local API serving from WSGI runserver to installed
+Uvicorn ASGI and reject an unavailable chunked body with 400. See
+`docs/M7_NODE_HTTP_FRAMING.md`; direct export/read-back, browser, foreign-user
+404, revoked-key, evidence, cleanup, commit/push and CI remain OPEN.
+
+## M7.3.2 — real Node persistence diagnostic candidate (2026-10-26)
+
+The 2026-10-25 real Node SDK runs (`873d944310b149a7b731bd510053e5ff`
+and `b6661bac04b541568f268c083994b1a5`) returned OTLP HTTP 200 but
+project-scoped ClickHouse read-back found zero matching rows. The second run
+used one key for export/read-back; a seven-day scan and all-time exact trace
+query also found zero Node rows in project
+`07e54c2a-7cb5-4ff1-8c50-09f7a3a4fc4d`; its prior Django trace remained.
+The synthetic `demo-node-express` read-back passed (2 request and 2 duration
+metrics, one log and one span, zero secondary-project rows), and the operator's
+post-seed gate passed 271 backend and 103 frontend tests. These do **not**
+close the real SDK gate. A proposed live-forwarding wire relay and Python canonical
+normalizer probe isolates the next failing boundary; Windows live diagnostic,
+root-cause fix, browser/security evidence, revocation and commit/CI are OPEN.
+See `docs/M7_NODE_WIRE_DIAGNOSIS.md`.
+
+## M7.3.2 — bounded synthetic demo seed follow-up (candidate)
+
+After 271 backend tests, 103 frontend tests, 4 Node runtime tests, a clean npm
+audit and full local release-gate pass were reported, real Express OTLP export
+returned HTTP success but independent authenticated ClickHouse read-back found
+**zero** matching spans. The earlier Django runtime reference trace remains
+stored in the same authenticated project. An exact-time-independent lookup
+also found no Node trace; real Node persistence remains **NOT VERIFIED**.
+
+This separate follow-up *only* adds clearly labeled `demo-node-express` trace,
+metric and log fixtures to the reserved primary synthetic demo project, with
+regressions and documentation. Do not use seeded data to close real M7.3.2
+runtime, browser foreign-user, credential-revocation or CI gates. Apply and
+verify separately; no successful seed rerun or new commit is claimed.
+
+
+## M7.3.2 — protobuf decoder correction (2026-10-25; RERUN PENDING)
+
+Operator applied the v2 milestone patch cleanly at `2f6b46c`, with Ruff,
+format and strict mypy passing (122 source files), focused Python read-back
+suite **21/21 passing**, and the complete `scripts/verify.ps1` gate passing:
+**271 backend tests and 103 frontend tests**, Django checks, ClickHouse
+schema and production frontend build. The separate real-Express `npm test`
+reported **3/4 passed**: the positive protobuf decode failed with a
+`RangeError` because the minimal test schema declared OTLP span start/end
+nanoseconds as varint `uint64` instead of wire-compatible `fixed64`.
+This correction changes only the schema, test assertions and evidence docs.
+**Node rerun, actual Sentrix export, independent persisted read-back,
+foreign-user/browser checks, key revocation and release/CI signoff remain
+OPEN.** `npm install` also reported two moderate audit findings; review and
+commit the scoped npm lockfile after resolving or explicitly documenting
+those findings. No acceptance or pushed SHA is claimed.
+
+## M7.3.2 — Express SDK implementation candidate (2026-10-25)
+
+Baseline: `2f6b46c0daf7119dddf66c416fc1c992f943972e`, independently
+confirmed on GitHub main with passing M7.3.1 CI. This candidate adds a real
+Express HTTP route and manually instrumented NodeSDK protobuf exporter, a
+separate local OTLP protobuf receiver test, strict tenant-key-derived
+ClickHouse read-back, negative tests, and a Node onboarding protobuf fix.
+No schema/API migrations or production dependency modifications.
+**Not yet verified:** npm install/lock, runtime Node tests, operator ClickHouse
+persistence, full local release gate, new pushed commit/CI, browser foreign
+404 and credential revocation. M6/M7.1/M7.2 open gates are unchanged.
+
 ## M7.3.1 — Django SDK and ClickHouse run evidence (2026-10-25)
 
 **Verified scope:** the isolated Django WSGI process handled a real HTTP request;

@@ -1,5 +1,22 @@
 # Sentrix — Integrations and External Protocols
 
+## M7 optional synthetic Node demo rows
+
+The opt-in demo seeder adds `demo-node-express` for UI navigation via its
+existing OTLP/HTTP protobuf test-client route. Its span has the synthetic
+marker `sentrix.demo.synthetic` and is not an OpenTelemetry Node SDK export.
+The real runtime is still required to persist `m7-node-express-runtime` before
+M7.3.2 integration acceptance.
+
+## M7.3.2 real Express runtime candidate
+
+`integrations/m7-node-express` sends one manually instrumented `SERVER` span
+from a real Express route using NodeSDK 0.223.0 and the binary protobuf
+exporter. It never exercises OTLP JSON or a browser key. The Settings Node
+recipe now installs/imports the `-proto` exporter; it remains generic guidance,
+not an automatically certified app. Exact ClickHouse persistence requires
+`backend/scripts/m7_node_readback.py`. See the Node runbook.
+
 ## M7.3.1 — isolated Django/Python SDK export example
 
 `backend/scripts/m7_django_runtime.py` drives an independent minimal Django

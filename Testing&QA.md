@@ -1,5 +1,83 @@
 # Sentrix — Testing and Quality Assurance
 
+## M7.3.2 latest operator acceptance / release gate (2026-10-27)
+
+Direct Node/Express SDK ClickHouse read-back succeeded in current project
+`2017c79d-981f-4f92-9833-303729a4605e`. Authenticated owner read 200 and
+foreign nonmember received 404 for the exact trace and Services API; browser
+access, nonmember isolation and deep-link denial were operator-confirmed.
+Database showed the exposed temporary key revoked and live OTLP returned 401.
+`./scripts/verify.ps1` passed **290 backend** (1 warning), **103 frontend**,
+Ruff, mypy (130 files), Django, ClickHouse and Vite build. See the sanitized
+[final evidence](docs/M7_3_2_FINAL_ACCEPTANCE_2026_10_27.md). Commit/push and
+exact-SHA CI remain open; 2026-10-26 metrics below are historical.
+
+## Year-history fixture quality gate
+
+`backend/apps/telemetry/tests/test_seed_demo_year.py` covers deterministic
+correlation, explicit fake Node identity, day bounds, no-membership safety,
+per-signal resumability, and a live two-day ClickHouse/authorization smoke.
+Run targeted pytest and the full `scripts/verify.ps1`. A one-year seed is not
+a substitute for actual Node SDK read-back, browser, HTTP 404, HTTP 401 or CI.
+See `docs/DEMO_YEAR_SEED.md`.
+
+## M7.3.2 — real SDK persistence and post-rebuild test evidence (2026-10-26)
+
+Operator confirmed direct (non-relayed) Node SDK chunked export followed by
+project-scoped ClickHouse read-back of exactly one Express SERVER span, run
+`ddbaab4290524f2092254fb23ff01613`, trace
+`2f06c0b95492feea6379d231993c5b5d`. After rebuilding with Uvicorn ASGI,
+`./scripts/verify.ps1` passed **277 backend / 103 frontend**, Ruff, mypy,
+Django/ClickHouse schema checks and frontend build. Independent fixture tests
+passed **4/4** with npm audit **0 vulnerabilities**. Negative foreign-user
+HTTP 404 and revoked-key HTTP 401, browser, post-commit CI and teardown are
+still OPEN. The new `test_m7_node_auth_smoke.py` checks only the validation
+helper and empty-body revoked-key probe without real credentials; the operator
+must run both acceptance commands against live services and an actual foreign user
+and record their real outcomes. See `docs/M7_NODE_CLOSEOUT_EVIDENCE.md`.
+
+## M7.3.2 — HTTP framing correction gate (candidate)
+
+The local API now uses installed Uvicorn ASGI instead of Django's WSGI
+development server. Add regression checks that an unreadable chunked OTLP
+body produces 400 rather than a false 200 and that populated trace requests
+with a chunked header still reach the tenant-bound sink. This is unit
+coverage, **not** proof that Uvicorn received an actual streamed HTTP body.
+Run Ruff, format, mypy, focused `test_otlp_http.py`, 4 Node SDK tests and full
+`scripts/verify.ps1`. Inspect the Node fixture's actual framing using
+`node integrations/m7-node-express/inspect-framing.cjs`; restart only the
+Compose API service and repeat `probe.cjs` with strict independent read-back.
+See `docs/M7_NODE_HTTP_FRAMING.md`. Acceptance remains OPEN.
+
+## M7.3.2 — canonical Node SDK wire inspection (candidate)
+
+`python -m pytest apps/telemetry/tests/test_m7_node_wire_inspect.py -v`
+checks that a complete OTLP trace normalizes to one row and malformed, hollow
+resource and wrong-ID payloads fail closed. The live relay in
+`integrations/m7-node-express/diagnose.cjs` forwards the same SDK protobuf
+bytes to Sentrix, performs offline Django decoding, then an independent
+authenticated ClickHouse read-back. No live success is claimed.
+See `docs/M7_NODE_WIRE_DIAGNOSIS.md`.
+
+## M7 synthetic Node UI seeder — separate from real exporter tests
+
+`test_seed_demo.py` checks one synthetic `demo-node-express` SERVER root span
+in the primary demo fixture with exact HTTP route, resource labels and distinct
+trace ID; secondary project remains isolated. The existing live seeder test
+checks the real project-scoped OTLP ingestion and Services catalog, but that
+is still synthetic producer input. Run Ruff/format/mypy first, focused seeder
+tests and `scripts/verify.ps1`; separately require real Node SDK ClickHouse
+read-back to pass before M7.3.2 sign-off.
+
+## M7.3.2 — Node exporter and persistence evidence (pending live tests)
+
+Run `npm test` in the isolated fixture after reviewing/generating its npm
+lockfile; the test subprocess sends real OTLP protobuf to a fake local receiver.
+Run focused `test_m7_node_runtime.py`, Ruff/format/mypy preflight, then
+`scripts/verify.ps1`, a live Express exporter, and authenticated persisted
+read-back. No fake receiver or HTTP 200 establishes durable storage.
+Record CI and foreign-user/browser/credential-teardown evidence separately.
+
 ## M7.3.1 observed operator gate and persisted Django trace (2026-10-25)
 
 The corrected release gate passed 250 backend tests and 102 frontend tests,

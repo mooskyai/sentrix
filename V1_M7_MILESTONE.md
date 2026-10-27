@@ -1,5 +1,33 @@
 # Sentrix V1 M7 — Guided Integrations and Verified Onboarding
 
+## M7.3.2 local Node.js runtime/security acceptance (2026-10-27)
+
+Direct Node.js/Express runtime persistence, independent tenant read-back,
+owner/foreign-user 200/404 checks, revoked key 401, and three operator-reported
+browser checks passed. The 365-day synthetic data fixture is separate from
+SDK evidence. Final reviewed commit, push and exact-SHA GitHub Actions CI remain
+required before M7.3.2 release sign-off and starting M7.3.3. See
+`docs/M7_3_2_FINAL_ACCEPTANCE_2026_10_27.md`.
+
+## M7 demo integration UI data (synthetic, independent of M7.3.2 proof)
+
+`seed_demo` creates optional, unmistakably synthetic `demo-node-express`
+metrics, logs and an independent HTTP server span for project UI walkthroughs.
+It does not create a Node runtime process or resolve the real Express missing
+persisted-span failure. Keep M7.3.2 implementation and operator acceptance
+blocked until exact SDK trace/read-back, browser/foreign-user and key teardown
+checks succeed.
+
+## M7.3.2 candidate — Node.js/Express live SDK export
+
+Create real isolated Express `GET /checkout` traffic with NodeSDK started
+before framework import and one manually marked `SERVER` span. Send OTLP
+binary protobuf to the existing receiver using a stdin-only scoped key.
+Independently check one exact stored span in key-derived `sentrix_spans`
+with UTC/tenant/marker/HTTP identity. No arbitrary external Node project
+certification, automatic instrumentation or global M7.3 sign-off.
+M7.3.3 remains blocked on verified/pushed M7.3.2 acceptance.
+
 ## M7.3.1 implementation slice — Django/Python manual span export
 
 Build an independent minimal Django WSGI service and generate one actual

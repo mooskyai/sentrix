@@ -1,5 +1,13 @@
 # Sentrix — Product Requirements Document
 
+## M7.3.2 Node/Express runtime evidence (candidate)
+
+Add an independently runnable real Express server with a Node SDK-exported
+manual SERVER span and a read-only verifier of its ClickHouse row in the
+key-derived project. A receiver 200 or browser service history alone cannot
+prove persistence or continuing connection. Human/browser/credential
+revocation sign-off and Next.js/Laravel/Collector remain separate.
+
 ## M7.3.1 — Django SDK runtime acceptance slice
 
 A developer can generate one real Django request through a minimal isolated

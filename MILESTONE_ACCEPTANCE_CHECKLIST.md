@@ -1,5 +1,57 @@
 # Sentrix — Master Milestone Acceptance Checklist (M1–M12)
 
+## M7.3.2 operator gate — 2026-10-27 (exact-SHA CI pending)
+
+- [x] Real direct Node SDK trace persisted in current project and read back.
+- [x] Owner exact-trace and service read, foreign-user HTTP 404 on both APIs.
+- [x] Admin browser trace/service, separate nonmember login and deep-link denial
+  (three checks confirmed by operator).
+- [x] Exposed temporary credential revoked in DB and rejected by live OTLP 401.
+- [x] Full current release gate: 290 backend, 103 frontend; lint/type/schema/build.
+- [x] 365-day synthetic telemetry seeded in both demo projects (fixture only).
+- [ ] Documentation reviewed, final commit pushed, exact-SHA GitHub CI green,
+  release approval recorded. **M7.3.2 remains unreleased until then.**
+
+Sanitized current evidence: `docs/M7_3_2_FINAL_ACCEPTANCE_2026_10_27.md`.
+Older M7.3.2 open gates below document the earlier 2026-10-26 checkpoint.
+
+## M7.3.2 — 2026-10-26 evidence checkpoint (full acceptance OPEN)
+
+- [x] Direct real Node SDK protobuf trace delivered via ASGI and independently
+  found in its exact authorized project in ClickHouse (run
+  `ddbaab4290524f2092254fb23ff01613`).
+- [x] Node request framing confirmed as chunked without Content-Length;
+  Uvicorn replaces WSGI in local Compose, with regression for unavailable body.
+- [x] Post-rebuild local gate: 277 backend, 103 frontend, 4 Node tests and
+  npm audit with zero vulnerabilities.
+- [ ] Actual real-browser Services/Traces observation for that trace.
+- [ ] Independent foreign-user 404 (API smoke **and** real browser/session).
+- [ ] Temporary key revoked and actual OTLP HTTP 401 demonstrated; no secrets
+  disclosed or committed.
+- [ ] Evidence signed off, updated docs reviewed, clean commit/push and
+  exact-SHA GitHub Actions CI successful.
+
+Full M7.3.2 sign-off and previous M6/M7 open gates are NOT implied by the
+completed technical checks. See `docs/M7_NODE_CLOSEOUT_EVIDENCE.md`.
+
+## M7 demo seeder — fixture-only, NOT an acceptance substitute
+
+- [ ] Re-run the seeder for the reserved synthetic primary project and verify
+  `demo-node-express` metrics/logs/traces display without claiming connection.
+- [ ] Independently diagnose and verify the real `m7-node-express-runtime`
+  span; synthetic rows never satisfy the real M7.3.2 storage gate.
+
+## M7.3.2 — Node.js/Express (NOT ACCEPTED)
+
+- [ ] **M7.3.2-N01:** Real Express request and upstream NodeSDK protobuf accepted; decode genuine wire data.
+- [ ] **M7.3.2-N02:** Same temporary project key authenticates a unique stored ClickHouse span with correct run/trace/HTTP identity.
+- [ ] **M7.3.2-N03:** Record fake receiver 401, foreign-user 404, browser trace/service, wrong/revoked key and network failure outcomes.
+- [ ] **M7.3.2-N04:** Review/commit npm lockfile, record versions, run full gate, clean commit/push and passing exact-SHA CI.
+- [ ] **M7.3.2-N05:** Revoke temporary key and record sanitized evidence/reviewer sign-off.
+
+M7.3.1 remaining manual acceptance and M6/M7.1/M7.2 remain OPEN. Do not
+start M7.3.3 before these required M7.3.2 gates are satisfied.
+
 ## M7.3.1 — isolated Django runtime (NOT ACCEPTED)
 
 - [ ] **M7.3.1-D01:** Independent real Django WSGI request posts upstream

@@ -1,5 +1,14 @@
 # Sentrix Architecture
 
+## M7.3.2 external runtime proof boundary (candidate)
+
+A separate Node.js/Express process uses the upstream NodeSDK and OTLP/HTTP
+protobuf to write a manually marked SERVER span. It does not add a backend
+endpoint or new ingestion mode. PostgreSQL authenticates the project key;
+ClickHouse `sentrix_spans` stores the row and is read with typed key-derived
+tenancy, a bounded UTC run window and exact marker. The browser never receives
+the machine key. See `docs/M7_NODE_RUNTIME_ACCEPTANCE.md`.
+
 ## M7.3.1 runtime acceptance separation
 
 The standalone Django WSGI probe is a **different Python/Django process** from

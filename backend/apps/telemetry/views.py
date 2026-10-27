@@ -78,6 +78,12 @@ def _read_request_payload(request: HttpRequest) -> bytes:
     if len(raw_payload) > max_bytes:
         raise OtlpPayloadTooLarge
 
+    # A WSGI server that cannot read HTTP/1.1 chunked bodies may expose an
+    # empty request.body. Do not acknowledge a silently dropped SDK payload.
+    transfer_encoding = request.headers.get("Transfer-Encoding", "").lower()
+    if not raw_payload and "chunked" in (part.strip() for part in transfer_encoding.split(",")):
+        raise OtlpMalformedBody("Chunked OTLP request body was not received.")
+
     content_encoding = request.headers.get("Content-Encoding", "").strip().lower()
     if content_encoding in {"", "identity"}:
         return raw_payload

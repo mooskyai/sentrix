@@ -1,5 +1,14 @@
 # Sentrix — Debugging and Incident Diagnosis
 
+## M7.3.2 Express runtime diagnosis (candidate)
+
+If Node has no spans, confirm the SDK started before importing Express, the
+request reached `/checkout`, the exact exporter `-proto` package was installed,
+Node/SDK versions and correct network namespace. A 401/403 indicates key
+rejection, 415 indicates wrong wire format and 503 can indicate persistence
+unavailability. Do not print Bearer values. Even success 200 requires separate
+project-key-derived ClickHouse verification and a matching UTC window.
+
 ## M6 live producer and browser-window troubleshooting
 
 Use `docs/M6_ACCEPTANCE_PRODUCER.md` to send a fresh OTLP/HTTP protobuf batch

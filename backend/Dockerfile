@@ -16,4 +16,5 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["/opt/venv/bin/python", "manage.py", "runserver", "0.0.0.0:8000"]
+# ASGI accepts standards-compliant streamed/chunked OTLP HTTP requests.
+CMD ["/opt/venv/bin/uvicorn", "config.asgi:application", "--host", "0.0.0.0", "--port", "8000"]

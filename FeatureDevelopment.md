@@ -1,5 +1,13 @@
 # Sentrix — Feature Development Playbook
 
+## M7.3.2 — real Node SDK integration fixture (candidate)
+
+Keep `integrations/m7-node-express` dependencies isolated from the production
+React frontend. Start the SDK before requiring Express; generate real HTTP
+traffic and check OTLP binary protobuf with a fake receiver before running
+credentialed live export and a separate persisted read-back. Static gates come
+before expensive tests; see the M7 Node acceptance runbook.
+
 ## M7.3.1 — instrumented Django WSGI smoke
 
 Use a separate process with a minimal Django settings module and HTTP request;

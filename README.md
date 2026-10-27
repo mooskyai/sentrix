@@ -1,5 +1,70 @@
 # Sentrix
 
+## M7.3.2 local acceptance verified — final commit/CI pending (2026-10-27)
+
+The real direct Node/Express SDK span was independently verified in the newly
+created project; owner/foreign-user 200/404 isolation, live revoked-key 401,
+all three operator browser checks, 365-day synthetic seeding, and the latest
+290-backend/103-frontend release gate passed. **Pushed exact-SHA GitHub CI and
+release sign-off remain OPEN.** The 2026-10-26 preliminary checkpoint below is
+historical. See [current acceptance evidence](docs/M7_3_2_FINAL_ACCEPTANCE_2026_10_27.md).
+
+## Optional 365-day synthetic demo data (M7 local QA helper)
+
+Run `manage.py seed_demo_year --username admin --days 365 --create-nonmember`
+inside the API container for a bounded year of synthetic metrics/logs/traces and
+a no-membership security-test account. See [the year-seed guide](docs/DEMO_YEAR_SEED.md).
+This does not extend the UI's 7-day maximum query range or prove SDK/security acceptance.
+
+## M7.3.2 — direct Node.js SDK persistence VERIFIED; manual closeout OPEN (2026-10-26)
+
+An unchanged real Express/OpenTelemetry SDK exporter sent OTLP/HTTP protobuf
+with chunked framing to the Uvicorn ASGI receiver; independent key-derived
+ClickHouse read-back verified the stored trace in the correct project. The
+post-rebuild gate passed 277 backend and 103 frontend tests; Node tests passed
+4/4 with zero audited vulnerabilities. This verifies the direct SDK path,
+**not** full milestone acceptance. Real browser, separate-user authorization,
+revoked-key rejection, credential cleanup, evidence approval and pushed CI remain
+open. See [the operator evidence and checklist](docs/M7_NODE_CLOSEOUT_EVIDENCE.md).
+
+## M7.3.2 — direct Node OTLP framing correction (candidate)
+
+The real Node SDK wire relay persisted one Express span in ClickHouse, but the
+unaltered direct exporter still returned HTTP 200 with no matching row. The
+local Compose API previously used Django's WSGI `runserver`, which cannot
+reliably supply HTTP/1.1 chunked request bodies lacking Content-Length.
+The API now runs Django via the existing Uvicorn ASGI entry point; no schema
+or dependency change is required. A missing chunked body is rejected rather
+than acknowledged. Recreate only the API container and repeat **direct** Node
+export plus independent project-scoped read-back before claiming resolution.
+See [HTTP framing acceptance](docs/M7_NODE_HTTP_FRAMING.md).
+
+## M7.3.2 — bounded live Node OTLP wire diagnosis (candidate)
+
+The optional [real Node wire diagnostic](docs/M7_NODE_WIRE_DIAGNOSIS.md)
+forwards a real Express SDK protobuf POST to Sentrix, validates the same bytes
+with Django's decoder/ClickHouse row normalizer and attempts independently
+authenticated read-back. Real SDK persistence **remains unverified** despite
+synthetic fixture acceptance; this tool is diagnostic, not a bypass.
+
+## M7 demo Node fixtures (synthetic; runtime acceptance still open)
+
+For a visible Node-shaped example in the **reserved synthetic demo project**, rerun
+`docker compose exec -T api /opt/venv/bin/python manage.py seed_demo --username admin`.
+This adds `demo-node-express` / `integration` metrics, logs and an independent demo
+HTTP span, not actual Node SDK-exported data. See [demo seeding](DEMO_SEEDING.md).
+The real `m7-node-express-runtime` ClickHouse read-back still returns zero rows
+for reported operator runs; M7.3.2 acceptance is **NOT VERIFIED**.
+
+## M7.3.2 — Node/Express isolated SDK evidence (candidate)
+
+Run a real Express HTTP request with a manually instrumented Node OpenTelemetry
+`SERVER` span and separate, project-key-authenticated ClickHouse read-back.
+Use [M7 Node runtime acceptance](docs/M7_NODE_RUNTIME_ACCEPTANCE.md). The Node
+recipe now selects OTLP/HTTP protobuf instead of the unsupported JSON exporter.
+This is not automatic instrumentation or M7 operator acceptance; all M6/M7
+manual gates remain open.
+
 ## M7.3.1 — isolated Django/Python runtime export (candidate)
 
 Use [the Django runtime acceptance runbook](docs/M7_DJANGO_RUNTIME_ACCEPTANCE.md)

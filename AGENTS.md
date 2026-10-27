@@ -1,5 +1,22 @@
 # Sentrix — repository contributor and agent instructions
 
+## M7 synthetic fixtures are never runtime acceptance
+
+`seed_demo` may populate `demo-node-express` in the reserved primary demo
+project for UI checks. It must never write `m7-node-express-runtime`, fake an
+SDK run/trace marker or mark a real Express persistence test verified. Preserve
+tenant-scoped reads and the open M7.3.2 operator/CI/credential gates.
+
+## M7.3.2 Express boundary (candidate; NOT accepted)
+
+The `integrations/m7-node-express` fixture starts a real NodeSDK before loading
+Express and manually traces `GET /checkout` as one SERVER span over binary
+OTLP/HTTP. `backend/scripts/m7_node_readback.py` independently authenticates
+the key and checks exact project-scoped stored evidence. Never move secrets
+into frontend recipes, CLI args, logs or URLs. Before signoff require reviewed
+fixture npm lockfile, host/Docker runtime tests, complete gate, operator
+read-back, foreign-user 404 and key revocation. No M6/M7 manual gate closes.
+
 ## Static-analysis-first release verification — M7.3.1 correction
 
 `./scripts/verify.ps1` must run Ruff lint, Ruff format --check and strict mypy

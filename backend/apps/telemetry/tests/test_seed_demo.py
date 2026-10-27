@@ -38,6 +38,7 @@ def test_payloads_include_exact_environment_counts_errors_and_correlated_spans()
     assert ("demo-checkout", "production") in identities
     assert ("demo-checkout", "staging") in identities
     assert ("demo-worker", "") in identities
+    assert ("demo-node-express", "integration") in identities
     assert len(identities) == len(seed_demo.PRIMARY)
     assert all(
         0 < point.time_unix_nano < anchor
@@ -55,10 +56,28 @@ def test_payloads_include_exact_environment_counts_errors_and_correlated_spans()
     assert len(errors) == 1
     assert errors[0].trace_id.hex() == trace_id
     spans = [item.scope_spans[0].spans[0] for item in traces.resource_spans]
-    assert len(spans) == 3
+    assert len(spans) == 4
     assert spans[1].parent_span_id == spans[0].span_id
     assert spans[2].parent_span_id == spans[1].span_id
-    assert all(span.trace_id.hex() == trace_id for span in spans)
+    assert all(span.trace_id.hex() == trace_id for span in spans[:3])
+
+    # Independent synthetic demo route; never mistaken for the real M7 SDK run.
+    node = spans[3]
+    assert _dimensions(traces.resource_spans[3].resource) == ("demo-node-express", "integration")
+    assert node.trace_id.hex() != trace_id
+    assert not node.parent_span_id
+    assert node.kind == 2
+    assert node.name == "demo.node.checkout"
+    attrs = {entry.key: entry.value.string_value for entry in node.attributes}
+    assert attrs["http.request.method"] == "GET"
+    assert attrs["http.route"] == "/checkout"
+    assert attrs["sentrix.demo.synthetic"] == "true"
+    assert "sentrix.acceptance.run" not in attrs
+    node_resource_attrs = {
+        entry.key: entry.value.string_value
+        for entry in traces.resource_spans[3].resource.attributes
+    }
+    assert node_resource_attrs["sentrix.demo.synthetic"] == "true"
 
 
 def test_secondary_reuses_exact_identity_without_production_failure_log() -> None:
@@ -67,9 +86,14 @@ def test_secondary_reuses_exact_identity_without_production_failure_log() -> Non
     )
     metrics = ExportMetricsServiceRequest.FromString(payloads["metrics"])
     logs = ExportLogsServiceRequest.FromString(payloads["logs"])
+    traces = ExportTraceServiceRequest.FromString(payloads["traces"])
     assert ("demo-checkout", "production") in {
         _dimensions(item.resource) for item in metrics.resource_metrics
     }
+    assert ("demo-node-express", "integration") not in {
+        _dimensions(item.resource) for item in metrics.resource_metrics
+    }
+    assert len(traces.resource_spans) == 1
     assert all(
         record.severity_number < 17
         for item in logs.resource_logs
@@ -135,7 +159,11 @@ def test_live_seed_uses_otlp_and_isolated_project_queries() -> None:
     second = browser.get(f"/api/v1/projects/{secondary.id}/services/catalog/")
     assert first.status_code == second.status_code == 200
     assert len(first.json()["services"]) == len(seed_demo.PRIMARY) - 1  # 36h archive is out.
+    assert ("demo-node-express", "integration") in {
+        (item["service_name"], item["environment"]) for item in first.json()["services"]
+    }
     assert len(second.json()["services"]) == len(seed_demo.SECONDARY)
+    assert all(item["service_name"] != "demo-node-express" for item in second.json()["services"])
     end = datetime.now(UTC)
     week = browser.get(
         f"/api/v1/projects/{primary.id}/services/catalog/",
@@ -143,6 +171,15 @@ def test_live_seed_uses_otlp_and_isolated_project_queries() -> None:
     )
     assert week.status_code == 200
     assert len(week.json()["services"]) == len(seed_demo.PRIMARY)
+    node_detail = browser.get(
+        f"/api/v1/projects/{primary.id}/services/detail/",
+        {"service_name": "demo-node-express", "environment": "integration"},
+    )
+    assert node_detail.status_code == 200
+    assert node_detail.json()["trace_references"]
+    assert any(
+        metric["name"] == "demo.node.http.requests" for metric in node_detail.json()["metric_names"]
+    )
     detail = browser.get(
         f"/api/v1/projects/{primary.id}/services/detail/",
         {"service_name": "demo-checkout", "environment": "production"},

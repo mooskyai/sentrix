@@ -1,5 +1,117 @@
 # Sentrix V1 M7 — Integration Testing and Acceptance
 
+## M7.3.2 current acceptance checkpoint (2026-10-27; exact-SHA CI OPEN)
+
+- [x] Direct real Node/Express SDK → authenticated OTLP → independent
+  ClickHouse read-back for current primary demo project and exact trace.
+- [x] Owner authorized read; separate `m732-nonmember` trace/catalog HTTP 404.
+- [x] Three real-browser checks explicitly confirmed by the operator.
+- [x] Revoked temporary key DB state and live OTLP HTTP 401 verified.
+- [x] 365-day synthetic seeding in both demos; **not real SDK evidence**.
+- [x] Latest local gate: 290 backend, 103 frontend, Ruff/mypy/schema/build.
+- [ ] Final reviewed commit, push, exact-commit GitHub CI and release sign-off.
+
+Full current run IDs and timestamps: `docs/M7_3_2_FINAL_ACCEPTANCE_2026_10_27.md`.
+The dated 2026-10-26 tests below remain historical, not current gate status.
+
+## Local year-history seeding is not M7.3.2 evidence
+
+The opt-in `seed_demo_year --username admin --days 365 --create-nonmember`
+command exercises 365 daily synthetic metric/log/span snapshots in reserved demo
+projects and creates a nonmember account for later authorization testing.
+The synthetic history and account creation alone cannot close any SDK, browser,
+foreign-user HTTP 404, key revocation, or CI gate. See `docs/DEMO_YEAR_SEED.md`.
+
+## M7.3.2 — direct Node SDK technical gate VERIFIED; final gates OPEN (2026-10-26)
+
+- **ND-001/ND-002/NF-001/NF-002:** Direct upstream Node/Express SDK generated
+  chunked protobuf request (1,041 bytes; no Content-Length); Uvicorn ASGI
+  started successfully after replacing development WSGI serving.
+- **ND-004/ND-005/NF-003:** Direct SDK span independently read from tenant-key
+  scoped ClickHouse: project `07e54c2a-7cb5-4ff1-8c50-09f7a3a4fc4d`,
+  run `ddbaab4290524f2092254fb23ff01613`, trace
+  `2f06c0b95492feea6379d231993c5b5d`, UTC `2026-10-26T08:25:53.243Z`.
+- **NF-004:** Rebuilt container gate: **277 backend passed (1 warning), 103
+  frontend passed, 4 Node tests passed; npm audit 0 vulnerabilities; Ruff,
+  format, mypy 124, Django, ClickHouse and production build passed.**
+- **ND-006/ND-007 (OPEN):** Actual signed-in browser observation, separate
+  foreign-user 404, revoked-key HTTP 401, credential cleanup, approval,
+  post-change gate, committed SHA, push and exact-SHA GitHub CI.
+- **Auxiliary API smoke (NOT YET RUN):** `m7_node_auth_smoke.py` checks owner
+  persisted trace and catalog plus existing nonmember's API 404 through DRF;
+  this is not an actual browser-session test. See operator closeout guide.
+
+## M7.3.2 — direct SDK chunked-body regression and acceptance (candidate)
+
+- **NF-001:** Check whether unmodified `probe.cjs` uses HTTP Transfer-Encoding
+  chunked without Content-Length; output only safe transport header names and
+  the protobuf byte count, no secrets or payload.
+- **NF-002:** The local Docker API runs the existing Uvicorn ASGI application;
+  an unreadable chunked body fails with 400, not misleading OTLP 200.
+- **NF-003:** After controlled API recreation, the same temporary scoped key
+  must produce a **direct** real Express SDK span and an exact tenant-scoped
+  ClickHouse match; a relay-only pass does not close this requirement.
+- **NF-004:** Run focused/backend/frontend/Node test gates; preserve browser,
+  separate-user 404, revoked-key, teardown, review, commit/push/CI gates.
+- **Observed before this correction:** a relay-forwarded SDK span was durable,
+  but independent read-back of subsequent direct Node export still found zero.
+  Root cause remains **hypothesized** until transport inspection + operator
+  direct persistence re-test. No milestone acceptance claimed.
+
+## M7.3.2 — real Node wire diagnostic (candidate; not yet executed)
+
+- **ND-011:** A real Express process sends exactly one OTLP protobuf SERVER
+  span through an in-memory loopback relay to the actual Sentrix receiver.
+- **ND-012:** The same captured wire bytes must produce one SDK span and one
+  normalized row in the production Django decoder. A resource-only envelope
+  with zero leaf spans, wrong trace, or corrupt protobuf fails closed.
+- **ND-013:** The original temporary write key authenticates independent
+  ClickHouse read-back. Do not accept HTTP 200, fake receivers or normalized
+  in-memory rows as durable persistence.
+- **Observed:** live Node HTTP 200 twice but exact project read-back zero;
+  prior Django trace persisted. Synthetic Node-like demo data passed the
+  separate 24h project/secondary-isolation diagnostic. Full local release gate
+  passed 271 backend and 103 frontend tests before this diagnostic candidate.
+  **New diagnostic tests, live rerun and all acceptance gates: pending.**
+
+## M7 synthetic demo seed coverage — not runtime acceptance
+
+- **ND-SEED-01:** Synthetic primary demo service `demo-node-express` / `integration`
+  has metric/log samples and a distinct, explicitly marked HTTP SERVER span.
+- **ND-SEED-02:** The secondary demo tenant has no Node demo identity; the old
+  gateway/checkout/payments trace parent chain remains unchanged.
+- **ND-SEED-03:** Fresh seeder run must pass scoped OTLP ingestion/read-back
+  without leaking or persisting plaintext keys; record its independent result.
+- **ND-SEED-04:** Real `m7-node-express-runtime` with exact SDK run ID and
+  `sentrix.acceptance.run` remains absent from operator project despite HTTP
+  export acceptance. Seed rows **must not** satisfy ND-005 or close M7.3.2.
+
+## M7.3.2 operator check — partial (2026-10-25)
+
+- Baseline v2 patch: applied without error; static preflight Ruff/format/mypy
+  passed, focused Python verifier 21/21 passed, full release gate 271 backend
+  and 103 frontend passed including schema/build checks.
+- Isolated Node `npm test`: **3 passed, 1 failed**, from a test protobuf
+  schema incorrectly declaring Span timestamps `uint64`. Corrected to
+  `fixed64` (OTLP wire type 1) and added monotonic decoded timestamp checks.
+  **Repeat Node test: NOT YET REPORTED.**
+- npm audit: two moderate findings were reported by installer; review the
+  exact dependency chain and commit the verified lockfile before signoff.
+- Independent real Sentrix exporter, read-back, browser/security acceptance,
+  key cleanup, commit/push and post-correction CI: **NOT YET VERIFIED**.
+
+## M7.3.2 test matrix — CANDIDATE, operator gates OPEN
+
+- **ND-001:** Start real Express process with Node SDK before framework load; make HTTP `GET /checkout`.
+- **ND-002:** Fake receiver decodes genuine OTLP protobuf; check POST, type, Bearer, trace/run, SERVER, resource and HTTP method/route.
+- **ND-003:** Reject insecure remote URL, URL secrets, CLI key and missing key; reject OTLP 401/500 without false success.
+- **ND-004:** Scoped key-derived read-back uses UUID/UTC typed bounds and two-row limit; reject empty, duplicates, malformed, wrong project/service/trace/attributes/time.
+- **ND-005 (operator):** Review/generated locked dependency tree; repeat actual live SDK export and independent stored trace read-back.
+- **ND-006 (operator):** Independently verify browser foreign-user 404, UI trace/service evidence, revoked/expired key, no secret leakage and teardown.
+- **ND-007 (operator):** Ruff-first and full `scripts/verify.ps1`, clean commit/push, exact-SHA CI, nonsecret evidence and approval.
+
+No M7.3.2 acceptance is recorded. M6, M7.1, M7.2 and outstanding M7.3.1 human gates remain OPEN.
+
 ## M7.3.1 runtime/persistence evidence — VERIFIED, full acceptance OPEN
 
 - **DJ-009:** Known UTC ClickHouse `DateTime64(9)` naive datetime results

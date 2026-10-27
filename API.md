@@ -1,5 +1,13 @@
 # Sentrix — HTTP and Worker API Reference
 
+## M7.3.2 — existing wire contract, no new API
+
+The external Express fixture posts binary OTLP protobuf to the existing
+`POST /v1/traces` receiver with a server-held Bearer `telemetry:write` key.
+HTTP 200 only acknowledges ingestion; independent ClickHouse evidence is
+required. No new routes, request format, browser credentials or schema are
+introduced by M7.3.2.
+
 ## M7.3.1 runtime example — no new HTTP API
 
 The isolated Django runtime smoke sends standard `POST /v1/traces`

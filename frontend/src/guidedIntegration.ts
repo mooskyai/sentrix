@@ -70,12 +70,12 @@ export function integrationRecipe(
     };
   }
   return {
-    install: "npm install @opentelemetry/sdk-node @opentelemetry/auto-instrumentations-node @opentelemetry/exporter-trace-otlp-http",
+    install: "npm install @opentelemetry/sdk-node @opentelemetry/auto-instrumentations-node @opentelemetry/exporter-trace-otlp-proto",
     configure: [
       configure,
       "# Save the following as instrumentation.cjs in the SERVER project:",
       'const { NodeSDK } = require("@opentelemetry/sdk-node");',
-      'const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-http");',
+      'const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-proto");',
       'const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");',
       "const sdk = new NodeSDK({",
       '  serviceName: process.env.OTEL_SERVICE_NAME || "node-api",',

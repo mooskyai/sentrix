@@ -71,7 +71,7 @@ services:
       NOTIFICATION_WEBHOOK_TIMEOUT_SECONDS: ${NOTIFICATION_WEBHOOK_TIMEOUT_SECONDS:-5}
     command: >
       sh -c "/opt/venv/bin/python manage.py migrate --noinput &&
-             /opt/venv/bin/python manage.py runserver 0.0.0.0:8000"
+             /opt/venv/bin/uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --reload"
     ports:
       - "8000:8000"
     volumes:

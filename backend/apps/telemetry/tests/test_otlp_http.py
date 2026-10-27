@@ -310,3 +310,32 @@ class TestOtlpHttpGateway:
 
         assert response.status_code == 200
         assert response.content == b""
+
+    def test_missing_chunked_body_fails_closed_instead_of_reporting_success(self) -> None:
+        client, token, _project, _api_key = self._credential()
+        response = client.post(
+            "/v1/traces",
+            data=b"",
+            content_type=OTLP_PROTOBUF_CONTENT_TYPE,
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+            HTTP_TRANSFER_ENCODING="chunked",
+        )
+        assert response.status_code == 400
+        status_message = Status.FromString(response.content)
+        assert "Chunked OTLP request body was not received" in status_message.message
+
+    def test_chunked_header_with_actual_span_bytes_is_accepted(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        client, token, _project, _api_key = self._credential()
+        accepted: list[OtlpBatch] = []
+        monkeypatch.setattr(telemetry_views, "submit_otlp_batch", accepted.append)
+        response = client.post(
+            "/v1/traces",
+            data=_trace_request().SerializeToString(),
+            content_type=OTLP_PROTOBUF_CONTENT_TYPE,
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+            HTTP_TRANSFER_ENCODING="chunked",
+        )
+        assert response.status_code == 200
+        assert len(accepted) == 1

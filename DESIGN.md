@@ -1,5 +1,12 @@
 # Sentrix — Interface and Experience Design
 
+## M7.3.2 guided Node recipe correction (candidate)
+
+The project Settings Node recipe now installs the binary protobuf trace
+exporter matching Sentrix `/v1/traces`, not the JSON exporter. No new UI,
+secret field, automatic polling or connected/healthy state is introduced.
+Manual browser/keyboard and foreign-project checks remain open.
+
 ## Automatic workspace defaults and stale selection notice — candidate
 
 The global organization/project selectors start from the first authorized usable

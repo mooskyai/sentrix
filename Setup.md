@@ -1,5 +1,14 @@
 # Sentrix — Setup and Developer Environment
 
+## M7.3.2 Node fixture setup (candidate)
+
+Node >=22 (24 recommended), scoped `integrations/m7-node-express` package,
+reviewed/generated npm lockfile and `npm ci` are required for the probe.
+Host exporters use `localhost:8000` when port published; on the actual
+`sentrix_default` Compose network they use `api:8000`, and remote services
+require HTTPS. See `docs/M7_NODE_RUNTIME_ACCEPTANCE.md` for PowerShell and
+throwaway Node container commands. Never set the API key in a CLI argument.
+
 ## Setup roadmap and operator expectations — 2026-10-24
 
 [ROADMAP.md](ROADMAP.md) defines staged onboarding. The in-app Documentation

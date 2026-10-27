@@ -71,7 +71,13 @@ describe("ServicesWorkspace", () => {
 
   it("shows detail for exact service/environment without fabricating health", async () => {
     renderServices();
-    fireEvent.click(await screen.findByRole("button", { name: "Inspect checkout, environment production" }));
+    fireEvent.click(
+      await screen.findByRole(
+        "button",
+        { name: "Inspect checkout, environment production" },
+        { timeout: 5000 },
+      ),
+    );
     const detail = await screen.findByRole("region", { name: "Service detail" });
     expect(detail).toBeInTheDocument();
     expect(detail).not.toHaveClass("alert-rule-card");

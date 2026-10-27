@@ -1,5 +1,14 @@
 # Sentrix M7.2 — Guided Django/Node server integration
 
+## M7.3.2 Express runtime follow-up (candidate)
+
+The Node SDK sample now selects `@opentelemetry/exporter-trace-otlp-proto`
+for the existing binary-protobuf receiver, replacing `-otlp-http` (JSON).
+A real independent Express probe and scoped ClickHouse verification are in
+[M7 Node runtime acceptance](M7_NODE_RUNTIME_ACCEPTANCE.md). It manually
+instruments one `SERVER` span; it is not general Express auto-instrumentation
+certification. Browser/foreign-user and credential revocation remain OPEN.
+
 ## M7.3.1 — runtime follow-up, not part of guided recipe acceptance
 
 The Django/Python instructions now have an optional isolated WSGI runtime

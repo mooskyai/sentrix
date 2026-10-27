@@ -1,5 +1,12 @@
 # Connect a Sentrix project to OpenTelemetry
 
+## M7.3.2 Node/Express runtime evidence (candidate)
+
+For a real independent Express `GET /checkout` and manual NodeSDK OTLP
+protobuf trace, see [Node runtime acceptance](M7_NODE_RUNTIME_ACCEPTANCE.md).
+Run the independent authenticated read-back before claiming persistence.
+No raw machine key belongs in the browser; M6/M7 manual gates remain open.
+
 ## M7.3.1 Django runtime smoke
 
 For a real Django WSGI HTTP request with one manually instrumented upstream

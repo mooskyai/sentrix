@@ -1,5 +1,27 @@
 # Sentrix demo seeder (V1 M1–M6.2)
 
+## Opt-in year-long data and independent nonmember account
+
+Use `docker compose exec -T api /opt/venv/bin/python manage.py seed_demo_year --username admin --days 365 --create-nonmember`
+for daily synthetic history across two reserved demo projects. The extra year
+marker is resumable per project/signal/day. This command does **not** generate
+a real SDK trace or prove tenant security. See [year-seed instructions](docs/DEMO_YEAR_SEED.md).
+
+## Optional M7 UI seed expansion — synthetic, not Node SDK proof
+
+Re-running `docker compose exec -T api /opt/venv/bin/python manage.py seed_demo --username admin` appends a `demo-node-express` / `integration` identity to the
+**reserved synthetic primary demo project**. It creates bounded demo metrics,
+one demo log and one independent HTTP `SERVER` span named `demo.node.checkout`
+with a `sentrix.demo.synthetic=true` attribute. The secondary demo project does
+not receive this identity. Use Services and Traces to exercise navigation,
+empty/error states and time windows; the command does not create a real Node
+process, change production project data or certify any real M7.3.2 trace.
+
+The demo service is deliberately **not** named `m7-node-express-runtime` and
+never has `sentrix.acceptance.run`. The missing real Express trace must still be
+diagnosed through the real exporter, authenticated receiver and exact ClickHouse
+read-back. Do not mark M7.3.2 accepted because a synthetic row is visible.
+
 This is an **opt-in synthetic dataset for local development and browser walkthroughs**.
 Implementation is pushed at `4b34f3c`; `manage.py seed_demo --username admin` completed on
 the acceptance host and six focused plus 170 total backend tests and 44 frontend tests

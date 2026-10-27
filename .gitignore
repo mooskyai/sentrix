@@ -1,4 +1,5 @@
 .env
+integrations/m7-node-express/node_modules/
 .venv/
 __pycache__/
 *.py[cod]
